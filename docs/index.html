@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="description" content="LoFold 是一款开源本地邮件客户端。用本机 AI 查找邮件、核对原信、提炼摘要、翻译和拟回复。支持多邮箱收发与离线归档。">
+    <meta name="description" content="LoFold 是一款开源本地邮件客户端。用本机 AI 查找邮件、核对原信、提炼摘要、翻译和拟回复。基于 Rust 邮件内核、SQLCipher 加密归档和 Tauri 2。">
     <meta name="color-scheme" content="dark">
     <meta name="theme-color" content="#151916">
     <title>LoFold · 支持本机 AI 的开源邮件客户端</title>
@@ -35,6 +35,7 @@
           <div class="actions">
             <a class="button" href="#downloads">下载 LoFold <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12h15m-6-6 6 6-6 6"/></svg></a>
             <a class="text-link" href="#ai">看 AI 实例 <span aria-hidden="true">↓</span></a>
+            <a class="text-link" href="#stack">技术栈 <span aria-hidden="true">↓</span></a>
           </div>
         </div>
         <figure class="stage">
@@ -127,6 +128,48 @@
             <div class="download-state">暂无真机包</div>
           </li>
         </ul>
+      </section>
+      <section id="stack" class="stack guide frame" aria-labelledby="stack-heading">
+        <header class="guide-header">
+          <div>
+            <h2 id="stack-heading">一套 Rust 邮件内核，多端复用</h2>
+            <p>同一套邮件规则贯穿收发、原件保存、本机检索和草稿。各端接入自己的系统凭据服务和文件选择器。</p>
+          </div>
+          <a class="text-link" href="https://github.com/trsoliu/lofold/blob/main/CODEMAP.md">查看代码地图 <span aria-hidden="true">↗</span></a>
+        </header>
+        <dl class="stack-grid">
+          <div>
+            <dt>React 19 · TypeScript · Tauri 2</dt>
+            <dd>桌面和移动端共用邮件工作区。HarmonyOS NEXT 以 ArkUI 和 N-API 接入同一套 Rust 归档库。</dd>
+          </div>
+          <div>
+            <dt>SQLCipher · SQLite FTS5</dt>
+            <dd>邮件、附件、草稿和索引写入本机加密归档。全文索引覆盖正文和附件名，中文短词也可查找。</dd>
+          </div>
+          <div>
+            <dt>Zstandard · SHA-256</dt>
+            <dd>原件按最多 256 KiB 分块，经阈值判断后压缩或原样保存。导出时校验摘要并还原原始 EML 字节。</dd>
+          </div>
+          <div>
+            <dt>IMAP · SMTP · TLS · MIME</dt>
+            <dd>设备直接向邮箱服务商收发。服务器回执不明时，保留草稿并阻止重复提交。</dd>
+          </div>
+          <div>
+            <dt>Ollama · GGUF</dt>
+            <dd>先在选定范围检索，再让本机模型基于候选邮件回答。每条原信引用可点开核对。</dd>
+          </div>
+          <div>
+            <dt>MCP stdio · Agent Skills</dt>
+            <dd>同一台 Mac 上的 Agent 可调用 7 个工具。逐封授权读取原信，生成的草稿交回 LoFold 审阅。</dd>
+          </div>
+        </dl>
+        <div class="stack-proof">
+          <p><strong>2,854 B → 550 B</strong><span>一封合成中文 EML 的样本载荷</span></p>
+          <p>分块策略节省 80.73%，8 类样本均逐字节还原。实际归档占用还取决于数据库、索引和文件系统。
+            <a class="text-link" href="https://github.com/trsoliu/lofold/blob/main/docs/research/%E6%9C%AC%E5%9C%B0%E5%8E%8B%E7%BC%A9%E5%AE%9E%E9%AA%8C.md">查看压缩实验 <span aria-hidden="true">↗</span></a>
+          </p>
+        </div>
+        <p class="stack-build">Vite 构建界面。pnpm 与 Turborepo 调度前端工作区，Cargo 管理 Rust 共享库，GitHub Actions 校验构建和测试。</p>
       </section>
       <section id="features" class="guide frame" aria-labelledby="features-heading">
         <header class="guide-header">

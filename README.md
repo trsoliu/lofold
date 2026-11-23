@@ -2,13 +2,31 @@
 
 开源本地邮件客户端。在设备上收发、搜索和归档邮件。
 
-[项目主页](https://trsoliu.github.io/lofold/) · [按系统下载](https://trsoliu.github.io/lofold/#downloads) · [GitHub Releases](https://github.com/trsoliu/lofold/releases) · [Agent 接入](https://trsoliu.github.io/lofold/#agent) · [从源码构建](#本机运行) · [联系方式](#联系方式) · [开源许可](#开源许可)
+[项目主页](https://trsoliu.github.io/lofold/) · [按系统下载](https://trsoliu.github.io/lofold/#downloads) · [GitHub Releases](https://github.com/trsoliu/lofold/releases) · [技术栈](#技术栈与架构) · [Agent 接入](https://trsoliu.github.io/lofold/#agent) · [从源码构建](#本机运行) · [联系方式](#联系方式) · [开源许可](#开源许可)
 
 [代码地图](CODEMAP.md) · [接口与数据](INTERFACES.md) · [测试](TESTING.md) · [发布](RELEASE.md) · [变更记录](CHANGELOG.md)
 
 **All your inboxes, in one place.** 来信在手，心里有数。
 
 macOS、Windows、Android 共用邮件工作区。iOS 提供模拟器开发版，鸿蒙提供原生离线版源码。各端安装条件见[发布说明](RELEASE.md)。用户打开应用就能离线查看、导入和整理邮件；添加已有邮箱后，设备直接向邮箱服务商收发邮件。以网易邮箱大师的个人使用流程和会员权益为第一阶段功能目标。另外增加自动无损压缩，减少邮件和文件对本机空间的占用，原件可逐字节恢复。
+
+## 技术栈与架构
+
+**一套 Rust 邮件内核，支撑多端客户端。** 邮件协议、加密归档、检索和无损编码各有独立的工作区模块。收发时由设备直连邮箱服务商。离线时，已归档的邮件、附件和草稿仍可在本机查阅。
+
+| 层 | 技术 | LoFold 怎样用 |
+| --- | --- | --- |
+| 应用宿主 | React 19 · TypeScript · Vite · Tauri 2 | macOS、Windows、Android 和 iOS 模拟器复用自适应工作区及 Rust 宿主。HarmonyOS NEXT 用 ArkUI 和 N-API 接入同一套 Rust 归档库。[客户端](apps/desktop/) · [鸿蒙离线版](apps/harmony/) |
+| 加密与检索 | Rust · SQLCipher · SQLite FTS5 | 邮件、索引、草稿保存在本机加密数据库。系统凭据服务保护归档密钥。FTS5 trigram 索引覆盖正文和附件名，短关键词另走子串查询。[归档源码](packages/mail-store/) |
+| 原件存储 | Zstandard · SHA-256 | 原件按最多 256 KiB 分块，达到节省阈值才采用压缩记录。SHA-256 用于原件去重和重组校验，导出可以还原最初的 EML 字节。[无损分块源码](packages/mail-blob-codec/) |
+| 收发协议 | IMAP · SMTP · TLS · MIME | 设备直接向邮箱服务商同步和发信。提交结果不明时保留草稿并阻止重复提交，避免服务器已收件时又发一封。[邮件协议源码](packages/mail-network/) |
+| 本机 AI | Ollama · GGUF · 本机全文检索 | 在选定邮箱或归档范围内先检索，再把候选片段交给回环地址上的本机模型。答案可打开原信，写作资料按发件账号保存。[本机 AI](docs/15-本机AI.md) |
+| Agent 接口 | MCP stdio · Unix socket · Agent Skills | macOS 上的外部 Agent 经本机通道调用 7 个工具。原信按封共享，草稿交回应用编辑器审阅。[Agent MCP](docs/16-Agent-MCP.md) · [LoFold Skill](docs/lofold-skill/README.md) |
+| 工程与交付 | pnpm · Turborepo · Cargo · GitHub Actions | Monorepo 同时维护客户端、Rust 共享包和发布工作流。构建使用锁定依赖，覆盖类型检查、测试和各端安装产物验证。[代码地图](CODEMAP.md) · [验证指南](TESTING.md) · [发布说明](RELEASE.md) |
+
+**原件保真有实测数据。** 分块对照中，合成中文纯文本 EML 的载荷从 **2,854 B 降到 550 B**（节省 80.73%），带 JPEG 的完整 EML 从 **231,888 B 降到 174,816 B**（节省 24.61%）。8 类样本均逐字节还原。这组数字衡量样本载荷，实际归档占用还受数据库、索引和文件系统影响。[实验口径和复跑脚本](docs/research/本地压缩实验.md)
+
+## 文档导航
 
 | 想先看什么 | 文档 |
 | --- | --- |
