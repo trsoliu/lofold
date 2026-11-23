@@ -2,7 +2,7 @@
 
 2026 年 11 月 21 日确认产品名为 **LoFold**。名称由六个字母组成，读作 Lo-Fold。Lo 取自 Local，Fold 取折信收好之意。中文寓意「来信在手，心里有数」，对应在本机管理和查找邮件。英文 slogan 为 **All your inboxes, in one place.**
 
-标志由两块折纸轮廓和一条弯折留白组成，适用于应用图标、侧栏和浏览器标签页。[SVG 标志](../prototype/assets/brands/lofold.svg) · [十种主题预览](../prototype/directions.html)
+标志由两块折纸轮廓和一条弯折留白组成，适用于应用图标、侧栏和浏览器标签页。[SVG 标志](../packages/branding/lofold.svg) · [十种主题预览](../apps/design-preview/directions.html)
 
 ## 先看专业配色资料
 

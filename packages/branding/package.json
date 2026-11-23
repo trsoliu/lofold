@@ -1,0 +1,9 @@
+{
+  "name": "@lofold/branding",
+  "version": "0.1.0",
+  "private": true,
+  "exports": {
+    "./design-options": "./design-options.js",
+    "./logo.svg": "./lofold.svg"
+  }
+}

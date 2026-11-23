@@ -1,0 +1,26 @@
+{
+  "name": "@lofold/desktop",
+  "version": "0.5.9",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite --host 127.0.0.1 --port 1420 --strictPort",
+    "typecheck": "tsc --noEmit",
+    "build": "tsc --noEmit && vite build",
+    "tauri": "tauri"
+  },
+  "dependencies": {
+    "@lofold/branding": "workspace:*",
+    "@tauri-apps/api": "^2.0.0",
+    "lucide-react": "^0.468.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
+  },
+  "devDependencies": {
+    "@tauri-apps/cli": "^2.0.0",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "typescript": "^5.8.0",
+    "vite": "^7.0.0"
+  }
+}

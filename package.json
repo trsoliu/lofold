@@ -2,9 +2,18 @@
   "name": "lofold",
   "private": true,
   "packageManager": "pnpm@11.23.0",
+  "engines": { "node": ">=22.12.0" },
   "scripts": {
-    "dev": "pnpm --filter @lofold/client tauri dev",
-    "build": "pnpm --filter @lofold/client tauri build --bundles app",
-    "check": "pnpm --filter @lofold/client check"
+    "dev": "pnpm --filter @lofold/desktop tauri dev",
+    "dev:preview": "pnpm --filter @lofold/design-preview dev",
+    "build": "pnpm --filter @lofold/desktop tauri build --bundles app",
+    "build:workspace": "turbo run build",
+    "check": "turbo run typecheck",
+    "test": "cargo test --workspace --locked",
+    "verify:workspace": "node scripts/verify-workspace.mjs",
+    "ci:check": "pnpm verify:workspace && pnpm check && pnpm build:workspace && cargo fmt --all -- --check && pnpm test"
+  },
+  "devDependencies": {
+    "turbo": "2.11.10"
   }
 }

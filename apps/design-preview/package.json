@@ -1,0 +1,12 @@
+{
+  "name": "@lofold/design-preview",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "build": "node build.mjs",
+    "dev": "pnpm run build && python3 -m http.server 1421 --bind 127.0.0.1 --directory dist"
+  },
+  "dependencies": {
+    "@lofold/branding": "workspace:*"
+  }
+}

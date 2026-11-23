@@ -4,21 +4,23 @@
 
 [项目主页](https://trsoliu.github.io/lofold/) · [从源码构建](#本机运行) · [联系方式](#联系方式) · [开源许可](#开源许可)
 
+[代码地图](CODEMAP.md) · [接口与数据](INTERFACES.md) · [测试](TESTING.md) · [发布](RELEASE.md) · [变更记录](CHANGELOG.md)
+
 **All your inboxes, in one place.** 来信在手，心里有数。
 
 做一个可安装在 Android、iOS、macOS、Windows 上的免费开源邮件客户端。用户打开应用就能离线查看、导入和整理邮件；添加已有邮箱后，设备直接向邮箱服务商收发邮件。以网易邮箱大师的个人使用流程和会员权益为第一阶段功能目标。另外增加自动无损压缩，减少邮件和文件对本机空间的占用，原件可逐字节恢复。
 
 | 想先看什么 | 文档 |
 | --- | --- |
-| 查看原创图标及十种主题色，切换桌面、手机和场景 | [LoFold 主题预览](prototype/directions.html) · [配色来源与筛选](docs/14-Rill品牌与主题配色.md) |
+| 查看原创图标及十种主题色，切换桌面、手机和场景 | [LoFold 主题预览](apps/design-preview/directions.html) · [配色来源与筛选](docs/14-Rill品牌与主题配色.md) |
 | 查阅首轮高保真交接与后续画板 | [交付与验证](docs/11-原型定稿与高保真交接.md) |
-| 查阅定稿原型与后续高保真画板 | [原型审阅入口](prototype/review.html) · [原型定稿与高保真交接](docs/11-原型定稿与高保真交接.md) |
-| 体验多邮箱写信、固定常用搜索、等回复与出发前的离线准备 | [打开交互原型](prototype/index.html) · [原型说明](docs/08-交互原型.md) |
+| 查阅定稿原型与后续高保真画板 | [原型审阅入口](apps/design-preview/review.html) · [原型定稿与高保真交接](docs/11-原型定稿与高保真交接.md) |
+| 体验多邮箱写信、固定常用搜索、等回复与出发前的离线准备 | [打开交互原型](apps/design-preview/index.html) · [原型说明](docs/08-交互原型.md) |
 | 查看首批 163、QQ 邮箱的接入配置和验证范围 | [首批邮箱接入验证](docs/10-首批邮箱接入验证.md) |
 | 四端系统、数据流、发件状态和 AI 如何实现（四张图） | [技术架构与选型图解](docs/07-技术架构与选型图解.md) |
 | 三条候选路线、优缺点、证据和最终选择条件 | [完整方案与选型评审](docs/06-完整方案与选型评审.md) |
-| 自动无损压缩对哪些邮件和文件有效、节省量怎样计算 | [本地压缩对照实验](研究/本地压缩实验.md) |
-| 中文检索、附件、原件导出、投递与开源构建分别测到了哪一步 | [本机实验记录与复跑方法](研究/实验记录.md) |
+| 自动无损压缩对哪些邮件和文件有效、节省量怎样计算 | [本地压缩对照实验](docs/research/本地压缩实验.md) |
+| 中文检索、附件、原件导出、投递与开源构建分别测到了哪一步 | [本机实验记录与复跑方法](docs/research/实验记录.md) |
 | 产品怎么用、要做哪些功能、做到什么程度才可以发布 | [产品需求与验收](docs/01-产品需求与验收.md) |
 | 大师会员的哪些权益能免费实现，哪些依赖原服务 | [竞品与会员功能对照](docs/02-竞品与会员功能对照.md) |
 | 一封信从服务器怎样到手机，断网、换机、重复发送如何处理 | [架构设计](docs/03-架构设计.md) |
@@ -33,7 +35,7 @@
 
 ## macOS 开发版
 
-桌面采用三栏工作区。左侧先提供所有收件箱和所有未读，再在「我的邮箱」下展开各账号的收件、未读、红旗、草稿、已发送、自定义、垃圾邮件和已删除文件夹。直接拖动邮箱账号行可调整顺序，单击展开或收起。聚焦账号行后也可按 Option＋↑／↓ 排序。排序保存在本机，窄窗口的「邮箱导航」沿用该顺序。[界面约束](AGENTS.md)
+桌面采用三栏工作区。左侧先提供所有收件箱和所有未读，再在「我的邮箱」下展开各账号的收件、未读、红旗、草稿、已发送、自定义、垃圾邮件和已删除文件夹。直接拖动邮箱账号行可调整顺序，单击展开或收起。聚焦账号行后也可按 Option＋↑／↓ 排序。排序保存在本机，窄窗口的「邮箱导航」沿用该顺序。[界面约束](DESIGN.md)
 
 所有草稿、所有已发送、本机归档及各工具仍可从侧栏打开。macOS 顶部工具栏集中提供邮箱范围、收取、搜索与附件筛选，中间直接显示邮件列表，右侧阅读正文及附件。按 ⌘K 定位搜索，按 Esc 清空搜索。窄窗口的列表和正文依次显示。[Codex 桌面工作区参考](https://openai.com/index/codex-for-almost-everything/)
 
@@ -87,17 +89,19 @@ pnpm dev
 
 ```sh
 pnpm check
-cargo test --locked -p lofold-mail-network -p lofold-mail-store -p mail-blob-codec
+pnpm test
 pnpm build -- --locked
 ```
 
+`pnpm ci:check` 核对工作区、文档链接、前端构建和 Rust 测试。应用在 `apps/`，共享模块在 `packages/`。开发协作见 [AGENTS.md](AGENTS.md)，设计、数据契约与历史规划入口见 [文档索引](docs/README.md)。
+
 应用产物为 `target/release/bundle/macos/LoFold.app`。更新后先退出旧进程再打开新应用，可在 Finder 的应用简介查看版本号。本地开发包使用临时签名。重新构建后访问已有归档时，macOS 可能要求重新授权读取 LoFold 的钥匙串密钥。正式分发仍需 Developer ID 签名和 Apple 公证。[Tauri macOS 签名说明](https://v2.tauri.app/distribute/sign/macos/)
 
-导入 [中文邮件与 CSV 附件样例](crates/mail-store/tests/fixtures/chinese-attachment.eml)，搜索「差旅」，保存附件和原件。退出并重开 LoFold 后，邮件仍可离线查看。此样例使用虚构地址。
+导入 [中文邮件与 CSV 附件样例](packages/mail-store/tests/fixtures/chinese-attachment.eml)，搜索「差旅」，保存附件和原件。退出并重开 LoFold 后，邮件仍可离线查看。此样例使用虚构地址。
 
 2026-11-21 在 Apple 芯片 Mac 上实测导入样例、查看中文附件、退出重开后以「差旅」找回邮件。界面导出的 745 字节 EML 和 32 字节 CSV 均与样例逐字节一致。归档与压缩的 11 项 Rust 测试通过。
 
-[客户端源码](apps/client)采用 React 和 Tauri，[归档内核](crates/mail-store)可独立运行测试。完整 IMAP 同步以及 iOS、Android、Windows 实装属于后续里程碑。原型可用于审阅计划中的功能。研发文档指向 `output/` 的历史截图和构建产物保留在本机。
+[客户端源码](apps/desktop)采用 React 和 Tauri，[归档内核](packages/mail-store)可独立运行测试。完整 IMAP 同步以及 iOS、Android、Windows 实装属于后续里程碑。原型可用于审阅计划中的功能。研发文档指向 `output/` 的历史截图和构建产物保留在本机。
 
 ## 联系方式
 

@@ -1,0 +1,27 @@
+name: Verify LoFold workspace
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: macos-15
+    timeout-minutes: 25
+    env:
+      TURBO_TELEMETRY_DISABLED: "1"
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        with:
+          node-version-file: .node-version
+      - name: Install pnpm
+        run: npm install --global "$(node -p 'require("./package.json").packageManager')"
+      - name: Install locked dependencies
+        run: pnpm install --frozen-lockfile
+      - name: Verify layout, build, and test
+        run: pnpm ci:check

@@ -2,6 +2,7 @@
 /output/
 /.playwright-cli/
 /.local/
+**/.turbo/
 **/node_modules/
 **/dist/
 **/.DS_Store
