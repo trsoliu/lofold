@@ -7,6 +7,7 @@ LoFold 的主接口是桌面渲染进程与本机宿主间的 Tauri IPC。公共
 | 归档列表、阅读、导出 | [archive.ts](apps/desktop/src/archive.ts) | [lib.rs](apps/desktop/src-tauri/src/lib.rs) |
 | 草稿、投递、目录和状态 | [mail-workspace.ts](apps/desktop/src/mail-workspace.ts) | [workspace.rs](apps/desktop/src-tauri/src/workspace.rs) · [mailboxes.rs](apps/desktop/src-tauri/src/mailboxes.rs) |
 | 账号授权与连接测试 | [accounts.tsx](apps/desktop/src/accounts.tsx) | [accounts.rs](apps/desktop/src-tauri/src/accounts.rs) |
+| 读写当前发件身份的资料和记忆 | [writing-profile.ts](apps/desktop/src/writing-profile.ts) | [writing.rs](apps/desktop/src-tauri/src/writing.rs) |
 | 本机模型、邮件问答和文本生成 | [ai-panel.tsx](apps/desktop/src/ai-panel.tsx) | [ai.rs](apps/desktop/src-tauri/src/ai.rs) |
 | 长图、暗水印和打印 | [message-body.tsx](apps/desktop/src/message-body.tsx) | [message_image.rs](apps/desktop/src-tauri/src/message_image.rs) |
 

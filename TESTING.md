@@ -17,6 +17,7 @@ pnpm build -- --locked
 | TypeScript、主题或共享包 | `pnpm check` 和 `pnpm build:workspace`。原型再验证回环服务和生成的离线入口。 |
 | Rust 存储、MIME 或网络 | `cargo fmt --all -- --check` 和 `pnpm test`。真实协议路径用回环 TLS 合成邮箱复验。 |
 | 原生窗口、权限或打包 | `pnpm build -- --locked`，核对 `LoFold.app`、其资源及受影响流程。 |
+| 写作资料和记忆 | `pnpm test` 检查收件人范围、归档迁移和修订冲突。手动复验选中并记住表述、切换发件账号、添加抄送或密送、预览润色、撤销和重新打开草稿。 |
 | 本机 AI | 使用合成邮件检查账号范围、无命中、原信引用、推理取消以及草稿保存。真实 Ollama 联测见 [本机 AI 文档](docs/15-本机AI.md)。 |
 | Pages | 检查桌面、窄屏和深色模式。部署后验证公开入口、样式和联系图片。 |
 

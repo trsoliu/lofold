@@ -265,7 +265,7 @@ function RemoveAccountDialog({ account, cancel, removed }: {
     <form onSubmit={(event) => void remove(event)}>
       <h2 id="remove-account-heading">移除本机邮箱？</h2>
       <p><bdi>{account.address}</bdi></p>
-      <p className="muted">此邮箱将停止在 LoFold 收发。本机授权会清除，邮箱服务商保留账号和邮件。已下载的邮件和附件可在「本机归档」查阅。</p>
+      <p className="muted">此邮箱将停止在 LoFold 收发。此邮箱的本机授权和写作资料（含签名、常用表述）会一并清除。邮箱服务商保留账号和邮件。已下载的邮件和附件可在「本机归档」查阅。</p>
       {loading && <p className="muted" role="status">正在检查本机资料…</p>}
       {!!impact?.drafts && <p>{impact.drafts} 封草稿将留在「所有草稿」，并取消关联的发件邮箱。</p>}
       {!!impact?.savedSearches && <p>将移除这个账号专属的 {impact.savedSearches} 个固定搜索。</p>}

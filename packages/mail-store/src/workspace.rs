@@ -514,7 +514,7 @@ fn draft_row(row: &Row<'_>) -> rusqlite::Result<Draft> {
     })
 }
 
-fn valid_prefilled_recipient(address: &str) -> bool {
+pub(crate) fn valid_prefilled_recipient(address: &str) -> bool {
     address.len() <= 254
         && !address.contains([',', ';', '，', '；'])
         && !address.chars().any(char::is_control)
