@@ -5,6 +5,7 @@
 [GitHub 工作流](.github/workflows/verify.yml) 在拉取请求和 `main` 更新时运行同一套 `pnpm ci:check`，Node.js 版本由 [.node-version](.node-version) 固定。
 
 ```sh
+export PATH="$HOME/.cargo/bin:$PATH"
 pnpm install --frozen-lockfile
 pnpm ci:check
 pnpm build -- --locked

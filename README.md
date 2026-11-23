@@ -88,8 +88,7 @@ pnpm dev
 构建本机应用和复验归档链路。
 
 ```sh
-pnpm check
-pnpm test
+pnpm ci:check
 pnpm build -- --locked
 ```
 
