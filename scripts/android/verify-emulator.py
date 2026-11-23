@@ -104,7 +104,13 @@ try:
     screenshot("imported.png")
     adb("shell", "am", "force-stop", APP)
     archive()
-    tap(wait_for("搜索邮件", "搜索当前范围"))
+    root = hierarchy()
+    search = find(root, "搜索邮件", "搜索当前范围")
+    if search is None:
+        search = root.find('.//node[@class="android.widget.EditText"]')
+    if search is None:
+        raise RuntimeError("Search field missing")
+    tap(search)
     adb("shell", "input", "text", TITLE)
     wait_for(TITLE)
     screenshot("reopened-search.png")

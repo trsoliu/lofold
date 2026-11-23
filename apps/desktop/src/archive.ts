@@ -42,6 +42,7 @@ export const archive = {
     invoke<MailPage>('list_mail', { query, offset, folder, account, attachmentsOnly, mailbox }),
   read: (id: number) => invoke<MailDetail>('read_mail', { id }),
   conversation: (id: number, account: number | null) => invoke<MailConversation>('read_conversation', { id, account }),
+  pickImport: () => invoke<{ id: number; duplicate: boolean } | null>('pick_import_eml'),
   import: async (file: File) => {
     if (file.size > MAX_EML_BYTES) throw new Error('每封 EML 最大支持 16 MiB。')
     return invoke<{ id: number; duplicate: boolean }>('import_eml', await file.arrayBuffer())

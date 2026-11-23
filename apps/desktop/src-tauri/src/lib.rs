@@ -148,6 +148,40 @@ async fn import_eml(
 }
 
 #[tauri::command]
+async fn pick_import_eml(
+    app: AppHandle,
+    state: State<'_, LocalArchive>,
+) -> Result<Option<ImportResult>, String> {
+    let bytes = tauri::async_runtime::spawn_blocking(move || {
+        use std::io::Read;
+        let Some(selected) = app
+            .dialog()
+            .file()
+            .set_title("导入 EML")
+            .add_filter("EML 邮件", &["eml"])
+            .blocking_pick_file()
+        else {
+            return Ok(None);
+        };
+        let (_, file) = open_selection(selected)?;
+        let mut bytes = Vec::new();
+        file.take((MAX_EML_BYTES + 1) as u64)
+            .read_to_end(&mut bytes)
+            .map_err(|_| "无法读取所选 EML 文件。".to_string())?;
+        if bytes.len() > MAX_EML_BYTES {
+            return Err("每封 EML 最大支持 16 MiB。".to_owned());
+        }
+        Ok(Some(bytes))
+    })
+    .await
+    .map_err(|_| "导入文件中断。".to_owned())??;
+    match bytes {
+        Some(bytes) => state.run(move |store| store.import(&bytes)).await.map(Some),
+        None => Ok(None),
+    }
+}
+
+#[tauri::command]
 async fn list_mail(
     state: State<'_, LocalArchive>,
     query: String,
@@ -292,6 +326,7 @@ pub fn run() {
         })
         .invoke_handler(tauri::generate_handler![
             import_eml,
+            pick_import_eml,
             list_mail,
             read_mail,
             read_conversation,
