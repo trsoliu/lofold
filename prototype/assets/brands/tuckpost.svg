@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96">
+  <title>Tuckpost</title>
+  <rect x="2" y="2" width="92" height="92" rx="24" fill="#ffbf85"/>
+  <path d="M20 28h55v32H20z" fill="#fff7ed"/>
+  <path d="M20 47h17l11 12 11-12h16v20a7 7 0 0 1-7 7H27a7 7 0 0 1-7-7z" fill="#232637"/>
+  <path d="M56 29h19v18z" fill="#a34a30"/>
+</svg>

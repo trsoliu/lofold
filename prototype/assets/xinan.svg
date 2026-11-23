@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96" width="96" height="96">
+  <title>信岸</title>
+  <rect x="1" y="1" width="94" height="94" rx="23" fill="#234438" stroke="#527263" stroke-width="2"/>
+  <path fill="#a8d0b8" d="M25 34.5v-2.7c0-3.1 2.1-5.8 5.1-6.5l34.1-8.1c3.4-.8 6.9 1.2 7.9 4.6l3.5 12.7H25Z"/>
+  <path fill="#f8f4e8" d="M25 40h46a7 7 0 0 1 7 7v23a7 7 0 0 1-7 7H25a7 7 0 0 1-7-7V47a7 7 0 0 1 7-7Z"/>
+  <path fill="none" stroke="#234438" stroke-linecap="round" stroke-linejoin="round" stroke-width="5.5" d="m24 46 20.6 15a5.8 5.8 0 0 0 6.8 0L72 46"/>
+</svg>

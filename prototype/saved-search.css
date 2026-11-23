@@ -1,0 +1,13 @@
+.shortcut-heading{display:flex;align-items:center;justify-content:space-between}
+.shortcut-heading .nav-label{margin-block:0}
+.shortcut-heading .icon-btn{margin-right:2px}
+.saved-shortcut span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.search-scope-actions{display:flex;align-items:center;justify-content:space-between;gap:6px;flex-wrap:wrap}
+.search-scope-actions .scope-inline{min-width:0}
+.search-scope-actions .btn-small{white-space:nowrap}
+.saved-search-fields{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:12px}
+.saved-search-fields select{width:100%;min-width:0}
+@media(max-width:800px){
+  .shortcut-heading .icon-btn,.search-scope-actions .btn-small,#save-search-form :is(button,input,select){min-height:40px}
+  .shortcut-heading .icon-btn{min-width:40px}
+}

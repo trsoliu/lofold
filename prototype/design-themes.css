@@ -1,0 +1,120 @@
+/* Theme color roles map all ten palettes to one set of mail components. */
+:root[data-design="hi-fi"][data-concept] {
+  --ink: var(--rill-ink);
+  --muted: var(--rill-muted);
+  --faint: var(--rill-muted);
+  --line: var(--rill-border);
+  --accent: var(--rill-marker);
+  --accent-hover: var(--rill-chip-hover);
+  --accent-tint: var(--rill-selected);
+  --surface: var(--rill-surface);
+  --paper: var(--rill-paper);
+  --rail: var(--rill-rail);
+  --soft: var(--rill-soft);
+  --green: var(--accent);
+  --button-ink: var(--rill-chip-text);
+  --unread: var(--accent);
+  --thumb-bg: var(--soft);
+  --serif: "Avenir Next", "PingFang SC", "Microsoft YaHei", sans-serif;
+  --sans: "Avenir Next", "PingFang SC", "Microsoft YaHei", sans-serif;
+  --error-text: #a21b2e;
+
+  #sidebar {
+    --ink: var(--rill-ink);
+    --muted: var(--rill-muted);
+    --faint: var(--rill-muted);
+    --line: var(--rill-border);
+    --soft: var(--rill-soft);
+    --surface: var(--rill-rail);
+    --accent: var(--rill-marker);
+    --accent-hover: var(--rill-chip-hover);
+    --accent-tint: var(--rill-selected);
+    --button-ink: var(--rill-chip-text);
+  }
+
+  .brand {
+    font: 750 clamp(18px, 1.58vw, 24px)/1 var(--sans);
+    gap: 8px;
+    margin-inline: 2px;
+    letter-spacing: -.045em;
+  }
+
+  .brand .brandmark { width: 30px; height: 30px; }
+
+  #sidebar .nav-btn.active {
+    box-shadow: inset 2px 0 var(--accent);
+  }
+
+  .tree-avatar {
+    border: 1px solid var(--line);
+    background: var(--soft);
+  }
+
+  :is(.primary, .mx-primary-btn, .mx-query-submit, .reader-quick-reply, .mobile-compose) {
+    background: var(--rill-chip);
+    color: var(--rill-chip-text);
+  }
+
+  :is(.primary, .mx-primary-btn, .mx-query-submit, .reader-quick-reply, .mobile-compose):hover {
+    background: var(--rill-chip-hover);
+  }
+
+  .date-group {
+    border-top: 0;
+  }
+
+  .mail-row:focus-visible,
+  .reader-quick-reply:focus-visible,
+  .rail-compose:focus-visible {
+    outline-color: var(--rill-marker);
+  }
+
+  .reader-heading h2 {
+    font-family: var(--sans);
+    letter-spacing: -.038em;
+  }
+
+  .reader-toolbar {
+    background: var(--paper);
+  }
+
+  .reader-filetype {
+    font-family: ui-monospace, monospace;
+  }
+
+  .reader-file {
+    background: var(--paper);
+  }
+
+  :is(.hint-error, .mx-compose .mx-compose-error:not(:empty)) {
+    color: var(--error-text);
+  }
+}
+
+:root[data-design="hi-fi"][data-concept][data-theme="dark"] {
+  --error-text: #ff9da7;
+}
+
+:root[data-design="hi-fi"][data-concept="gold"] {
+  .reader-toolbar {
+    border-bottom-color: var(--rill-marker);
+  }
+
+  .brand, .reader-heading h2 {
+    color: var(--rill-chip);
+  }
+}
+
+@media (min-width: 801px) and (max-width: 1120px) {
+  :root[data-design="hi-fi"][data-concept] {
+    .brand { gap: 7px; margin-inline: 2px; }
+    .brand .brandmark { width: 27px; height: 27px; }
+  }
+}
+
+@media (max-width: 800px) {
+  :root[data-design="hi-fi"][data-concept] {
+    .reader-heading h2 { font-size: clamp(23px, 5.8vw, 30px); }
+    #sidebar .mobile-drawer-head .icon-btn { min-width: 44px; min-height: 44px; }
+  }
+}

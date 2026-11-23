@@ -1,0 +1,23 @@
+.offline-panel {margin:0 0 24px;padding:0 0 22px;border-bottom:1px solid var(--line)}
+.offline-fields {display:flex;gap:12px;flex-wrap:wrap;margin:12px 0}
+.offline-fields label {display:flex;align-items:center;gap:7px;min-width:0;font-size:13px;color:var(--muted)}
+.offline-fields select {max-width:100%;min-height:36px;padding:4px 8px;color:var(--ink);border:1px solid var(--line);border-radius:7px;background:var(--surface)}
+.offline-report {padding:11px 14px;margin:10px 0;background:var(--mx-fill);border-left:2px solid var(--accent)}
+.offline-report strong {font-weight:620;font-size:15px}
+.offline-report p,.offline-files small,.offline-panel [data-offline-status],.offline-hint {color:var(--muted);font-size:13px;line-height:1.65}
+.offline-panel [data-offline-status]:not(:empty),.offline-hint {margin-top:9px}
+.offline-pin {display:inline-flex;align-items:center;gap:7px;min-height:40px;font-size:13px;vertical-align:middle}
+.offline-panel button + .offline-pin {margin-inline-start:14px}
+.offline-pin input {width:16px;height:16px;accent-color:var(--accent)}
+.offline-panel details {margin:5px 0 0}
+.offline-files ul {margin:0;padding:0;list-style:none}
+.offline-files li {display:flex;align-items:center;justify-content:space-between;gap:8px;padding:6px 0;border-top:1px solid var(--line)}
+.offline-files li span {min-width:0;overflow-wrap:anywhere}
+.offline-files li b,.offline-files small {display:block}
+.offline-files li b {color:var(--ink);font-weight:550}
+.offline-files li button {flex:none}
+@media(max-width:800px){
+  .offline-panel :is(select,button,summary) {min-height:40px}
+  .offline-panel summary {align-content:center}
+}
+:root[data-theme=dark] .offline-panel .mx-primary-btn {color:var(--surface)}

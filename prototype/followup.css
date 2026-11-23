@@ -1,0 +1,18 @@
+.follow-reader{display:flex;align-items:center;gap:12px 18px;flex-wrap:wrap;margin:18px 0;color:var(--muted);font-size:13px}
+.follow-reader label,.follow-compose{display:inline-flex;align-items:center;gap:7px}
+.follow-reader select,.follow-compose select{padding:4px 8px;border:1px solid var(--line);border-radius:6px;background:var(--surface);color:var(--ink)}
+.follow-reader p,.follow-subject p{margin:0;color:var(--muted);font-size:13px}
+.follow-group{margin:22px 0 0}
+.follow-group h2{margin:0 0 4px;padding-bottom:7px;border-bottom:1px solid var(--line);font-size:16px}
+.follow-group h2 small{font-size:13px;color:var(--muted);font-weight:400}
+.follow-row{display:flex;align-items:center;justify-content:space-between;gap:12px;min-width:0;padding:12px 0;border-bottom:1px solid var(--line)}
+.follow-subject{min-width:0;overflow-wrap:anywhere}.follow-subject small{display:block;color:var(--muted);margin:4px 0}
+.follow-link,.follow-close{color:var(--accent);padding:2px 0;text-align:left}
+.follow-subject>.follow-link{font-size:16px;color:var(--ink);font-weight:600}.follow-link:hover,.follow-close:hover{text-decoration:underline}
+.follow-close{flex:none;font-size:13px}.follow-source{font-size:12px;color:var(--muted);margin-top:20px}
+@media(max-width:800px){.follow-reader select,.follow-compose select,.follow-page button,.follow-reader button{min-height:40px}.follow-reader{gap:4px 10px}.follow-reader label{min-height:40px}.follow-row{align-items:flex-start}.follow-source{line-height:1.6}}
+@media(max-width:600px){
+  .follow-page .aux-head{display:grid;gap:10px;justify-content:stretch}
+  .follow-page .scope-inline{justify-self:start;max-width:100%}
+  .follow-page .scope-inline>span{white-space:nowrap}
+}

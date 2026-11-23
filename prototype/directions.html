@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <title>邮箱主题预览</title>
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="directions.css?v=20261121-letterbreeze">
+  <script defer src="design-options.js?v=20261121-lofold"></script>
+  <script defer src="directions.js?v=20261121-letterbreeze"></script>
+</head>
+<body>
+  <main class="chooser">
+    <header class="chooser-head">
+      <h1><img id="product-icon" alt="" width="36" height="36"><span id="product-name" lang="en"></span><span class="head-label">主题预览</span></h1>
+      <a class="open-link" href="review.html">流程目录</a>
+    </header>
+    <section aria-labelledby="theme-heading" class="chooser-themes">
+      <h2 id="theme-heading">主题色</h2>
+      <div id="themes" class="theme-grid"></div>
+    </section>
+    <section class="preview-controls" aria-labelledby="preview-heading">
+      <h2 id="preview-heading">交互预览</h2>
+      <div class="tools">
+        <div class="devices" role="group" aria-label="预览尺寸">
+          <button type="button" data-device="desktop" aria-pressed="false">桌面</button>
+          <button type="button" data-device="phone" aria-pressed="false">手机</button>
+        </div>
+        <label class="scene-picker">
+          <span class="visually-hidden">预览场景</span>
+          <select id="scene">
+            <option value="inbox">统一收件箱</option>
+            <option value="read">读信与回复</option>
+            <option value="welcome">品牌欢迎页</option>
+          </select>
+        </label>
+        <a id="standalone" class="open-link" target="_blank" rel="noopener">单独打开 ↗</a>
+      </div>
+    </section>
+    <div class="preview" id="preview">
+      <iframe id="mail-preview" title="邮箱主题预览"></iframe>
+    </div>
+    <noscript>请启用 JavaScript 以切换主题和预览尺寸。</noscript>
+  </main>
+</body>
+</html>
