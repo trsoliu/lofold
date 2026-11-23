@@ -85,6 +85,23 @@ pub(crate) fn set(service: &str, key: &str, value: &[u8]) -> Result<(), String> 
     })
 }
 
+pub(crate) fn remove(service: &str, key: &str) -> Result<(), String> {
+    with_bridge(
+        "无法清除 Android 设备中的凭据。",
+        |env, class, app| {
+            let service = env.new_string(service)?;
+            let key = env.new_string(key)?;
+            env.call_static_method(
+                class,
+                "remove",
+                "(Landroid/content/Context;Ljava/lang/String;Ljava/lang/String;)V",
+                &[app.into(), (&service).into(), (&key).into()],
+            )?
+            .v()
+        },
+    )
+}
+
 pub(crate) fn delete_account(service: &str, address: &str, active: &str) -> Result<(), String> {
     with_bridge(
         "无法清除设备上的邮箱授权。",

@@ -1,2 +1,10 @@
 .rich-mail-frame { display: block; width: 100%; border: 0; margin-top: 20px; min-height: 42px; height: 160px; background: var(--surface); }
 .message-preview-limit { margin-top: 8px; font-size: 13px; }
+.message-image-notice { display: flex; align-items: center; justify-content: space-between; gap: 6px 12px; margin-top: 12px; padding: 8px 10px; border: 1px solid var(--divider); border-radius: var(--control-radius); color: var(--muted); font-size: 12px; }
+.message-image-notice > div { flex: 1; min-width: 0; overflow-wrap: anywhere; }
+.message-image-notice > button { flex: none; }
+.message-image-notice + .rich-mail-frame { margin-top: 10px; }
+.message-video-controls { display: flex; align-items: center; flex-wrap: wrap; gap: 6px; margin-top: 12px; }
+.message-video-controls > span { min-width: 0; font-size: 12px; overflow-wrap: anywhere; }
+.message-video-controls > span:empty { display: none; }
+.message-video-controls + .rich-mail-frame { margin-top: 10px; }

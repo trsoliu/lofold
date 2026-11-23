@@ -4,6 +4,44 @@ const SAMPLE: &[u8] = include_bytes!("../tests/fixtures/chinese-attachment.eml")
 const KEY: [u8; 32] = [9; 32];
 
 #[test]
+fn reader_alert_keeps_html_chart_and_original_bytes_after_reopen() {
+    use base64::{engine::general_purpose::STANDARD, Engine};
+
+    let raw = include_bytes!("../tests/fixtures/reader-alert.eml");
+    let directory = tempfile::tempdir().unwrap();
+    let path = directory.path().join("archive");
+    let id = {
+        let mut store = MailArchive::open(&path, &KEY).unwrap();
+        store.import(raw).unwrap().id
+    };
+    let store = MailArchive::open(&path, &KEY).unwrap();
+    let detail = store.detail(id).unwrap();
+    assert_eq!(detail.summary.subject, "Synthetic capacity notification");
+    let chart = detail
+        .attachments
+        .iter()
+        .find(|file| file.name == "fixture-alert-chart.png")
+        .expect("alert chart attachment");
+    let exported_chart = store.export_attachment(id, chart.index).unwrap().bytes;
+    let rich = serde_json::to_value(detail).unwrap();
+    let html = rich["richBody"]["html"].as_str().expect("HTML body");
+    assert!(html.contains("合成容量通知"));
+    assert!(html.contains("<span>首次</span><span>触发：</span>"));
+    assert!(html.contains("ALERT-FIXTURE-END"));
+    let image = rich["richBody"]["inlineImages"]["fixture-alert-chart@lofold.test"]
+        .as_str()
+        .expect("CID image")
+        .strip_prefix("data:image/png;base64,")
+        .expect("raster data URL");
+    assert_eq!(STANDARD.decode(image).unwrap(), exported_chart);
+    assert_eq!(
+        hex::encode(Sha256::digest(&exported_chart)),
+        "f6974485df18d3a372c3b89c0cec76d3412e30966e4f8cf5e7b5326daeb39a9f"
+    );
+    assert_eq!(store.export_raw(id).unwrap().bytes, raw);
+}
+
+#[test]
 fn ai_candidates_keep_scoped_messages_in_the_selected_account() {
     let directory = tempfile::tempdir().unwrap();
     let mut store = MailArchive::open(&directory.path().join("archive"), &KEY).unwrap();
@@ -492,7 +530,7 @@ fn account_removal_preserves_local_mail_and_drafts_without_reusing_ids() {
             .unwrap();
     }
     store.database.execute_batch(
-        "DROP TABLE writing_profiles; ALTER TABLE drafts DROP COLUMN cc; ALTER TABLE drafts DROP COLUMN bcc;
+        "ALTER TABLE inbox_items DROP COLUMN pending_seen; DROP TABLE writing_profiles; ALTER TABLE drafts DROP COLUMN cc; ALTER TABLE drafts DROP COLUMN bcc;
          DROP TRIGGER remember_mail_account_id; DROP TRIGGER remember_mailbox_id;
          DROP TABLE mail_id_watermarks; DROP INDEX draft_sent_message;
          DROP TABLE conversation_headers; DROP TABLE conversation_indexed; DROP TABLE conversation_backfill;
@@ -717,4 +755,127 @@ fn watermark_accounts_use_mail_links_and_ignore_message_headers() {
     );
     store.remove_account(second).unwrap();
     assert_eq!(store.linked_mail_accounts(message).unwrap(), [first]);
+}
+
+#[test]
+fn opened_read_is_local_until_confirmed_and_bound_to_the_original_location() {
+    let directory = tempfile::tempdir().unwrap();
+    let path = directory.path().join("archive");
+    let mut store = MailArchive::open(&path, &KEY).unwrap();
+    store
+        .add_accounts(&["first@example.test".into(), "second@example.test".into()])
+        .unwrap();
+    let accounts = store.accounts().unwrap();
+    for account in &accounts {
+        store
+            .replace_mailboxes(
+                account.id,
+                ["INBOX", "Projects"]
+                    .map(|name| DiscoveredMailbox {
+                        name: name.into(),
+                        label: name.into(),
+                        kind: if name == "INBOX" { "inbox" } else { "custom" }.into(),
+                        delimiter: None,
+                    })
+                    .into(),
+            )
+            .unwrap();
+    }
+    let boxes = store.mailboxes().unwrap();
+    let first = accounts[0].id;
+    let inbox = boxes
+        .iter()
+        .find(|folder| folder.account_id == first && folder.name == "INBOX")
+        .unwrap()
+        .id;
+    let page = |uid_validity, unread, raw| SyncPage {
+        uid_validity,
+        items: vec![SyncedItem {
+            uid: 12,
+            unread,
+            flagged: false,
+            raw,
+        }],
+        reconcile: None,
+        has_more: false,
+    };
+    for folder in &boxes {
+        store
+            .store_mailbox(folder.id, page(7, true, Some(SAMPLE.to_vec())), false)
+            .unwrap();
+    }
+    let message = store
+        .list_folder(Folder::Inbox, Some(first), "", 0)
+        .unwrap()
+        .items
+        .remove(0);
+    let location = message.location.unwrap();
+    assert!(store
+        .mark_opened_read(accounts[1].id, message.id, location)
+        .is_err());
+    assert!(store
+        .mark_opened_read(first, message.id + 1, location)
+        .is_err());
+    // Simulate a v10 archive: earlier local-only reads must never become IMAP writes.
+    store.mark_inbox_read(accounts[1].id, message.id).unwrap();
+    store
+        .database
+        .execute_batch("ALTER TABLE inbox_items DROP COLUMN pending_seen; PRAGMA user_version=10;")
+        .unwrap();
+    drop(store);
+    let mut store = MailArchive::open(&path, &KEY).unwrap();
+    assert!(boxes
+        .iter()
+        .all(|f| store.pending_seen(f.id, None).unwrap().is_empty()));
+    store.mark_opened_read(first, message.id, location).unwrap();
+    store.mark_opened_read(first, message.id, location).unwrap();
+    store
+        .store_mailbox(inbox, page(7, true, None), false)
+        .unwrap();
+    drop(store);
+    let mut store = MailArchive::open(&path, &KEY).unwrap();
+    assert_eq!(store.mailbox(inbox).unwrap().unread, 0);
+    assert!(
+        !store
+            .list_folder(Folder::Inbox, Some(first), "", 0)
+            .unwrap()
+            .items[0]
+            .unread
+    );
+    let unread = store
+        .list_folder(Folder::Unread, Some(first), "", 0)
+        .unwrap();
+    assert_eq!(unread.items.len(), 1);
+    let other = unread.items[0].location.unwrap();
+    assert_ne!(other.folder_id, inbox);
+    assert_eq!(store.mailbox(other.folder_id).unwrap().unread, 1);
+    assert_eq!(store.pending_seen(inbox, None).unwrap().len(), 1);
+    assert!(boxes
+        .iter()
+        .filter(|f| f.id != inbox)
+        .all(|f| store.pending_seen(f.id, None).unwrap().is_empty()));
+    assert!(store.cancel_pending_seen(location).unwrap());
+    assert!(!store.cancel_pending_seen(location).unwrap());
+    store.mark_opened_read(first, message.id, location).unwrap();
+    store
+        .apply_mailbox_change(location, CachedChange::Seen(false))
+        .unwrap();
+    assert_eq!(store.mailbox(inbox).unwrap().unread, 1);
+    assert!(store.pending_seen(inbox, None).unwrap().is_empty());
+    store.mark_opened_read(first, message.id, location).unwrap();
+    store
+        .store_mailbox(inbox, page(7, false, None), false)
+        .unwrap();
+    assert!(store.pending_seen(inbox, None).unwrap().is_empty());
+    store
+        .store_mailbox(inbox, page(7, true, None), false)
+        .unwrap();
+    assert_eq!(store.mailbox(inbox).unwrap().unread, 1);
+    store.mark_opened_read(first, message.id, location).unwrap();
+    store
+        .store_mailbox(inbox, page(8, true, Some(SAMPLE.to_vec())), false)
+        .unwrap();
+    assert!(store.mark_opened_read(first, message.id, location).is_err());
+    assert!(store.pending_seen(inbox, None).unwrap().is_empty());
+    assert_eq!(store.mailbox(inbox).unwrap().unread, 1);
 }

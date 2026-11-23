@@ -242,7 +242,7 @@ export function Composer({ initial, accounts, close, submitted }: {
         {draft.attachments.length > 0 && <ul className="composer-attachments">
           {draft.attachments.map((file) => <li key={file.id}>
             <FileText size={15} aria-hidden="true" />
-            <span>{file.name}</span><small>{fileSize(file.size)}</small>
+            <span title={file.name}>{file.name}</span><small>{fileSize(file.size)}</small>
             <button type="button" className="icon-button" aria-label={'移除附件 ' + file.name} onClick={() => void perform(async () => {
               const current = currentDraft.current
               applyDraft(await mailWorkspace.removeDraftFile(current.id, current.revision, file.id))

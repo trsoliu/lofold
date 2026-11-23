@@ -1,4 +1,4 @@
-use lofold_mail_network::{FolderMutation, RemoteFolderKind};
+use lofold_mail_network::{FolderMutation, RemoteFolderKind, SeenReceipt};
 use lofold_mail_store::{
     CachedChange, DiscoveredMailbox, MailLocation, Mailbox, SyncPage, SyncedItem,
 };
@@ -60,6 +60,8 @@ pub struct MailboxSync {
     considered: u32,
     stored: u32,
     skipped: u32,
+    #[serde(rename = "readWarning")]
+    read_warning: Option<String>,
 }
 
 #[tauri::command]
@@ -114,16 +116,84 @@ async fn sync(state: &LocalArchive, id: i64, older: bool) -> Result<MailboxSync,
     let (stored, invalid) = state
         .run(move |store| store.store_mailbox(id, page, older))
         .await?;
+    let read_warning = push_pending_seen(state, id, None).await.err();
     Ok(MailboxSync {
         considered,
         stored,
         skipped: skipped + invalid,
+        read_warning,
     })
+}
+
+// The caller owns mail_operation across the pending check, IMAP confirmation and cache update.
+// A later manual unread can therefore cancel a receipt that was waiting for this lock.
+async fn push_pending_seen(
+    state: &LocalArchive,
+    id: i64,
+    only: Option<MailLocation>,
+) -> Result<(), String> {
+    let pending = state
+        .run(move |store| {
+            let mut locations = store.pending_seen(id, only.map(|item| item.uid))?;
+            if let Some(target) = only {
+                locations.retain(|item| item.uid_validity == target.uid_validity);
+            }
+            let Some(first) = locations.first() else {
+                return Ok(None);
+            };
+            let validity = first.uid_validity;
+            let folder = store.mailbox(id)?;
+            let account = store.account(folder.account_id)?;
+            Ok(Some((
+                account,
+                folder.name,
+                validity,
+                locations
+                    .into_iter()
+                    .map(|item| item.uid)
+                    .collect::<Vec<_>>(),
+            )))
+        })
+        .await?;
+    let Some((account, folder, uid_validity, uids)) = pending else {
+        return Ok(());
+    };
+    let (receipts, failure) = worker(move || {
+        let secret = read_secret(&account)?;
+        connected_connection(&account)?
+            .sync_seen(&account.address, &secret, &folder, uid_validity, &uids)
+            .map_err(|error| error.to_string())
+    })
+    .await?;
+    state
+        .run(move |store| {
+            for receipt in receipts {
+                let (uid, change) = match receipt {
+                    SeenReceipt::Confirmed(uid) => (uid, CachedChange::Seen(true)),
+                    SeenReceipt::Vanished(uid) => (uid, CachedChange::Remove),
+                };
+                store.apply_mailbox_change(
+                    MailLocation {
+                        folder_id: id,
+                        uid_validity,
+                        uid,
+                    },
+                    change,
+                )?;
+            }
+            Ok(())
+        })
+        .await?;
+    match failure {
+        Some(issue) => Err(issue.to_string()),
+        None => Ok(()),
+    }
 }
 
 #[derive(Clone, Copy, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub enum MailboxAction {
+    SyncRead,
     Read,
     Unread,
     Flag,
@@ -140,6 +210,10 @@ pub async fn change_mailbox_message(
     target: Option<i64>,
 ) -> Result<Option<String>, String> {
     let _operation = state.mail_operation.lock().await;
+    if matches!(action, MailboxAction::SyncRead) {
+        push_pending_seen(&state, location.folder_id, Some(location)).await?;
+        return Ok(None);
+    }
     let (account, folder, destination) = state
         .run(move |store| {
             let folder = store.message_mailbox(location)?;
@@ -163,6 +237,7 @@ pub async fn change_mailbox_message(
     let change = worker(move || {
         let secret = read_secret(&account)?;
         let (mutation, change) = match action {
+            MailboxAction::SyncRead => unreachable!("pending read receipts handled above"),
             MailboxAction::Read => (FolderMutation::Seen(true), CachedChange::Seen(true)),
             MailboxAction::Unread => (FolderMutation::Seen(false), CachedChange::Seen(false)),
             MailboxAction::Flag => (FolderMutation::Flagged(true), CachedChange::Flagged(true)),
@@ -190,7 +265,21 @@ pub async fn change_mailbox_message(
             .map_err(|error| error.to_string())?;
         Ok(change)
     })
-    .await?;
+    .await;
+    let change = match change {
+        Ok(change) => change,
+        Err(issue) if matches!(action, MailboxAction::Unread) => {
+            let canceled = state
+                .run(move |store| store.cancel_pending_seen(location))
+                .await?;
+            return if canceled {
+                Ok(Some(format!("本机已标为未读，服务器未确认：{issue}")))
+            } else {
+                Err(issue)
+            };
+        }
+        Err(issue) => return Err(issue),
+    };
     state
         .run(move |store| store.apply_mailbox_change(location, change))
         .await?;

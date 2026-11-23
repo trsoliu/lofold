@@ -1,13 +1,14 @@
 import { isAndroid, isMac } from './platform'
 import {
-  ArrowLeft, Bookmark, Download, FileText, Flag, Mail, Paperclip, Pin, RefreshCw, Search, Settings as SettingsIcon,
+  ArrowLeft, Bookmark, Download, FileText, Flag, Mail, Paperclip, Pin, RefreshCw, Search, Settings as SettingsIcon, SquarePen,
   Upload, X,
 } from 'lucide-react'
-import { StrictMode, useEffect, useRef, useState, type ChangeEvent } from 'react'
+import { StrictMode, useEffect, useEffectEvent, useLayoutEffect, useRef, useState, type ChangeEvent } from 'react'
 import { listen, type UnlistenFn } from '@tauri-apps/api/event'
 import { createRoot } from 'react-dom/client'
 import { Accounts } from './accounts'
 import { agentMcp, AgentMcpSettings, AgentShareDialog, type AgentAction } from './agent-mcp'
+import { AiSettings } from './ai-settings'
 import { AiMessageDialog, AiWorkspace } from './ai-panel'
 import { archive, errorMessage, type MailConversation, type MailDetail, type MailPage, type MailSummary } from './archive'
 import { brand, getTheme, logo, setTheme } from './branding'
@@ -25,18 +26,27 @@ import './styles.css'
 
 const dateFormat = new Intl.DateTimeFormat('zh-CN', { dateStyle: 'medium' })
 const fullDateFormat = new Intl.DateTimeFormat('zh-CN', { dateStyle: 'medium', timeStyle: 'short' })
+const compactDateFormat = new Intl.DateTimeFormat('zh-CN', {
+  month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit', hourCycle: 'h23',
+})
 const emptyPage: MailPage = { items: [], hasMore: false }
 const searchShortcut = isMac ? '⌘K' : 'Ctrl K'
 
-function formatDate(timestamp: number | null, full = false) {
+function formatDate(timestamp: number | null) {
   if (timestamp === null) return ''
-  return (full ? fullDateFormat : dateFormat).format(timestamp * 1000)
+  return dateFormat.format(timestamp * 1000)
 }
 
 function formatSize(bytes: number) {
   if (bytes < 1024) return bytes + ' B'
   if (bytes < 1048576) return (bytes / 1024).toFixed(1) + ' KiB'
   return (bytes / 1048576).toFixed(1) + ' MiB'
+}
+
+function sameMailboxItem(left: MailSummary, right: MailSummary) {
+  return left.id === right.id && left.accountId === right.accountId
+    && left.location?.folderId === right.location?.folderId
+    && left.location?.uidValidity === right.location?.uidValidity && left.location?.uid === right.location?.uid
 }
 
 function App() {
@@ -77,7 +87,11 @@ function App() {
   const searchInput = useRef<HTMLInputElement>(null)
   const detailHeading = useRef<HTMLHeadingElement>(null)
   const mailList = useRef<HTMLDivElement>(null)
+  const restoreListFocus = useRef(false)
+  const readerContent = useRef<HTMLDivElement>(null)
   const listGeneration = useRef(0)
+  const readRevision = useRef(0)
+  const catalogRequest = useRef(0)
   const discovered = useRef(new Set<number>())
   const openedMailbox = useRef(new Set<number>())
   const remoteId = screen.startsWith('mailbox-') ? Number(screen.slice('mailbox-'.length)) : null
@@ -86,8 +100,8 @@ function App() {
     : screen === 'archive' || screen === 'inbox' || screen === 'unread' || screen === 'sent'
       || screen === 'flagged' || screen === 'junk' || screen === 'trash' ? screen : null
   const accountFilter = folder === 'archive' ? null : scope
-  const incoming = folder === 'inbox' || folder === 'unread'
   const selectedId = selected?.id ?? null
+  const selectedAccount = selected?.account ?? null
   const connected = accounts.filter((account) => account.connected)
   const scopedAccount = accounts.find((account) => account.id === scope)
   const activeDetail = detail?.id === selectedId ? detail : null
@@ -112,18 +126,25 @@ function App() {
   }, [screen])
 
   useEffect(() => {
-    let active = true
-    mailWorkspace.mailboxes().then((items) => { if (active && items) setMailboxes(items) }, () => {})
-    return () => { active = false }
+    void reloadMailboxes()
   }, [refresh])
+
+  async function reloadMailboxes() {
+    const request = ++catalogRequest.current
+    try {
+      const items = await mailWorkspace.mailboxes()
+      if (request === catalogRequest.current && items) setMailboxes(items)
+    } catch (issue) {
+      if (request === catalogRequest.current) setNotice({ text: errorMessage(issue), error: true })
+    }
+  }
 
   useEffect(() => {
     const pending = accounts.filter((item) => item.connected && !discovered.current.has(item.id))
     if (!pending.length) return
     for (const account of pending) discovered.current.add(account.id)
     void Promise.allSettled(pending.map((account) => mailWorkspace.refreshMailboxes(account.id)))
-      .then(() => mailWorkspace.mailboxes())
-      .then((items) => { if (items) setMailboxes(items) }, () => {})
+      .then(reloadMailboxes)
   }, [accounts])
 
   useEffect(() => {
@@ -132,10 +153,16 @@ function App() {
     setListStatus('loading')
     setListError('')
     setLoadingPage(false)
-    const timer = window.setTimeout(() => {
-      archive.list(query, 0, folder, accountFilter, attachmentsOnly, remoteId).then(
+    const activeFolder = folder
+    function loadPage() {
+      const revision = readRevision.current
+      archive.list(query, 0, activeFolder, accountFilter, attachmentsOnly, remoteId).then(
         (page) => {
           if (!active) return
+          if (revision !== readRevision.current) {
+            loadPage()
+            return
+          }
           setList(page)
           setListStatus('ready')
           mailList.current?.scrollTo(0, 0)
@@ -146,12 +173,45 @@ function App() {
           setListStatus('failed')
         },
       )
-    }, query.trim() ? 160 : 0)
+    }
+    const timer = window.setTimeout(loadPage, query.trim() ? 160 : 0)
     return () => {
       active = false
       window.clearTimeout(timer)
     }
   }, [folder, remoteId, accountFilter, query, attachmentsOnly, refresh])
+
+  const showCachedRead = useEffectEvent((mail: MailSummary) => {
+    readRevision.current++
+    setSelected((item) => item?.message && sameMailboxItem(item.message, mail)
+      ? { ...item, message: { ...item.message, unread: false } } : item)
+    setList((page) => ({
+      ...page,
+      items: screen === 'unread'
+        ? page.items.filter((item) => !sameMailboxItem(item, mail))
+        : page.items.map((item) => sameMailboxItem(item, mail) ? { ...item, unread: false } : item),
+    }))
+    void reloadMailboxes()
+  })
+
+  const markOpened = useEffectEvent(async (mail: MailSummary) => {
+    if (!mail.unread || mail.accountId == null || !selected?.message || !sameMailboxItem(selected.message, mail)) return
+    if (!reading && window.matchMedia('(max-width: 760px)').matches) return
+    try {
+      await mailWorkspace.markRead(mail.id, mail.accountId, mail.location)
+    } catch (issue) {
+      setNotice({ text: '保存本机已读状态失败。' + errorMessage(issue), error: true })
+      return
+    }
+    showCachedRead(mail)
+    if (mail.location) {
+      try {
+        await mailWorkspace.changeMessage(mail.location, 'syncRead')
+      } catch (issue) {
+        setNotice({ text: '本机已读。服务器未确认，收取此文件夹时会重试。' + errorMessage(issue), error: true })
+      }
+    }
+  })
 
   useEffect(() => {
     setDetail(null)
@@ -159,17 +219,33 @@ function App() {
     if (selectedId === null) return
     let active = true
     archive.read(selectedId).then(
-      (message) => { if (active) setDetail(message) },
+      (message) => {
+        if (!active) return
+        setDetail(message)
+        if (selected?.message) void markOpened(selected.message)
+      },
       (error) => { if (active) setDetailError(errorMessage(error)) },
     )
     return () => { active = false }
-  }, [selectedId, detailRefresh])
+  }, [selectedId, selectedAccount, detailRefresh])
+
+  useEffect(() => {
+    if (readerContent.current) readerContent.current.scrollTop = 0
+  }, [selectedId, selectedAccount])
 
   useEffect(() => {
     if (reading && detail && window.matchMedia('(max-width: 760px)').matches) {
       detailHeading.current?.focus()
     }
   }, [reading, detail])
+
+  useLayoutEffect(() => {
+    if (reading || !restoreListFocus.current) return
+    restoreListFocus.current = false
+    const currentRow = mailList.current?.querySelector<HTMLButtonElement>('[aria-current="true"]')
+    const target = currentRow ?? searchInput.current
+    target?.focus({ preventScroll: true })
+  }, [reading])
 
   useEffect(() => {
     if (!notice || notice.error) return
@@ -221,12 +297,8 @@ function App() {
   }
 
   function backToList() {
+    restoreListFocus.current = true
     setReading(false)
-    requestAnimationFrame(() => {
-      const currentRow = mailList.current?.querySelector<HTMLButtonElement>('[aria-current="true"]')
-      const target = currentRow ?? searchInput.current
-      target?.focus()
-    })
   }
 
   function changeQuery(value: string) {
@@ -241,30 +313,17 @@ function App() {
     const account = mail.accountId ?? null
     setSelected({ id: mail.id, account, message: mail })
     setReading(true)
-    if (!mail.unread || account === null) return
-    const generation = listGeneration.current
-    const mark = mail.location ? mailWorkspace.changeMessage(mail.location, 'read')
-      : incoming ? mailWorkspace.markRead(mail.id, account) : Promise.resolve()
-    mark.then(() => {
-      if (generation !== listGeneration.current) return
-      setSelected((item) => item?.id === mail.id && item.account === account && item.message
-        ? { ...item, message: { ...item.message, unread: false } } : item)
-      setList((page) => ({
-        ...page,
-        items: screen === 'unread'
-          ? page.items.filter((item) => item.id !== mail.id || item.accountId !== account)
-          : page.items.map((item) => item.id === mail.id && item.accountId === account ? { ...item, unread: false } : item),
-      }))
-    }).catch((issue: unknown) => setNotice({ text: errorMessage(issue), error: true }))
+    if (selectedId === mail.id && selectedAccount === account) setDetailRefresh((value) => value + 1)
   }
 
   async function more() {
     if (!folder) return
     const generation = listGeneration.current
+    const revision = readRevision.current
     setLoadingPage(true)
     try {
       const page = await archive.list(query, list.items.length, folder, accountFilter, attachmentsOnly, remoteId)
-      if (generation === listGeneration.current) {
+      if (generation === listGeneration.current && revision === readRevision.current) {
         setList((previous) => ({ items: [...previous.items, ...page.items], hasMore: page.hasMore }))
       }
     } catch (error) {
@@ -329,6 +388,7 @@ function App() {
           considered += result.considered
           stored += result.stored
           skipped += result.skipped
+          if (result.readWarning) failures.push(`${box.label} · 已读状态待同步：${result.readWarning}`)
         }
         if (!folders.length && !older && activeKind === 'inbox' && remoteId === null) {
           const result = await mailWorkspace.sync(account.id)
@@ -498,44 +558,23 @@ function App() {
     else void openComposer('edit', action.id)
   }
 
+  const timestamp = activeDetail?.sentAt
+  const fullTimestamp = timestamp == null ? '' : fullDateFormat.format(timestamp * 1000)
+  const readerBack = returnToAi
+    ? <IconAction className="reader-back" icon={ArrowLeft} label="返回 AI 查信" onClick={() => goTo('ai')} />
+    : returnToAttachments
+    ? <IconAction className="reader-back" icon={ArrowLeft} label="返回附件中心" onClick={() => goTo('attachments')} />
+    : reading && <IconAction className="reader-back reader-back-compact" icon={ArrowLeft} label="返回列表" onClick={backToList} />
+
   return (
     <div className="shell" data-native-titlebar={isMac} data-reading={reading}>
       <div className="brand" data-tauri-drag-region="deep">
         <img src={logo} alt="" width="23" height="23" />
         <span>{brand.name}</span>
       </div>
-      {folder ? (
-        <section className="mailbox-toolbar" aria-label="邮件操作" data-folder={folder} data-tauri-drag-region="deep">
-          <h1 className="visually-hidden">{label}</h1>
-          {pageScoped && folder !== 'remote' && <ControlSelect className="scope-select toolbar-scope" value={scope ?? ''} aria-label="选择邮箱范围"
-            onChange={(event) => goTo(folder, event.target.value ? Number(event.target.value) : null, query, attachmentsOnly)}>
-            <option value="">所有账号</option>
-            {accounts.map((account) => <option key={account.id} value={account.id}>{account.address}</option>)}
-          </ControlSelect>}
-          {remoteId !== null && <span className="toolbar-folder" title={label}>{label}</span>}
-          {canSync && <IconAction className="toolbar-action" icon={RefreshCw} label={busy === 'sync' ? '正在收取' : '收取'}
-            aria-busy={busy === 'sync'} disabled={busy !== null || loadingPage || !connected.some((item) => scope === null || scope === item.id)}
-            onClick={() => void synchronize()} title="收取当前文件夹的最新邮件" />}
-          {folder === 'archive' && <IconAction className="toolbar-action" icon={Upload} label={busy === 'import' ? '正在导入' : '导入 EML'}
-            aria-busy={busy === 'import'} disabled={busy !== null || loadingPage} onClick={() => isAndroid ? void importFile() : fileInput.current?.click()} />}
-          <div className="search">
-            <Search size={16} aria-hidden="true" />
-            <input ref={searchInput} type="search" maxLength={160} value={query} onChange={(event) => changeQuery(event.target.value)}
-              onKeyDown={(event) => { if (event.key === 'Escape' && !event.nativeEvent.isComposing) changeQuery('') }}
-              placeholder="搜索当前范围" aria-label="搜索邮件" aria-keyshortcuts="Meta+K Control+K" />
-            {query
-              ? <button className="icon-button" onClick={() => { changeQuery(''); searchInput.current?.focus() }} aria-label="清空搜索"><X size={15} /></button>
-              : <kbd className="search-shortcut" aria-hidden="true">{searchShortcut}</kbd>}
-          </div>
-          {canPinSearch && (query.trim() || attachmentsOnly) && <div className="mail-filters">
-            <IconAction icon={Bookmark} label="固定搜索" onClick={() => setPinning(true)} />
-          </div>}
-        </section>
-      ) : <div className="window-drag-space" data-tauri-drag-region aria-hidden="true" />}
       <header className="sidebar">
-        <button className="import-button" disabled={busy !== null} onClick={() => void openComposer('new')}>
-          写邮件
-        </button>
+        <IconAction className="sidebar-compose" icon={SquarePen} label="写邮件"
+          disabled={busy !== null} onClick={() => void openComposer('new')} />
         <input ref={fileInput} type="file" accept=".eml,message/rfc822" aria-label="选择 EML 文件" hidden onChange={importFile} />
 
         <MailboxNavigation screen={screen} scope={scope} accounts={accounts} mailboxes={mailboxes} navigate={goTo} />
@@ -554,6 +593,7 @@ function App() {
             saveDefaultSender(account)
             setDefaultSender(account)
           }} />}
+        {screen === 'ai-settings' && <AiSettings />}
         {screen === 'accounts' && <Accounts onAccounts={setAccounts} onRemoved={(id) => {
           setAccounts((items) => items.filter((account) => account.id !== id))
           setMailboxes((items) => items.filter((mailbox) => mailbox.accountId !== id))
@@ -588,11 +628,39 @@ function App() {
           open={(mail) => {
             goTo('archive')
             setReturnToAi(true)
-            setSelected({ id: mail.id, account: mail.accountId ?? null, message: mail })
-            setReading(true)
+            viewMessage(mail)
           }} />}
         {folder && <>
           <section className="mailbox" aria-label="邮件列表">
+            <header className="mailbox-toolbar" aria-label="邮件操作">
+              <div className="mailbox-heading" data-tauri-drag-region>
+                <h1 className="single-line" title={label} data-tauri-drag-region>{label}</h1>
+                {pageScoped && folder !== 'remote' && <ControlSelect className="scope-select toolbar-scope" value={scope ?? ''}
+                  aria-label="选择邮箱范围" title={scopedAccount?.address ?? '所有账号'}
+                  onChange={(event) => goTo(folder, event.target.value ? Number(event.target.value) : null, query, attachmentsOnly)}>
+                  <option value="">所有账号</option>
+                  {accounts.map((account) => <option key={account.id} value={account.id}>{account.address}</option>)}
+                </ControlSelect>}
+                {canSync && <IconAction icon={RefreshCw} label={busy === 'sync' ? '正在收取' : '收取'}
+                  aria-busy={busy === 'sync'} disabled={busy !== null || loadingPage || !connected.some((item) => scope === null || scope === item.id)}
+                  onClick={() => void synchronize()} title="收取当前文件夹的最新邮件" />}
+                {folder === 'archive' && <IconAction icon={Upload} label={busy === 'import' ? '正在导入' : '导入 EML'}
+                  aria-busy={busy === 'import'} disabled={busy !== null || loadingPage} onClick={() => isAndroid ? void importFile() : fileInput.current?.click()} />}
+              </div>
+              <div className="mailbox-search">
+                <div className="search">
+                  <Search size={16} aria-hidden="true" />
+                  <input ref={searchInput} type="search" maxLength={160} value={query} onChange={(event) => changeQuery(event.target.value)}
+                    onKeyDown={(event) => { if (event.key === 'Escape' && !event.nativeEvent.isComposing) changeQuery('') }}
+                    placeholder="搜索当前范围" aria-label="搜索邮件" aria-keyshortcuts="Meta+K Control+K" />
+                  {query
+                    ? <button className="icon-button" onClick={() => { changeQuery(''); searchInput.current?.focus() }} aria-label="清空搜索"><X size={15} /></button>
+                    : <kbd className="search-shortcut" aria-hidden="true">{searchShortcut}</kbd>}
+                </div>
+                {canPinSearch && (query.trim() || attachmentsOnly) &&
+                  <IconAction icon={Bookmark} label="固定搜索" onClick={() => setPinning(true)} />}
+              </div>
+            </header>
             <div ref={mailList} className="mail-list" aria-busy={listStatus === 'loading'}>
               {listStatus === 'loading' && <p className="list-message" role="status">正在读取邮件…</p>}
               {listStatus === 'failed' && <div className="list-message"><p role="alert">{listError}</p><button className="secondary" onClick={() => setRefresh((v) => v + 1)}>重试</button></div>}
@@ -605,7 +673,7 @@ function App() {
                   : '当前没有已缓存的邮件。点击「收取」检查服务器。'}</p>
                 : <ul>{list.items.map((mail) => (
                   <li key={mail.id + '/' + (mail.accountId ?? '')}>
-                    <button className="mail-row" aria-current={selected?.id === mail.id && selected?.account === (mail.accountId ?? null) ? 'true' : undefined} onClick={() => viewMessage(mail)}>
+                    <button className="mail-row" data-unread={mail.unread || undefined} aria-current={selected?.id === mail.id && selected?.account === (mail.accountId ?? null) ? 'true' : undefined} onClick={() => viewMessage(mail)}>
                       <span className="row-title">
                         <span>{mail.unread && <span className="unread-dot" role="img" aria-label="未读" />}{mail.subject || '无主题'}</span>
                         {mail.pinned && <Pin aria-label="本机置顶" size={14} />}
@@ -625,61 +693,73 @@ function App() {
           </section>
 
           <section className="reader" aria-label="邮件内容">
-            {returnToAi
-              ? <IconAction className="attachments-back" icon={ArrowLeft} label="返回 AI 查信" onClick={() => goTo('ai')} />
-              : returnToAttachments
-              ? <IconAction className="attachments-back" icon={ArrowLeft} label="返回附件中心" onClick={() => goTo('attachments')} />
-              : reading && <IconAction className="back" icon={ArrowLeft} label="返回列表" onClick={backToList} />}
-            {selectedId === null && <div className="reader-placeholder"><span className="placeholder-icon"><Mail size={22} strokeWidth={1.6} aria-hidden="true" /></span><p>选择一封邮件阅读</p></div>}
-            {selectedId !== null && !activeDetail && (detailError
-              ? <div className="reader-placeholder"><p role="alert">{detailError}</p><button className="secondary" onClick={() => setDetailRefresh((v) => v + 1)}>重试</button></div>
-              : <div className="reader-placeholder" role="status">正在打开邮件…</div>)}
-            {activeDetail && <article className="message">
-              <header className="message-header">
-                <h2 ref={detailHeading} tabIndex={-1}>{activeDetail.subject || '无主题'}</h2>
-                <div className="message-envelope">
+            <div className="reader-content" ref={readerContent}>
+              {!activeDetail && readerBack}
+              {selectedId === null && <div className="reader-placeholder"><span className="placeholder-icon"><Mail size={22} strokeWidth={1.6} aria-hidden="true" /></span><p>选择一封邮件阅读</p></div>}
+              {selectedId !== null && !activeDetail && (detailError
+                ? <div className="reader-placeholder"><p role="alert">{detailError}</p><button className="secondary" onClick={() => setDetailRefresh((v) => v + 1)}>重试</button></div>
+                : <div className="reader-placeholder" role="status">正在打开邮件…</div>)}
+              {activeDetail && <article className="message">
+                <header className="message-header">
+                  <div className="message-title">
+                    {readerBack}
+                    <h2 ref={detailHeading} tabIndex={-1}>{activeDetail.subject || '无主题'}</h2>
+                  </div>
                   <dl className="message-meta">
                     <div><dt>发件人</dt><dd>{activeDetail.sender || '未知发件人'}</dd></div>
                     {activeDetail.recipients && <div><dt>收件人</dt><dd>{activeDetail.recipients}</dd></div>}
-                    {activeDetail.sentAt !== null && <div><dt>时间</dt><dd>{formatDate(activeDetail.sentAt, true)}</dd></div>}
                   </dl>
-                  {activeMessage && <MailActions key={activeDetail.id + ':' + selected?.account} message={activeMessage}
-                    mailboxes={mailboxes} blocked={busy !== null}
-                    compose={(mode) => void openComposer(mode, activeDetail.id)} change={(action, target) => void manageMessage(action, target)}
-                    pin={() => void manageMessage('pin')} exportOriginal={() => void save()}
-                    capture={() => void outputMessage('png')} print={() => void outputMessage('print')}
-                    assistant={() => setAiMail(activeMessage)}
-                    shareWithAgent={isMac ? () => setAgentMail(activeMessage) : undefined}
-                    conversation={() => void openConversation(activeDetail.id, selected?.account ?? null)} />}
-                </div>
-              </header>
-              {conversation?.id === activeDetail.id && conversation.account === selected?.account &&
-                <section className="mail-conversation" aria-label="本机会话">
-                  <header><strong>本机会话</strong><IconAction icon={X} label="关闭会话" onClick={() => setConversation(null)} /></header>
-                  {conversation.error ? <p role="alert">{conversation.error}</p>
-                    : !conversation.result ? <p role="status">正在查找往来邮件…</p>
-                    : <>{conversation.result.items.filter((message) => message.id !== activeDetail.id).map((message) =>
-                      <button className="secondary" key={message.id} onClick={() => {
-                        setConversation(null)
-                        viewMessage(message)
-                      }}>{message.subject || '无主题'} <small>{formatDate(message.sentAt)}</small></button>)}
-                      {conversation.result.items.length < 2 && <p className="muted">本机暂未找到其他往来邮件。</p>}
-                      {conversation.result.indexingPending && <button className="secondary"
-                        onClick={() => void openConversation(conversation.id, conversation.account)}>查找更早的本机邮件</button>}
-                      {conversation.result.hasMore && <p className="muted">已展示最近的往来邮件。</p>}
-                    </>}
+                  {(timestamp != null || activeMessage) && <div className="message-time-row">
+                    {timestamp != null && <dl className="message-meta message-timestamp">
+                      <div>
+                        <dt>时间</dt>
+                        <dd className="single-line" title={fullTimestamp}>
+                          <span className="message-time-full">{fullTimestamp}</span>
+                          <span className="message-time-compact">{compactDateFormat.format(timestamp * 1000)}</span>
+                        </dd>
+                      </div>
+                    </dl>}
+                    {activeMessage && <MailActions key={activeDetail.id + ':' + selected?.account} message={activeMessage}
+                      mailboxes={mailboxes} blocked={busy !== null}
+                      compose={(mode) => void openComposer(mode, activeDetail.id)} change={(action, target) => void manageMessage(action, target)}
+                      pin={() => void manageMessage('pin')} exportOriginal={() => void save()}
+                      capture={() => void outputMessage('png')} print={() => void outputMessage('print')}
+                      assistant={() => setAiMail(activeMessage)}
+                      shareWithAgent={isMac ? () => setAgentMail(activeMessage) : undefined}
+                      conversation={() => void openConversation(activeDetail.id, selected?.account ?? null)} />}
+                  </div>}
+                </header>
+                {conversation?.id === activeDetail.id && conversation.account === selected?.account &&
+                  <section className="mail-conversation" aria-label="本机会话">
+                    <header><strong>本机会话</strong><IconAction icon={X} label="关闭会话" onClick={() => setConversation(null)} /></header>
+                    {conversation.error ? <p role="alert">{conversation.error}</p>
+                      : !conversation.result ? <p role="status">正在查找往来邮件…</p>
+                      : <>{conversation.result.items.filter((message) => message.id !== activeDetail.id).map((message) =>
+                        <button className="secondary conversation-row" key={message.id} onClick={() => {
+                          setConversation(null)
+                          viewMessage(message)
+                        }}>
+                          <span className="single-line" title={message.subject || '无主题'}>{message.subject || '无主题'}</span>
+                          <small>{formatDate(message.sentAt)}</small>
+                        </button>)}
+                        {conversation.result.items.length < 2 && <p className="muted">本机暂未找到其他往来邮件。</p>}
+                        {conversation.result.indexingPending && <button className="secondary"
+                          onClick={() => void openConversation(conversation.id, conversation.account)}>查找更早的本机邮件</button>}
+                        {conversation.result.hasMore && <p className="muted">已展示最近的往来邮件。</p>}
+                      </>}
+                  </section>}
+                <MessageBody detail={activeDetail} theme={theme} />
+                {activeDetail.attachments.length > 0 && <section className="attachments" aria-label="附件">
+                  {activeDetail.attachments.map((file) => (
+                    <button className="attachment" key={file.index} disabled={busy !== null} onClick={() => save(file.index)} aria-label={'保存附件 ' + file.name}>
+                      <FileText size={20} aria-hidden="true" />
+                      <span className="row-copy"><strong className="single-line" title={file.name}>{file.name}</strong><small>{formatSize(file.size)}</small></span>
+                      <Download size={16} aria-hidden="true" />
+                    </button>
+                  ))}
                 </section>}
-              {activeDetail.attachments.length > 0 && <section className="attachments" aria-label="附件">
-                {activeDetail.attachments.map((file) => (
-                  <button className="attachment" key={file.index} disabled={busy !== null} onClick={() => save(file.index)} aria-label={'保存附件 ' + file.name}>
-                    <FileText size={20} aria-hidden="true" />
-                    <span><strong>{file.name}</strong><small>{formatSize(file.size)}</small></span>
-                    <Download size={16} aria-hidden="true" />
-                  </button>
-                ))}
-              </section>}
-              <MessageBody detail={activeDetail} theme={theme} />
-            </article>}
+              </article>}
+            </div>
           </section>
         </>}
       </main>

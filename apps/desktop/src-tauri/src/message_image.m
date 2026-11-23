@@ -77,6 +77,9 @@ static PDFDocument *PrintableDocument(NSArray<NSData *> *slices, CGRect page) {
 @interface LFMailImage : NSObject <WKNavigationDelegate>
 @property (nonatomic, strong) WKWebView *view;
 @property (nonatomic) BOOL printing;
+#ifdef LOFOLD_NATIVE_OUTPUT_TEST
+@property (nonatomic) BOOL capturePrintPDF;
+#endif
 @property (nonatomic) BOOL printPanelOpen;
 @property (nonatomic, strong) NSPrintOperation *printJob;
 @property (nonatomic, strong) PDFDocument *printDocument;
@@ -128,6 +131,13 @@ static PDFDocument *PrintableDocument(NSArray<NSData *> *slices, CGRect page) {
 - (void)showPrintPanel {
     self.printDocument = PrintableDocument(self.slices, self.paper);
     if (!self.printDocument.pageCount) { [self finish:nil code:2]; return; }
+#ifdef LOFOLD_NATIVE_OUTPUT_TEST
+    if (self.capturePrintPDF) {
+        NSData *pdf = self.printDocument.dataRepresentation;
+        [self finish:pdf code:pdf.length ? 0 : 2];
+        return;
+    }
+#endif
     self.printJob = [self.printDocument printOperationForPrintInfo:self.printInfo scalingMode:kPDFPrintPageScaleDownToFit autoRotate:YES];
     if (!self.printJob) { [self finish:nil code:2]; return; }
     self.printJob.jobTitle = @"LoFold 邮件";
@@ -212,7 +222,7 @@ static PDFDocument *PrintableDocument(NSArray<NSData *> *slices, CGRect page) {
 @end
 
 // Called on a blocking worker. The main run loop continues serving WebKit.
-static int PerformMailOutput(const uint8_t *source, size_t length, uint8_t **out, size_t *size) {
+static int PerformMailOutput(const uint8_t *source, size_t length, BOOL printing, uint8_t **out, size_t *size) {
     @autoreleasepool {
         if ([NSThread isMainThread] || length > 12 * 1024 * 1024) return 2;
         NSString *html = [[NSString alloc] initWithBytes:source length:length encoding:NSUTF8StringEncoding];
@@ -222,7 +232,10 @@ static int PerformMailOutput(const uint8_t *source, size_t length, uint8_t **out
         __block int code = 2;
         dispatch_async(dispatch_get_main_queue(), ^{
             __block LFMailImage *task = [LFMailImage new];
-            task.printing = out == NULL;
+            task.printing = printing;
+#ifdef LOFOLD_NATIVE_OUTPUT_TEST
+            task.capturePrintPDF = printing && out != NULL;
+#endif
             task.completion = ^(NSData *png, int status) {
                 result = png;
                 code = status;
@@ -244,9 +257,16 @@ static int PerformMailOutput(const uint8_t *source, size_t length, uint8_t **out
 void lofold_free_mail_image(uint8_t *bytes) { free(bytes); }
 
 int lofold_mail_image(const uint8_t *source, size_t length, uint8_t **out, size_t *size) {
-    return PerformMailOutput(source, length, out, size);
+    return PerformMailOutput(source, length, NO, out, size);
 }
 
 int lofold_print_mail(const uint8_t *source, size_t length) {
-    return PerformMailOutput(source, length, NULL, NULL);
+    return PerformMailOutput(source, length, YES, NULL, NULL);
 }
+
+#ifdef LOFOLD_NATIVE_OUTPUT_TEST
+// The smoke test captures the same paginated PDF the app hands to the system print panel.
+int lofold_capture_print_pdf_for_test(const uint8_t *source, size_t length, uint8_t **out, size_t *size) {
+    return PerformMailOutput(source, length, YES, out, size);
+}
+#endif

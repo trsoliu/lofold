@@ -121,13 +121,13 @@ impl MailArchive {
                 stored += tx.execute(
                     "INSERT INTO inbox_items (account_id, uid_validity, uid, message_id, unread, inbox_generation, local_read)
                      VALUES (?1, ?2, ?3, ?4, ?5, ?6,
-                       EXISTS(SELECT 1 FROM inbox_items WHERE account_id=?1 AND message_id=?4 AND local_read=1))
+                       EXISTS(SELECT 1 FROM inbox_items WHERE account_id=?1 AND inbox_generation=?6 AND mailbox='INBOX' AND message_id=?4 AND local_read=1 AND pending_seen=0))
                      ON CONFLICT DO NOTHING",
                     params![account_id, validity, item.uid, message_id, item.unread, generation],
                 )? as u32;
             }
             tx.execute(
-                "UPDATE inbox_items SET unread = ?4
+                "UPDATE inbox_items SET unread = ?4,local_read=local_read AND ?4,pending_seen=pending_seen AND ?4
                  WHERE account_id = ?1 AND uid_validity = ?2 AND uid = ?3 AND inbox_generation = ?5 AND mailbox='INBOX'",
                 params![account_id, validity, item.uid, item.unread, generation],
             )?;

@@ -234,7 +234,7 @@ impl MailArchive {
                 )? as u32;
             }
             tx.execute(
-                "UPDATE inbox_items SET unread=?6,flagged=?7,local_read=0
+                "UPDATE inbox_items SET unread=?6,flagged=?7,local_read=local_read AND ?6,pending_seen=pending_seen AND ?6
                  WHERE account_id=?1 AND inbox_generation=?2 AND mailbox=?3 AND uid_validity=?4 AND uid=?5",
                 params![folder.account_id,folder.generation,folder.name,page.uid_validity,item.uid,item.unread,item.flagged],
             )?;
@@ -261,6 +261,61 @@ impl MailArchive {
         Ok(folder)
     }
 
+    pub fn mark_opened_read(
+        &self,
+        account: i64,
+        message_id: i64,
+        location: MailLocation,
+    ) -> Result<(), ArchiveError> {
+        let folder = self.message_mailbox(location)?;
+        if folder.account_id != account {
+            return Err(ArchiveError::MissingMailboxMessage);
+        }
+        let changed = self.database.execute(
+            "UPDATE inbox_items SET local_read=unread, pending_seen=unread
+             WHERE account_id=?1 AND inbox_generation=?2 AND mailbox=?3 AND uid_validity=?4 AND uid=?5 AND message_id=?6",
+            params![account,folder.generation,folder.name,location.uid_validity,location.uid,message_id],
+        )?;
+        if changed == 0 {
+            return Err(ArchiveError::MissingMailboxMessage);
+        }
+        Ok(())
+    }
+
+    pub fn pending_seen(
+        &self,
+        id: i64,
+        uid: Option<u32>,
+    ) -> Result<Vec<MailLocation>, ArchiveError> {
+        let folder = self.mailbox(id)?;
+        let mut query = self.database.prepare(
+            "SELECT uid_validity,uid FROM inbox_items WHERE account_id=?1 AND inbox_generation=?2
+              AND mailbox=?3 AND uid_validity=(SELECT validity FROM mailboxes WHERE id=?4)
+              AND pending_seen AND (?5 IS NULL OR uid=?5) ORDER BY uid",
+        )?;
+        let rows = query.query_map(
+            params![folder.account_id, folder.generation, folder.name, id, uid],
+            |row| {
+                Ok(MailLocation {
+                    folder_id: id,
+                    uid_validity: row.get(0)?,
+                    uid: row.get(1)?,
+                })
+            },
+        )?;
+        Ok(rows.collect::<Result<_, _>>()?)
+    }
+
+    pub fn cancel_pending_seen(&self, location: MailLocation) -> Result<bool, ArchiveError> {
+        let folder = self.message_mailbox(location)?;
+        let canceled = self.database.execute(
+            "UPDATE inbox_items SET local_read=0,pending_seen=0
+             WHERE account_id=?1 AND inbox_generation=?2 AND mailbox=?3 AND uid_validity=?4 AND uid=?5 AND pending_seen",
+            params![folder.account_id,folder.generation,folder.name,location.uid_validity,location.uid],
+        )?;
+        Ok(canceled != 0)
+    }
+
     pub fn apply_mailbox_change(
         &self,
         location: MailLocation,
@@ -278,7 +333,7 @@ impl MailArchive {
         match change {
             CachedChange::Seen(seen) => self.database.execute(
                 &format!(
-                    "UPDATE inbox_items SET unread={},local_read=0 {where_item}",
+                    "UPDATE inbox_items SET unread={},local_read=0,pending_seen=0 {where_item}",
                     u8::from(!seen)
                 ),
                 keys,

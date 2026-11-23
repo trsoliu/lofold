@@ -11,7 +11,7 @@ pub const MAX_EML_BYTES: usize = 16 * 1024 * 1024;
 const MAX_READING_CHARS: usize = 250_000;
 const MAX_SEARCH_CHARS: usize = 160;
 const PAGE_SIZE: u32 = 60;
-const SCHEMA_VERSION: u32 = 10;
+const SCHEMA_VERSION: u32 = 11;
 
 mod accounts;
 mod conversations;
@@ -26,6 +26,7 @@ pub use accounts::{
 };
 pub use conversations::Conversation;
 pub use mailboxes::{CachedChange, DiscoveredMailbox, MailLocation, Mailbox, SyncPage, SyncedItem};
+pub use rich_body::{mail_raster_info, MAX_IMAGE_BYTES};
 pub use tools::{AttachmentPage, SavedSearch, SearchSpec, StorageStatus};
 pub use workspace::{ComposeMode, Draft, DraftFields, Folder, InboxItem, MAX_DRAFT_FILES_BYTES};
 pub use writing::{WritingLength, WritingMemory, WritingProfile, WritingRecord, WritingTone};
@@ -86,6 +87,8 @@ pub enum ArchiveError {
     NewerArchive,
     #[error("无法打开加密归档。")]
     Encryption,
+    #[error("此内嵌视频无法在阅读器中播放，可保存附件后打开。")]
+    UnsupportedInlineVideo,
     #[error("搜索词最多支持 160 个字符。")]
     SearchTooLong,
     #[error("归档数据库操作失败。")]
@@ -221,6 +224,9 @@ impl MailArchive {
         }
         if version < 10 {
             migration.execute_batch(include_str!("writing.sql"))?;
+        }
+        if version < 11 {
+            migration.execute_batch("ALTER TABLE inbox_items ADD COLUMN pending_seen INTEGER NOT NULL DEFAULT 0 CHECK(pending_seen IN (0,1));")?;
             migration.pragma_update(None, "user_version", SCHEMA_VERSION)?;
         }
         migration.commit()?;
@@ -495,6 +501,11 @@ impl MailArchive {
             filename: format!("LoFold-{id}.eml"),
             bytes,
         })
+    }
+
+    pub fn read_inline_video(&self, id: i64, ordinal: usize) -> Result<Vec<u8>, ArchiveError> {
+        let raw = self.read_raw(id)?;
+        rich_body::inline_video(&parse(&raw)?, ordinal)
     }
 
     pub fn export_attachment(&self, id: i64, index: usize) -> Result<Export, ArchiveError> {

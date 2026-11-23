@@ -125,15 +125,22 @@ export function Attachments({ accounts, query, scope, changeQuery, changeScope, 
       {page === null && notice?.error && <button className="secondary" onClick={() => setRetry((n) => n + 1)}>重试</button>}
       {page?.items.length === 0 && <p className="account-notice muted">{query ? '没有匹配的本机附件。' : '收取或导入带附件的邮件后，附件会出现在这里。'}</p>}
       {!!page?.items.length && <ul className="account-list">
-        {page.items.map((item) => <li className="account-item account-summary" key={item.messageId + '/' + item.ordinal}>
-          <div className="account-identity">
-            <FileText size={18} aria-hidden="true" /><div><h2>{item.filename}</h2><p className="muted">{item.subject || '无主题'} · {item.sender || '未知发件人'}</p></div>
-          </div>
-          <div className="account-actions">
-            <IconAction icon={FolderOpen} label="定位原信" onClick={() => openMessage(item.messageId)} />
-            <IconAction icon={Download} label="保存附件" disabled={busy} onClick={() => void save(item)} />
-          </div>
-        </li>)}
+        {page.items.map((item) => {
+          const origin = (item.subject || '无主题') + ' · ' + (item.sender || '未知发件人')
+          return <li className="account-item account-summary" key={item.messageId + '/' + item.ordinal}>
+            <div className="account-identity">
+              <FileText size={18} aria-hidden="true" />
+              <div className="row-copy">
+                <h2 className="single-line" title={item.filename}>{item.filename}</h2>
+                <p className="single-line muted" title={origin}>{origin}</p>
+              </div>
+            </div>
+            <div className="account-actions">
+              <IconAction icon={FolderOpen} label="定位原信" onClick={() => openMessage(item.messageId)} />
+              <IconAction icon={Download} label="保存附件" disabled={busy} onClick={() => void save(item)} />
+            </div>
+          </li>
+        })}
       </ul>}
       {page?.hasMore && <button className="secondary" disabled={busy} onClick={() => void more()}>加载更多</button>}
     </div>
@@ -177,13 +184,19 @@ export function PinnedSearches({ accounts, open }: { accounts: AccountChoice[]; 
       {items === null && error && <button className="secondary" onClick={() => setRetry((n) => n + 1)}>重试</button>}
       {items?.length === 0 && <p className="account-notice muted">在邮件列表输入关键词，再点击「固定搜索」。</p>}
       {!!items?.length && <ul className="account-list">
-        {items.map((item) => <li className="account-item account-summary" key={item.id}>
-          <button className="draft-row pinned-row" onClick={() => open(item)}>
-            <Bookmark size={15} aria-hidden="true" /><strong>{item.name}</strong>
-            <span className="muted">{[folderNames[item.folder], item.accountId !== null ? accountName(accounts, item.accountId) : '', item.query, item.attachmentsOnly ? '含附件' : ''].filter(Boolean).join(' · ')}</span>
-          </button>
-          <IconAction icon={BookmarkMinus} label={'取消固定 ' + item.name} disabled={deleting !== null} onClick={() => void remove(item.id)} />
-        </li>)}
+        {items.map((item) => {
+          const filter = [folderNames[item.folder], item.accountId !== null ? accountName(accounts, item.accountId) : '', item.query, item.attachmentsOnly ? '含附件' : ''].filter(Boolean).join(' · ')
+          return <li className="account-item account-summary" key={item.id}>
+            <button className="draft-row pinned-row" onClick={() => open(item)}>
+              <Bookmark size={15} aria-hidden="true" />
+              <span className="row-copy">
+                <strong className="single-line" title={item.name}>{item.name}</strong>
+                <span className="single-line muted" title={filter}>{filter}</span>
+              </span>
+            </button>
+            <IconAction icon={BookmarkMinus} label={'取消固定 ' + item.name} disabled={deleting !== null} onClick={() => void remove(item.id)} />
+          </li>
+        })}
       </ul>}
     </div>
   </section>

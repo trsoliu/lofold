@@ -23,7 +23,9 @@ use thiserror::Error;
 use uuid::Uuid;
 
 mod folders;
-pub use folders::{FolderBatch, FolderItem, FolderMutation, RemoteFolder, RemoteFolderKind};
+pub use folders::{
+    FolderBatch, FolderItem, FolderMutation, RemoteFolder, RemoteFolderKind, SeenReceipt,
+};
 mod workspace;
 pub use workspace::{prepare_mail, prepare_mail_with_recipients, InboxBatch, MailRecipients};
 

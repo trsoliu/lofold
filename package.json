@@ -10,6 +10,7 @@
     "build:workspace": "turbo run build",
     "check": "turbo run typecheck",
     "test": "pnpm --filter @lofold/desktop test && cargo test --workspace --locked",
+    "test:reader": "pnpm --filter @lofold/desktop build && pnpm --filter @lofold/desktop test:reader:chromium && pnpm --filter @lofold/desktop test:reader:wk",
     "verify:workspace": "node scripts/verify-workspace.mjs",
     "ci:check": "pnpm verify:workspace && pnpm check && pnpm build:workspace && cargo fmt --all -- --check && pnpm test"
   },

@@ -66,7 +66,7 @@ pub(super) fn set(service: &str, key: &str, value: &[u8]) -> Result<(), String> 
     Ok(())
 }
 
-fn remove(service: &str, key: &str) -> Result<(), String> {
+pub(super) fn remove(service: &str, key: &str) -> Result<(), String> {
     let name = target(service, key)?;
     unsafe {
         if CredDeleteW(name.as_ptr(), CRED_TYPE_GENERIC, 0) == 0

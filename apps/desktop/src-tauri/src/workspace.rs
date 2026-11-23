@@ -64,9 +64,13 @@ pub async fn mark_inbox_read(
     state: State<'_, LocalArchive>,
     id: i64,
     account: i64,
+    location: Option<lofold_mail_store::MailLocation>,
 ) -> Result<(), String> {
     state
-        .run(move |store| store.mark_inbox_read(account, id))
+        .run(move |store| match location {
+            Some(location) => store.mark_opened_read(account, id, location),
+            None => store.mark_inbox_read(account, id),
+        })
         .await
 }
 

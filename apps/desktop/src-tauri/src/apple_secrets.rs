@@ -12,6 +12,14 @@ pub fn set(service: &str, key: &str, value: &[u8]) -> Result<(), String> {
     set_generic_password(service, key, value).map_err(|_| "无法写入系统钥匙串。".into())
 }
 
+pub fn remove(service: &str, key: &str) -> Result<(), String> {
+    match security_framework::passwords::delete_generic_password(service, key) {
+        Ok(()) => Ok(()),
+        Err(error) if error.code() == -25300 => Ok(()),
+        Err(_) => Err("无法清除系统钥匙串中的凭据。".into()),
+    }
+}
+
 pub fn delete_account(service: &str, address: &str, active_key: &str) -> Result<(), String> {
     use security_framework::{
         item::{ItemClass, ItemSearchOptions, Limit},

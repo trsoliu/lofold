@@ -1,0 +1,85 @@
+From: Layout Fixture <alerts@example.test>
+To: Reader Fixture <reader@example.test>
+Subject: Synthetic capacity notification
+Date: Wed, 21 Jan 2026 14:45:00 +0000
+Message-ID: <reader-alert-fixture@example.test>
+MIME-Version: 1.0
+Content-Type: multipart/related; boundary="lofold-reader-alert"
+
+--lofold-reader-alert
+Content-Type: text/html; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+<!doctype html>
+<html lang="zh-CN">
+<head><meta charset="utf-8"><style>
+.field-label { width:18px; color:#33495f; }
+.notice-sheet { width: 100%; max-width: 700px; }
+</style></head>
+<body>
+<table role="presentation" class="notice-sheet" cellpadding="0"><tbody><tr><td>
+<h1>合成容量通知</h1>
+<table width="100%" cellpadding="3"><tbody>
+<tr><td width="18" class="field-label"><strong>级</strong><span>别：</span></td><td>提醒</td></tr>
+<tr><td width="18" class="field-label"><span>首次</span><span>触发：</span></td><td>2026-01-21 08:35:00</td></tr>
+<tr><td width="18" class="field-label"><span>最近</span><span>触发：</span></td><td>2026-01-21 14:45:00</td></tr>
+<tr><td width="18" class="field-label"><span>持续</span><span>时间：</span></td><td>6 h 10 min</td></tr>
+<tr><td width="18" class="field-label"><span>目标</span><span>地址：</span></td><td>192.0.2.12</td></tr>
+<tr><td width="18" class="field-label"><span>触发</span><span>条件：</span></td><td>avg(rate) &gt;= 87.5%; current=91.4%. 长值仍应完整换行。 fixture-long-diagnostic-token-0123456789012345678901234567890123456789</td></tr>
+<tr><td width="18" class="field-label"><span>当前</span><span>值：</span></td><td>91.4%</td></tr>
+</tbody></table>
+<figure><img alt="合成趋势图" src="cid:fixture-alert-chart@lofold.test" width="720" height="260"></figure>
+<p style="background-color:#108546">ALERT-FIXTURE-END</p>
+</td></tr></tbody></table>
+</body></html>
+
+--lofold-reader-alert
+Content-Type: image/png; name="fixture-alert-chart.png"
+Content-Transfer-Encoding: base64
+Content-Disposition: inline; filename="fixture-alert-chart.png"
+Content-ID: <fixture-alert-chart@lofold.test>
+
+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
+OKhzoXOp7wAAAABJRU5ErkJggg==
+
+--lofold-reader-alert--

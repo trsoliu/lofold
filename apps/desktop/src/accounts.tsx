@@ -1,6 +1,6 @@
 import { isMac } from './platform'
 import { invoke } from '@tauri-apps/api/core'
-import { KeyRound, Mail, Trash2 } from 'lucide-react'
+import { Inbox, KeyRound, Mail, MailOpen, Settings2, Trash2 } from 'lucide-react'
 import { useEffect, useRef, useState, type FormEvent } from 'react'
 import { errorMessage } from './archive'
 import { IconAction } from './controls'
@@ -146,17 +146,17 @@ export function Accounts({ onViewMessage, onAccounts, onRemoved }: Props) {
                 <div className="account-summary">
                   <div className="account-identity">
                     <Mail size={17} aria-hidden="true" />
-                    <div>
-                      <h2>{account.address}</h2>
-                      <p className="muted">{status}</p>
+                    <div className="row-copy">
+                      <h2 className="single-line" title={account.address}>{account.address}</h2>
+                      <p className="single-line muted" title={status}>{status}</p>
                     </div>
                   </div>
                   <div className="account-actions">
-                    {(!account.canAuthorize || account.servers) && <button className="secondary"
+                    {(!account.canAuthorize || account.servers) && <IconAction icon={Settings2} label="服务器配置"
                       aria-expanded={configuring === account.id} disabled={busy} onClick={() => {
                         setEditing(null)
                         setConfiguring(configuring === account.id ? null : account.id)
-                      }}>服务器配置</button>}
+                      }} />}
                     {account.canAuthorize && !account.servers && (
                       <IconAction icon={KeyRound} label={account.connected ? '重新授权' : '授权'} disabled={busy}
                         aria-expanded={editing === account.id} onClick={() => {
@@ -164,13 +164,13 @@ export function Accounts({ onViewMessage, onAccounts, onRemoved }: Props) {
                           setEditing(editing === account.id ? null : account.id)
                         }} />)}
                     {account.connected && (waiting
-                      ? <button className="secondary" disabled={busy} onClick={() => void perform(() => checkProbe(account.id))}>查收样信</button>
-                      : <button className="secondary" disabled={busy} onClick={() => void perform(async () => {
+                      ? <IconAction icon={Inbox} label="查收样信" disabled={busy} onClick={() => void perform(() => checkProbe(account.id))} />
+                      : <button className="secondary" title="发送样信给自己" aria-label="发送样信给自己" disabled={busy} onClick={() => void perform(async () => {
                         await invoke('send_mail_probe', { id: account.id })
                         return checkProbe(account.id)
-                      })}>发送样信给自己</button>
+                      })}>发给自己</button>
                     )}
-                    {probe?.messageId != null && <button className="secondary" onClick={() => onViewMessage(probe.messageId!)}>查看样信</button>}
+                    {probe?.messageId != null && <IconAction icon={MailOpen} label="查看样信" onClick={() => onViewMessage(probe.messageId!)} />}
                     <IconAction icon={Trash2} label={`移除 ${account.address}`} title="移除本机邮箱"
                       disabled={busy} aria-haspopup="dialog" onClick={() => setRemoving(account)} />
                   </div>
