@@ -32,7 +32,11 @@ jobs:
           sudo rm -rf /usr/local/lib/android/sdk/ndk /usr/share/dotnet /usr/local/share/boost
           df -h "$HOME"
           "$sdk/sdkmanager" "system-images;android-35;google_apis;x86_64" "emulator" "build-tools;36.0.0"
-          echo no | "$sdk/avdmanager" create avd -n LoFoldTest -k 'system-images;android-35;google_apis;x86_64' --device pixel_6
+          export ANDROID_AVD_HOME="$RUNNER_TEMP/lofold-avd"
+          mkdir -p "$ANDROID_AVD_HOME"
+          echo no | "$sdk/avdmanager" create avd -n LoFoldTest -p "$ANDROID_AVD_HOME/LoFoldTest.avd" -k 'system-images;android-35;google_apis;x86_64' --device pixel_6
+          test -s "$ANDROID_AVD_HOME/LoFoldTest.avd/config.ini"
+          printf 'avd.ini.encoding=UTF-8\npath=%s/LoFoldTest.avd\ntarget=android-35\n' "$ANDROID_AVD_HOME" > "$ANDROID_AVD_HOME/LoFoldTest.ini"
           sudo chmod a+rw /dev/kvm
           mkdir -p /tmp/lofold-verify
           "$ANDROID_HOME/emulator/emulator" -avd LoFoldTest -no-window -no-audio -no-snapshot -no-boot-anim -gpu software -memory 2048 -cores 2 -partition-size 2048 > /tmp/lofold-verify/emulator.log 2>&1 &
