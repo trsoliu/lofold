@@ -1,0 +1,20 @@
+name: Read published LoFold 0.6.0 files
+on:
+  push:
+    branches: ['codex/lofold-public-download-check-060']
+permissions: {}
+jobs:
+  public-download:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download every file without credentials and check SHA-256
+        run: |
+          set -euo pipefail
+          base=https://github.com/trsoliu/lofold/releases/download/v0.6.0
+          curl --fail --location --retry 3 --silent --show-error "$base/SHA256SUMS.txt" -o SHA256SUMS.txt
+          echo 'c04d031f1bc6a0fa7ae793fb7a302fd7b9c8e3dc2d48bf0d3cf9dfb0d985790c  SHA256SUMS.txt' | sha256sum -c -
+          for suffix in macOS-universal.dmg Windows-x64.exe Android-arm64.apk iOS-Simulator-arm64.zip; do
+            file="LoFold-0.6.0-$suffix"
+            curl --fail --location --retry 3 --silent --show-error "$base/$file" -o "$file"
+          done
+          sha256sum -c SHA256SUMS.txt
