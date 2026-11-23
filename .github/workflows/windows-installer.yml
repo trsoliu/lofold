@@ -1,0 +1,58 @@
+name: Windows installer
+
+on:
+  workflow_dispatch:
+  push:
+    branches: ['codex/lofold-windows-*']
+
+permissions:
+  contents: read
+
+jobs:
+  windows-x64:
+    runs-on: windows-2022
+    timeout-minutes: 60
+    env:
+      CARGO_TERM_COLOR: always
+      TURBO_TELEMETRY_DISABLED: "1"
+      # Keep OpenSSL's generated filenames below the MSVC path limit.
+      CARGO_TARGET_DIR: D:\lofold-target
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        with:
+          node-version-file: .node-version
+      - name: Prepare pnpm and native build tools
+        shell: pwsh
+        run: |
+          $pnpm = (Get-Content -Raw package.json | ConvertFrom-Json).packageManager
+          npm install --global $pnpm
+          if ($LASTEXITCODE) { exit $LASTEXITCODE }
+          pnpm install --frozen-lockfile
+          if ($LASTEXITCODE) { exit $LASTEXITCODE }
+          $perl = 'C:\Strawberry\perl\bin'
+          if (!(Test-Path "$perl\perl.exe")) { throw 'Strawberry Perl is required for OpenSSL' }
+          $perl >> $env:GITHUB_PATH
+      - name: Cache Rust build inputs
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
+        with:
+          path: |
+            ~/.cargo/registry
+            D:\lofold-target
+          key: windows-msvc-v1-${{ hashFiles('rust-toolchain.toml', 'Cargo.lock') }}-${{ github.sha }}
+          restore-keys: |
+            windows-msvc-v1-${{ hashFiles('rust-toolchain.toml', 'Cargo.lock') }}-
+            windows-msvc-v1-
+      - name: Build current-user NSIS installer
+        run: pnpm --filter @lofold/desktop tauri build --bundles nsis -- --locked
+      - name: Verify encrypted archive and credentials
+        run: cargo test --release --locked --workspace
+      - name: Install and verify the packaged app
+        shell: pwsh
+        run: ./scripts/windows/verify-installer.ps1
+      - name: Upload verified installer
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: LoFold-Windows-x64
+          path: D:\lofold-target\release\bundle\nsis\*.exe
+          if-no-files-found: error
