@@ -1,0 +1,80 @@
+name: Android release installation test
+on:
+  workflow_dispatch:
+    inputs:
+      release_tag:
+        description: GitHub release tag containing a signed ARM64 APK
+        type: string
+        required: true
+  push:
+    branches: ['codex/lofold-device-*']
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  install-and-reopen:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 65
+    env:
+      GH_TOKEN: ${{ github.token }}
+      RELEASE_TAG: ${{ inputs.release_tag }}
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+      - name: Boot an Android 15 emulator
+        run: |
+          set -eu
+          export PATH="$ANDROID_HOME/platform-tools:$PATH"
+          echo "$ANDROID_HOME/platform-tools" >> "$GITHUB_PATH"
+          sdk="$ANDROID_HOME/cmdline-tools/latest/bin"
+          # Release toolchains use many GiB on hosted runners; the emulator needs a writable userdata image.
+          sudo rm -rf /usr/local/lib/android/sdk/ndk /usr/share/dotnet /usr/local/share/boost
+          df -h "$HOME"
+          "$sdk/sdkmanager" "system-images;android-35;google_apis;x86_64" "emulator" "build-tools;36.0.0"
+          echo no | "$sdk/avdmanager" create avd -n LoFoldTest -k 'system-images;android-35;google_apis;x86_64' --device pixel_6
+          sudo chmod a+rw /dev/kvm
+          mkdir -p /tmp/lofold-verify
+          "$ANDROID_HOME/emulator/emulator" -avd LoFoldTest -no-window -no-audio -no-snapshot -no-boot-anim -gpu software -memory 2048 -cores 2 -partition-size 2048 > /tmp/lofold-verify/emulator.log 2>&1 &
+          emulator_pid=$!
+          for _ in {1..60}; do
+            if ! kill -0 "$emulator_pid"; then cat /tmp/lofold-verify/emulator.log; exit 1; fi
+            if adb get-state 2>/dev/null | grep -q device; then break; fi
+            sleep 3
+          done
+          timeout 10 adb wait-for-device || { cat /tmp/lofold-verify/emulator.log; exit 1; }
+          timeout 300 bash -c 'until [[ $(adb shell getprop sys.boot_completed | tr -d "\r") == 1 ]]; do sleep 3; done'
+          adb root
+          adb wait-for-device
+          adb shell input keyevent 82
+          adb shell getprop ro.product.cpu.abilist
+      - name: Obtain release or test-sign a CI candidate
+        run: |
+          set -eu
+          out=/tmp/lofold-apk
+          mkdir -p "$out"
+          if [[ -n "$RELEASE_TAG" ]]; then
+            gh release download "$RELEASE_TAG" -p '*.apk' -D "$out"
+            apk=$(find "$out" -name '*.apk' -print -quit)
+          else
+            run=${GITHUB_REF_NAME##*-}
+            [[ "$run" =~ ^[0-9]+$ ]]
+            gh run watch "$run" --interval 20 --exit-status
+            gh run download "$run" -n LoFold-Android-arm64-unsigned -D "$out"
+            input=$(find "$out" -name '*.apk' -print -quit)
+            apk="$out/test-signed.apk"
+            keytool -genkeypair -keystore "$RUNNER_TEMP/ci-only.p12" -storepass changeit -keyalg RSA -alias temp -validity 3 -dname 'CN=LoFold ephemeral device test'
+            "$ANDROID_HOME/build-tools/36.0.0/apksigner" sign --ks "$RUNNER_TEMP/ci-only.p12" --ks-pass pass:changeit --out "$apk" "$input"
+          fi
+          "$ANDROID_HOME/build-tools/36.0.0/apksigner" verify --verbose --print-certs "$apk"
+          adb install "$apk"
+      - name: Import an EML, restart, search and inspect encryption at rest
+        run: python3 scripts/android/verify-emulator.py /tmp/lofold-verify
+      - if: always()
+        name: Capture synthetic device diagnostics
+        run: adb logcat -d -t 1000 > /tmp/lofold-verify/logcat.txt || true
+      - if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: LoFold-device-verification
+          path: /tmp/lofold-verify
