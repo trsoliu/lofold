@@ -21,3 +21,5 @@ pnpm build -- --locked
 | Pages | 检查桌面、窄屏和深色模式。部署后验证公开入口、样式和联系图片。 |
 
 使用 [合成 EML](packages/mail-store/tests/fixtures/chinese-attachment.eml) 复验导入、重启、搜索「差旅」和导出，核对原件与附件字节。回环 TLS 联测见 [测试脚本](scripts/README.md)。默认验收不接触用户账号或钥匙串。
+
+原生分发复验分别见 [macOS 通用包](.github/workflows/macos-installer.yml)、[Windows 安装与重启](.github/workflows/windows-installer.yml)、[Android 安装与导入](.github/workflows/android-emulator.yml)、[iOS 模拟器安装与启动](.github/workflows/ios-simulator.yml)和[鸿蒙归档验证](apps/harmony/README.md)。模拟器、主机集成测试与真机测试分别记录。

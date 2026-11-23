@@ -1,14 +1,14 @@
 # LoFold
 
-开源本地邮件客户端。当前提供 Apple 芯片 Mac 开发版源码。
+开源本地邮件客户端。在设备上收发、搜索和归档邮件。
 
-[项目主页](https://trsoliu.github.io/lofold/) · [从源码构建](#本机运行) · [联系方式](#联系方式) · [开源许可](#开源许可)
+[项目主页](https://trsoliu.github.io/lofold/) · [按系统下载](https://trsoliu.github.io/lofold/#downloads) · [GitHub Releases](https://github.com/trsoliu/lofold/releases) · [从源码构建](#本机运行) · [联系方式](#联系方式) · [开源许可](#开源许可)
 
 [代码地图](CODEMAP.md) · [接口与数据](INTERFACES.md) · [测试](TESTING.md) · [发布](RELEASE.md) · [变更记录](CHANGELOG.md)
 
 **All your inboxes, in one place.** 来信在手，心里有数。
 
-做一个可安装在 Android、iOS、macOS、Windows 上的免费开源邮件客户端。用户打开应用就能离线查看、导入和整理邮件；添加已有邮箱后，设备直接向邮箱服务商收发邮件。以网易邮箱大师的个人使用流程和会员权益为第一阶段功能目标。另外增加自动无损压缩，减少邮件和文件对本机空间的占用，原件可逐字节恢复。
+macOS、Windows、Android 共用邮件工作区。iOS 提供模拟器开发版，鸿蒙提供原生离线版源码。各端安装条件见[发布说明](RELEASE.md)。用户打开应用就能离线查看、导入和整理邮件；添加已有邮箱后，设备直接向邮箱服务商收发邮件。以网易邮箱大师的个人使用流程和会员权益为第一阶段功能目标。另外增加自动无损压缩，减少邮件和文件对本机空间的占用，原件可逐字节恢复。
 
 | 想先看什么 | 文档 |
 | --- | --- |
@@ -72,7 +72,7 @@
 
 ### 本机归档
 
-归档使用 SQLCipher，随机密钥保存在 macOS 钥匙串。原件按 256 KiB 分块，满足节省阈值时使用现有 Rust 编解码器压缩。导出原件前校验 SHA-256。HTML 邮件在隔离环境中本地渲染，远程图片不自动加载。单封 EML 上限为 16 MiB。
+归档使用 SQLCipher。Apple 平台用系统钥匙串，Windows 用凭据管理器，Android 用 Keystore 保护归档密钥。原件按 256 KiB 分块，满足节省阈值时使用现有 Rust 编解码器压缩。导出原件前校验 SHA-256。HTML 邮件在隔离环境中本地渲染，远程图片不自动加载。单封 EML 上限为 16 MiB。
 
 ### 本机运行
 

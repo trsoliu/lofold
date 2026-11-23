@@ -3,6 +3,7 @@
 | 目录 | 负责内容 |
 | --- | --- |
 | [apps/desktop](apps/desktop/) | React 邮件工作区和 Tauri 原生宿主。原生入口注册 IPC 并组装邮件组件。 |
+| [apps/harmony](apps/harmony/) | HarmonyOS NEXT 的 ArkUI 离线归档界面，经原生模块调用共享邮件归档库。 |
 | [apps/design-preview](apps/design-preview/) | 可用浏览器演练的设计原型，包含合成邮件和附件。 |
 | [packages/branding](packages/branding/) | 两个应用共享的标志、品牌信息和主题选项。 |
 | [packages/mail-store](packages/mail-store/) | SQLCipher 归档、迁移、邮件索引、草稿和附件。 |
