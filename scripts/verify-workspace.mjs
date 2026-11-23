@@ -52,7 +52,7 @@ for (const path of documents) {
   }
 }
 
-const host = read('apps/desktop/src-tauri/src/main.rs')
+const host = read('apps/desktop/src-tauri/src/lib.rs')
 const registration = host.match(/tauri::generate_handler!\[([\s\S]+?)\]/)?.[1]
 assert.ok(registration, 'Native command registry missing')
 const commands = new Set(registration.split(',').map(entry => entry.trim().split('::').at(-1)))

@@ -1,0 +1,22 @@
+{
+  "app": {
+    "windows": [{
+      "title": "LoFold",
+      "width": 1200,
+      "height": 780,
+      "minWidth": 420,
+      "minHeight": 520
+    }]
+  },
+  "bundle": {
+    "targets": ["nsis"],
+    "icon": ["icons/icon.ico"],
+    "windows": {
+      "nsis": {
+        "installMode": "currentUser",
+        "languages": ["SimpChinese", "English"],
+        "displayLanguageSelector": false
+      }
+    }
+  }
+}

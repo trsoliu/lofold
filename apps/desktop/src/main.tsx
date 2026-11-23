@@ -1,3 +1,4 @@
+import { isMac } from './platform'
 import {
   ArrowLeft, Bookmark, Download, FileText, Flag, Mail, Paperclip, Pin, RefreshCw, Search, Settings as SettingsIcon,
   Upload, X,
@@ -22,7 +23,6 @@ import './styles.css'
 const dateFormat = new Intl.DateTimeFormat('zh-CN', { dateStyle: 'medium' })
 const fullDateFormat = new Intl.DateTimeFormat('zh-CN', { dateStyle: 'medium', timeStyle: 'short' })
 const emptyPage: MailPage = { items: [], hasMore: false }
-const isMac = navigator.platform.startsWith('Mac')
 const searchShortcut = isMac ? '⌘K' : 'Ctrl K'
 
 function formatDate(timestamp: number | null, full = false) {
@@ -432,7 +432,7 @@ function App() {
 
   useEffect(() => {
     function capture(event: KeyboardEvent) {
-      if (!activeDetail || busy || draft || pinning || watermarkRequest || event.isComposing || event.shiftKey || !event.altKey
+      if (!isMac || !activeDetail || busy || draft || pinning || watermarkRequest || event.isComposing || event.shiftKey || !event.altKey
         || !(event.metaKey || event.ctrlKey) || event.code !== 'KeyS') return
       if ((event.target as HTMLElement | null)?.closest('input,textarea,select,dialog,[contenteditable]')) return
       event.preventDefault()

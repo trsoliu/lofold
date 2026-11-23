@@ -40,6 +40,9 @@ pub async fn import_mailmaster(
     app: AppHandle,
     state: State<'_, LocalArchive>,
 ) -> Result<u32, String> {
+    if !cfg!(target_os = "macos") {
+        return Err("邮箱大师本机导入支持 macOS。其他平台请手动添加邮箱。".into());
+    }
     let path = app
         .path()
         .home_dir()
@@ -294,93 +297,24 @@ pub(crate) async fn worker<T: Send + 'static>(
         .map_err(|_| "邮箱操作中断。".to_owned())?
 }
 
-#[cfg(target_os = "macos")]
 fn save_secret(key: &str, secret: &str) -> Result<(), String> {
-    security_framework::passwords::set_generic_password(KEYCHAIN_SERVICE, key, secret.as_bytes())
-        .map_err(|_| "无法保存授权码，请检查 macOS 钥匙串。".into())
+    crate::platform_secrets::set(KEYCHAIN_SERVICE, key, secret.as_bytes())
 }
 
-#[cfg(target_os = "macos")]
 pub(crate) fn read_secret(account: &MailAccount) -> Result<Zeroizing<String>, String> {
-    let bytes = security_framework::passwords::get_generic_password(
-        KEYCHAIN_SERVICE,
-        &credential_key(account),
-    )
-    .map_err(|_| "无法读取邮箱授权码，请允许钥匙串访问或重新授权。")?;
+    let bytes = crate::platform_secrets::get(KEYCHAIN_SERVICE, &credential_key(account))?
+        .ok_or_else(|| "找不到此邮箱的授权码，请重新授权。".to_string())?;
     String::from_utf8(bytes)
         .map(Zeroizing::new)
-        .map_err(|_| "钥匙串授权码无效，请重新授权。".into())
+        .map_err(|_| "邮箱授权码无效，请重新授权。".into())
 }
 
-#[cfg(target_os = "macos")]
 fn delete_account_secrets(account: &MailAccount) -> Result<(), String> {
-    delete_keychain_credentials(
+    crate::platform_secrets::delete_account(
         KEYCHAIN_SERVICE,
         &account.address.to_ascii_lowercase(),
         &credential_key(account),
     )
-}
-
-#[cfg(target_os = "macos")]
-fn delete_keychain_credentials(
-    service: &str,
-    address: &str,
-    active_key: &str,
-) -> Result<(), String> {
-    use security_framework::{
-        item::{ItemClass, ItemSearchOptions, Limit},
-        passwords::delete_generic_password,
-    };
-
-    const ITEM_NOT_FOUND: i32 = -25300;
-    const KEYCHAIN_ERROR: &str = "无法清除本机邮箱授权，请解锁或允许 macOS 钥匙串访问后重试。";
-
-    let revision_prefix = format!("{address}:");
-    let mut keys = match ItemSearchOptions::new()
-        .class(ItemClass::generic_password())
-        .service(service)
-        .load_attributes(true)
-        .limit(Limit::All)
-        .search()
-    {
-        Ok(items) => items
-            .into_iter()
-            .filter_map(|item| item.simplify_dict()?.remove("acct"))
-            .filter(|key| {
-                key == address
-                    || key
-                        .strip_prefix(&revision_prefix)
-                        .is_some_and(|suffix| Uuid::parse_str(suffix).is_ok())
-            })
-            .collect::<Vec<_>>(),
-        Err(error) if error.code() == ITEM_NOT_FOUND => Vec::new(),
-        Err(_) => return Err(KEYCHAIN_ERROR.into()),
-    };
-    // Revoke superseded server revisions first. An ACL failure leaves the current login usable.
-    keys.retain(|key| key != active_key);
-    keys.push(active_key.to_owned());
-    for key in keys {
-        match delete_generic_password(service, &key) {
-            Err(error) if error.code() != ITEM_NOT_FOUND => return Err(KEYCHAIN_ERROR.into()),
-            _ => {}
-        }
-    }
-    Ok(())
-}
-
-#[cfg(not(target_os = "macos"))]
-fn save_secret(_address: &str, _secret: &str) -> Result<(), String> {
-    Err("当前版本仅支持 macOS 钥匙串。".into())
-}
-
-#[cfg(not(target_os = "macos"))]
-fn delete_account_secrets(_account: &MailAccount) -> Result<(), String> {
-    Ok(())
-}
-
-#[cfg(not(target_os = "macos"))]
-pub(crate) fn read_secret(_account: &MailAccount) -> Result<Zeroizing<String>, String> {
-    Err("当前版本仅支持 macOS 钥匙串。".into())
 }
 
 fn credential_key(account: &MailAccount) -> String {
@@ -426,7 +360,7 @@ fn removal_clears_only_the_selected_keychain_account() {
         set_generic_password(&fixture.service, key, b"synthetic fixture").unwrap();
     }
     for _ in 0..2 {
-        delete_keychain_credentials(&fixture.service, address, &current).unwrap();
+        crate::platform_secrets::delete_account(&fixture.service, address, &current).unwrap();
         for key in &fixture.keys[..3] {
             assert_eq!(
                 get_generic_password(&fixture.service, key)
