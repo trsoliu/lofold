@@ -3,10 +3,10 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="description" content="LoFold 是一款开源本地邮件客户端。集中收发多账号邮件，在 Mac 上离线搜索、阅读和导出原件。">
+    <meta name="description" content="LoFold 是一款开源本地邮件客户端。用本机 AI 查找邮件、核对原信、提炼摘要、翻译和拟回复。支持多邮箱收发与离线归档。">
     <meta name="color-scheme" content="dark">
     <meta name="theme-color" content="#151916">
-    <title>LoFold · 开源本地邮件客户端</title>
+    <title>LoFold · 支持本机 AI 的开源邮件客户端</title>
     <link rel="canonical" href="https://trsoliu.github.io/lofold/">
     <link rel="icon" href="lofold.png" type="image/png">
     <link rel="stylesheet" href="lofold.css">
@@ -17,6 +17,7 @@
       <div class="frame nav-row">
         <a class="wordmark" href="./"><img src="lofold.png" alt="" width="32" height="32">LoFold</a>
         <nav aria-label="站点导航">
+          <a href="#ai">本机 AI</a>
           <a href="#features">功能图解</a>
           <a href="#build">本机运行</a>
           <a href="#contact">联系</a>
@@ -28,11 +29,11 @@
       <section class="hero" aria-labelledby="headline">
         <div class="frame intro">
           <p class="product-type">开源本地邮件客户端</p>
-          <h1 id="headline">把所有邮箱，<span>收进 <em>Mac</em>。</span></h1>
-          <p class="lead">在一个收件箱读来信。即使断网，也能找回存过的邮件和附件。</p>
+          <h1 id="headline">找邮件，<span>问本机 AI。</span></h1>
+          <p class="lead">把多个邮箱收进一个客户端。用自己的话查信，点开原信核对，再把回复写成草稿。</p>
           <div class="actions">
-            <a class="button" href="#build">在 Mac 上运行 <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12h15m-6-6 6 6-6 6"/></svg></a>
-            <a class="text-link" href="https://github.com/trsoliu/lofold">查看源码 <span aria-hidden="true">↗</span></a>
+            <a class="button" href="#build">从源码运行 <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12h15m-6-6 6 6-6 6"/></svg></a>
+            <a class="text-link" href="#ai">看 AI 实例 <span aria-hidden="true">↓</span></a>
           </div>
         </div>
         <figure class="stage">
@@ -45,6 +46,53 @@
           </a>
           <figcaption><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3H3v6m12-6h6v6M3 15v6h6m12-6v6h-6"/></svg> 客户端实景 · 点击查看完整三栏</figcaption>
         </figure>
+      </section>
+      <section class="ai-focus frame" id="ai" aria-labelledby="ai-heading">
+        <header class="ai-intro">
+          <div>
+            <h2 id="ai-heading">本机 AI 能帮你做什么？</h2>
+            <p>用一封音乐会邀请，看看 LoFold 在同一台电脑上用 Ollama 和 Qwen2.5 3B 实际生成的结果。</p>
+          </div>
+          <a class="text-link" href="https://github.com/trsoliu/lofold/blob/main/docs/15-%E6%9C%AC%E6%9C%BAAI.md">启用本机模型 <span aria-hidden="true">↗</span></a>
+        </header>
+        <div class="ai-tabs" role="tablist" aria-label="查看本机 AI 实例" hidden>
+          <button type="button" role="tab" id="tab-search" aria-controls="example-search" aria-selected="true" tabindex="0">查信</button>
+          <button type="button" role="tab" id="tab-summary" aria-controls="example-summary" aria-selected="false" tabindex="-1">摘要</button>
+          <button type="button" role="tab" id="tab-translate" aria-controls="example-translate" aria-selected="false" tabindex="-1">翻译</button>
+          <button type="button" role="tab" id="tab-draft" aria-controls="example-draft" aria-selected="false" tabindex="-1">拟回复</button>
+        </div>
+        <div class="ai-example" id="example-search">
+          <figure>
+            <figcaption><h3>日落音乐会几点集合？</h3><p>在「AI 查信」里选择邮箱或整个归档，用平常说话的方式提问。示例里，模型找到了周六 17:30 的集合时间，也列出了可以点开核对的邀请邮件。</p></figcaption>
+            <a class="shot-image" data-preview href="screenshots/ai-search.webp" title="放大查看查信示例" aria-label="放大查看查信示例">
+              <img src="screenshots/ai-search.webp" width="1622" height="1050" loading="lazy" decoding="async" alt="模型回答周六 17:30 在灯塔旁集合，下方列出音乐会邀请原信。">
+            </a>
+          </figure>
+        </div>
+        <div class="ai-example" id="example-summary">
+          <figure>
+            <figcaption><h3>把一封邀请读成几条要点</h3><p>打开邮件操作栏的「本机 AI」，选择「摘要」。这封邀请里的集合时间、演出时间、入口和要带的节目单都能和原文对照。</p></figcaption>
+            <a class="shot-image" data-preview href="screenshots/ai-summary.webp" title="放大查看摘要示例" aria-label="放大查看摘要示例">
+              <img src="screenshots/ai-summary.webp" width="1280" height="1304" loading="lazy" decoding="async" alt="邮件摘要按主题、关键事实和待办列出示例邀请的内容。">
+            </a>
+          </figure>
+        </div>
+        <div class="ai-example" id="example-translate">
+          <figure>
+            <figcaption><h3>在原信旁读懂另一种语言</h3><p>在「翻译」里选择简体中文、英语、日语或韩语。这里选了英语，译文保留了集合地点和两个不同的时间。</p></figcaption>
+            <a class="shot-image" data-preview href="screenshots/ai-translate.webp" title="放大查看翻译示例" aria-label="放大查看翻译示例">
+              <img src="screenshots/ai-translate.webp" width="1280" height="1068" loading="lazy" decoding="async" alt="翻译窗口选中英语，显示音乐会邀请的英文译文和时间。">
+            </a>
+          </figure>
+        </div>
+        <div class="ai-example" id="example-draft">
+          <figure>
+            <figcaption><h3>让 AI 起草，自己决定怎么回</h3><p>写下你想表达的意思，先预览生成的文字，再点「用作回复草稿」。你可以在写信窗口修改、添加附件并确认发送。</p></figcaption>
+            <a class="shot-image" data-preview href="screenshots/ai-draft.webp" title="放大查看拟回复示例" aria-label="放大查看拟回复示例">
+              <img src="screenshots/ai-draft.webp" width="1280" height="964" loading="lazy" decoding="async" alt="根据准时赴约、感谢邀请的要求生成了一句回复，底部可将它用作草稿。">
+            </a>
+          </figure>
+        </div>
       </section>
       <section id="features" class="guide frame" aria-labelledby="features-heading">
         <header class="guide-header">
@@ -139,7 +187,7 @@
       <section id="build" class="build frame" aria-labelledby="build-heading">
         <div>
           <h2 id="build-heading">从源码运行</h2>
-          <p>当前为 Apple 芯片 Mac 开发版。需要 Xcode、Node.js 22.12 或以上版本、pnpm 11 和 rustup。</p>
+          <p>在 Mac 上从源码运行，需要 Xcode、Node.js 22.12 或以上版本、pnpm 11 和 rustup。</p>
           <a href="https://github.com/trsoliu/lofold#本机运行">构建与检查说明 <span aria-hidden="true">↗</span></a>
         </div>
         <pre><code>git clone https://github.com/trsoliu/lofold.git
