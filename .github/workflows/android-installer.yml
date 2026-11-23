@@ -23,7 +23,7 @@ jobs:
           export JAVA_HOME="$JAVA_HOME_21_X64"
           echo "JAVA_HOME=$JAVA_HOME" >> "$GITHUB_ENV"
           echo "$JAVA_HOME/bin" >> "$GITHUB_PATH"
-          sdkmanager "platforms;android-36" "platforms;android-37.0" "build-tools;36.0.0" "ndk;27.2.12479018"
+          "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" "platforms;android-36" "platforms;android-37.0" "build-tools;36.0.0" "ndk;27.2.12479018"
           echo "NDK_HOME=$ANDROID_HOME/ndk/27.2.12479018" >> "$GITHUB_ENV"
           echo "$ANDROID_HOME/ndk/27.2.12479018/toolchains/llvm/prebuilt/linux-x86_64/bin" >> "$GITHUB_PATH"
           rustup target add aarch64-linux-android
