@@ -37,7 +37,17 @@ def find(root, *labels):
 def wait_for(*labels, seconds=40):
     until = time.monotonic() + seconds
     while time.monotonic() < until:
-        node = find(hierarchy(), *labels)
+        try:
+            root = hierarchy()
+        except (ET.ParseError, subprocess.CalledProcessError, subprocess.TimeoutExpired):
+            time.sleep(1)
+            continue
+        if find(root, "Pixel Launcher isn't responding") is not None:
+            close = find(root, "android:id/aerr_close")
+            if close is not None:
+                tap(close)
+                continue
+        node = find(root, *labels)
         if node is not None:
             return node
         time.sleep(1)
@@ -52,7 +62,7 @@ def tap(node):
 
 def archive():
     adb("shell", "am", "start", "-W", "-n", APP + "/.MainActivity")
-    nav = wait_for("本机归档", "邮箱导航", seconds=75)
+    nav = wait_for("本机归档", "邮箱导航", seconds=150)
     tap(nav)
     if nav.attrib.get("text") != "本机归档" and nav.attrib.get("content-desc") != "本机归档":
         tap(wait_for("本机归档"))
