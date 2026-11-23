@@ -29,6 +29,7 @@ const categories = [
   { id: 'settings', label: '写信' },
   { id: 'appearance', label: '外观' },
   { id: 'offline', label: '本机存储' },
+  { id: 'agent-mcp', label: 'Agent MCP' },
 ] as const
 
 export function isSettingsScreen(screen: Screen) {
@@ -39,7 +40,7 @@ export function SettingsHeader({ screen, navigate }: { screen: Screen; navigate:
   return <header className="settings-header">
     <h1>设置</h1>
     <nav className="settings-navigation" aria-label="设置分类">
-      {categories.map(({ id, label }) => <button className="secondary" type="button" key={id}
+      {categories.filter(({ id }) => id !== 'agent-mcp' || navigator.platform.startsWith('Mac')).map(({ id, label }) => <button className="secondary" type="button" key={id}
         aria-current={id === screen ? 'page' : undefined} onClick={() => navigate(id)}>{label}</button>)}
     </nav>
   </header>

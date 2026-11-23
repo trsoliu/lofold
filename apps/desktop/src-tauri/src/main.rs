@@ -18,6 +18,8 @@ mod accounts;
 mod ai;
 mod image_watermark;
 mod mailboxes;
+#[cfg(target_os = "macos")]
+mod mcp;
 mod message_image;
 mod tools;
 mod workspace;
@@ -228,6 +230,17 @@ fn write_export(directory: &Path, path: &Path, export: Export) -> Result<(), Str
 }
 
 fn main() {
+    #[cfg(target_os = "macos")]
+    if std::env::args_os()
+        .nth(1)
+        .is_some_and(|argument| argument == "--mcp")
+    {
+        if let Err(error) = lofold_agent_mcp::run_stdio() {
+            eprintln!("LoFold MCP: {error}");
+            std::process::exit(1);
+        }
+        return;
+    }
     tauri::Builder::default()
         .plugin(tauri_plugin_dialog::init())
         .setup(|app| {
@@ -237,6 +250,8 @@ fn main() {
                 mail_operation: Arc::new(tauri::async_runtime::Mutex::new(())),
             });
             app.manage(ai::AiState::default());
+            #[cfg(target_os = "macos")]
+            app.manage(mcp::AgentAccess::default());
             Ok(())
         })
         .invoke_handler(tauri::generate_handler![
@@ -248,6 +263,16 @@ fn main() {
             ai::ai_models,
             ai::run_ai,
             ai::cancel_ai,
+            #[cfg(target_os = "macos")]
+            mcp::mcp_settings,
+            #[cfg(target_os = "macos")]
+            mcp::mcp_set_enabled,
+            #[cfg(target_os = "macos")]
+            mcp::mcp_share_mail,
+            #[cfg(target_os = "macos")]
+            mcp::mcp_revoke_mail,
+            #[cfg(target_os = "macos")]
+            mcp::mcp_take_draft,
             message_image::save_message_image,
             message_image::message_image_accounts,
             message_image::read_image_watermark,
@@ -282,6 +307,12 @@ fn main() {
             tools::unpin_search,
             tools::storage_status
         ])
-        .run(tauri::generate_context!())
-        .expect("LoFold could not start");
+        .build(tauri::generate_context!())
+        .expect("LoFold could not start")
+        .run(|_app, _event| {
+            #[cfg(target_os = "macos")]
+            if matches!(_event, tauri::RunEvent::Exit) {
+                _app.state::<mcp::AgentAccess>().shutdown();
+            }
+        });
 }

@@ -3,8 +3,10 @@ import {
   Upload, X,
 } from 'lucide-react'
 import { StrictMode, useEffect, useRef, useState, type ChangeEvent } from 'react'
+import { listen, type UnlistenFn } from '@tauri-apps/api/event'
 import { createRoot } from 'react-dom/client'
 import { Accounts } from './accounts'
+import { agentMcp, AgentMcpSettings, AgentShareDialog, type AgentAction } from './agent-mcp'
 import { AiMessageDialog, AiWorkspace } from './ai-panel'
 import { archive, errorMessage, type MailConversation, type MailDetail, type MailPage, type MailSummary } from './archive'
 import { brand, getTheme, logo, setTheme } from './branding'
@@ -50,6 +52,8 @@ function App() {
   const [returnToAi, setReturnToAi] = useState(false)
   const [aiAccount, setAiAccount] = useState<number | null>(null)
   const [aiMail, setAiMail] = useState<MailSummary | null>(null)
+  const [agentMail, setAgentMail] = useState<MailSummary | null>(null)
+  const agentAction = useRef<(action: AgentAction) => void>(() => {})
   const [scope, setScope] = useState<number | null>(null)
   const [accounts, setAccounts] = useState<AccountChoice[]>([])
   const [mailboxes, setMailboxes] = useState<MailboxChoice[]>([])
@@ -177,7 +181,7 @@ function App() {
 
   useEffect(() => {
     function focusSearch(event: KeyboardEvent) {
-      if (draft || pinning || aiMail || event.isComposing || event.altKey || event.shiftKey || !(event.metaKey || event.ctrlKey) || event.key.toLowerCase() !== 'k') return
+      if (draft || pinning || aiMail || agentMail || event.isComposing || event.altKey || event.shiftKey || !(event.metaKey || event.ctrlKey) || event.key.toLowerCase() !== 'k') return
       event.preventDefault()
       if (!folder) goTo('inbox')
       setReading(false)
@@ -188,7 +192,18 @@ function App() {
     }
     window.addEventListener('keydown', focusSearch)
     return () => window.removeEventListener('keydown', focusSearch)
-  }, [draft, folder, pinning, aiMail])
+  }, [draft, folder, pinning, aiMail, agentMail])
+
+  useEffect(() => {
+    if (!isMac) return
+    let disposed = false
+    let unlisten: UnlistenFn | undefined
+    listen<AgentAction>('lofold://agent-action', ({ payload }) => agentAction.current(payload)).then(
+      (stop) => { if (disposed) stop(); else unlisten = stop },
+      () => {},
+    )
+    return () => { disposed = true; unlisten?.() }
+  }, [])
 
   function goTo(next: Screen, account: number | null = null, term = '', requireAttachment = false) {
     if (next === 'ai' && screen !== 'ai' && !returnToAi) setAiAccount(scope)
@@ -345,6 +360,7 @@ function App() {
       const current = await mailWorkspace.accounts()
       setAccounts(current)
       if (mode === 'edit' && id !== undefined) {
+        if (isMac) await agentMcp.takeDraft(id)
         setDraft(await mailWorkspace.readDraft(id))
         return
       }
@@ -462,6 +478,21 @@ function App() {
   const scopeStatus = scopedAccount ? accountStatus(scopedAccount) : null
   const preferences = isSettingsScreen(screen)
 
+  agentAction.current = (action) => {
+    if (action.kind === 'draft_changed') {
+      setDraftVersion((value) => value + 1)
+      return
+    }
+    if (draft || busy || pinning || aiMail || agentMail || watermarkRequest) {
+      setNotice({ text: action.kind === 'open_draft'
+        ? '当前操作结束后，可在「所有草稿」中打开 Agent 草稿。'
+        : '当前正在操作邮件。关闭当前操作后可重新请求 Agent 查信。' })
+      return
+    }
+    if (action.kind === 'open_search') goTo(action.scope, null, action.query)
+    else void openComposer('edit', action.id)
+  }
+
   return (
     <div className="shell" data-native-titlebar={isMac} data-reading={reading}>
       <div className="brand" data-tauri-drag-region="deep">
@@ -512,6 +543,7 @@ function App() {
 
       <main className="workspace" data-reading={reading} data-screen={screen} data-preferences={preferences}>
         {preferences && <SettingsHeader screen={screen} navigate={goTo} />}
+        {isMac && screen === 'agent-mcp' && <AgentMcpSettings />}
         {(screen === 'settings' || screen === 'appearance') && <Settings section={screen} theme={theme} changeTheme={(id) => updateTheme(setTheme(id))}
           accounts={accounts} defaultSender={defaultSender} changeDefault={(account) => {
             saveDefaultSender(account)
@@ -612,6 +644,7 @@ function App() {
                     pin={() => void manageMessage('pin')} exportOriginal={() => void save()}
                     capture={() => void outputMessage('png')} print={() => void outputMessage('print')}
                     assistant={() => setAiMail(activeMessage)}
+                    shareWithAgent={isMac ? () => setAgentMail(activeMessage) : undefined}
                     conversation={() => void openConversation(activeDetail.id, selected?.account ?? null)} />}
                 </div>
               </header>
@@ -647,6 +680,8 @@ function App() {
       </main>
       {aiMail && <AiMessageDialog message={aiMail} close={() => setAiMail(null)}
         useDraft={(body) => void openComposer('reply', aiMail.id, body)} />}
+      {agentMail && <AgentShareDialog key={agentMail.id} mail={agentMail} close={() => setAgentMail(null)}
+        shared={() => { setAgentMail(null); setNotice({ text: '已共享。可在「设置 → Agent MCP」撤回。' }) }} />}
       {pinning && folder && canPinSearch && <PinSearch spec={{ folder, accountId: accountFilter, query, attachmentsOnly }}
         close={() => setPinning(false)} saved={() => { setPinning(false); setNotice({ text: '已固定搜索。' }) }} />}
       {draft && <Composer key={draft.id} initial={draft} accounts={accounts}

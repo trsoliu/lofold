@@ -109,6 +109,10 @@ impl MailSummary {
     pub fn subject(&self) -> &str {
         &self.subject
     }
+
+    pub fn sender(&self) -> &str {
+        &self.sender
+    }
 }
 
 #[derive(Serialize)]

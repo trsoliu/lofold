@@ -1,0 +1,31 @@
+.agent-settings { display: grid; gap: 20px; }
+.agent-settings h2, .agent-dialog h2 { font-size: 15px; margin: 0; }
+.agent-settings p { margin-top: 4px; overflow-wrap: anywhere; }
+.agent-setting-row, .agent-heading, .agent-shares li {
+  display: flex; align-items: start; justify-content: space-between; gap: 10px;
+}
+.agent-heading { align-items: center; }
+.agent-toggle { display: inline-flex; align-items: center; gap: 7px; min-height: 34px; white-space: nowrap; }
+.agent-toggle input { accent-color: var(--accent); }
+.agent-connection textarea {
+  display: block; box-sizing: border-box; width: 100%; margin-top: 7px; padding: 9px;
+  border: 1px solid var(--border); border-radius: 7px; background: var(--paper); color: var(--ink);
+  font: 12px/1.5 ui-monospace, monospace; resize: vertical; overflow-wrap: anywhere;
+}
+.agent-shares { padding: 0; margin: 10px 0; list-style: none; }
+.agent-shares li { padding: 8px 0; border-top: 1px solid var(--divider); }
+.agent-shares li > div { min-width: 0; overflow-wrap: anywhere; }
+.agent-shares small { display: block; color: var(--muted); }
+.agent-shares .icon-action { flex: none; }
+.agent-feedback { padding: 7px 9px; border-radius: 6px; background: var(--soft); }
+.agent-dialog {
+  box-sizing: border-box; width: min(460px, calc(100% - 24px)); padding: 15px;
+  border: 1px solid var(--divider); border-radius: var(--shell-radius); background: var(--surface); color: var(--ink);
+}
+.agent-dialog p { margin-top: 8px; overflow-wrap: anywhere; }
+.agent-dialog::backdrop { background: #0006; }
+.agent-dialog-actions { display: flex; justify-content: end; gap: 8px; margin-top: 14px; }
+@media (max-width: 740px) {
+  .agent-setting-row { flex-wrap: wrap; }
+  .agent-settings .secondary, .agent-dialog .secondary, .agent-toggle { min-height: 40px; }
+}

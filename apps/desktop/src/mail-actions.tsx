@@ -16,9 +16,10 @@ type Props = {
   print: () => void
   conversation: () => void
   assistant: () => void
+  shareWithAgent?: () => void
 }
 
-export function MailActions({ message, mailboxes, blocked, compose, change, pin, exportOriginal, capture, print, conversation, assistant }: Props) {
+export function MailActions({ message, mailboxes, blocked, compose, change, pin, exportOriginal, capture, print, conversation, assistant, shareWithAgent }: Props) {
   const [show, setShow] = useState(false)
   const [dialog, setDialog] = useState<'move' | 'delete' | null>(null)
   const [target, setTarget] = useState('')
@@ -83,6 +84,7 @@ export function MailActions({ message, mailboxes, blocked, compose, change, pin,
         <button onClick={() => action(() => compose('forward-as-attachment'))}>作为附件转发</button>
         {source?.kind === 'drafts' && <button onClick={() => action(() => compose('edit-server-draft'))}>编辑本机副本</button>}
         <button onClick={() => action(conversation)}>查看同一会话</button>
+        {shareWithAgent && <button onClick={() => action(shareWithAgent)}>共享给 Agent MCP…</button>}
         <hr />
         <button onClick={() => action(pin)}>{message.pinned ? '取消本机置顶' : '本机置顶'}</button>
         {source && <>
