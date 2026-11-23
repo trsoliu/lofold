@@ -47,7 +47,7 @@ jobs:
           cd "$sdk"
           mv "$HOME/.cache/lofold-harmony/cli.zip" .
           echo 'c6fe61299e1b05e4023e643a319ee74c3eb369af7edecd5c3f1795b16f9db6af  cli.zip' | sha256sum -c -
-          unzip -q cli.zip -x "*/previewer/*" "*/BiSheng/*"
+          unzip -q cli.zip
           rm cli.zip
           cli="$sdk/command-line-tools"
           echo "DEVECO_SDK_HOME=$cli/sdk" >> "$GITHUB_ENV"
@@ -67,4 +67,7 @@ jobs:
           unzip -tq "$hap"
           unzip -Z1 "$hap" | grep -x 'libs/arm64-v8a/liblofold.so'
           unzip -Z1 "$hap" | grep -x 'ets/modules.abc'
+          unzip -p "$hap" libs/arm64-v8a/liblofold.so > "$RUNNER_TEMP/liblofold.so"
+          readelf -h "$RUNNER_TEMP/liblofold.so" | grep 'Machine:.*AArch64'
+          readelf -d "$RUNNER_TEMP/liblofold.so" | grep NEEDED
           sha256sum "$hap"
