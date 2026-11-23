@@ -116,7 +116,7 @@ h1, h2, p, figure, dl, dd { margin: 0; }
   gap: clamp(18px, 4vw, 48px);
   padding-block: clamp(36px, 6vw, 80px);
 }
-.build h2 { font-size: 1.6rem; }
+.build h2, .contact h2 { font-size: 1.6rem; }
 .build p { margin: 8px 0 4px; }
 .build a { display: inline-flex; align-items: center; gap: .4em; min-height: 44px; }
 .build pre {
@@ -128,6 +128,35 @@ h1, h2, p, figure, dl, dd { margin: 0; }
   font: .875rem/1.7 ui-monospace, monospace;
   white-space: pre-wrap;
   overflow-wrap: anywhere;
+}
+.contact {
+  padding-block: 32px clamp(36px, 6vw, 64px);
+  border-top: 1px solid var(--line);
+}
+.contact p { margin-top: 4px; color: var(--muted); }
+.contact-methods {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  margin-top: 16px;
+}
+.contact-method {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: clamp(10px, 2vw, 22px);
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: var(--paper);
+}
+.contact-method h3 { margin: 0; font-size: 1rem; }
+.contact-method p { font-size: .875rem; }
+.contact-method img {
+  display: block;
+  width: clamp(104px, 30vw, 144px);
+  height: auto;
+  image-rendering: pixelated;
 }
 .site-footer {
   display: flex;
@@ -145,6 +174,6 @@ h1, h2, p, figure, dl, dd { margin: 0; }
   .frame { width: calc(100% - 32px); }
   .site-header { min-height: 66px; }
   .site-header nav { font-size: .875rem; }
-  .hero, .features, .build { grid-template-columns: minmax(0, 1fr); }
+  .hero, .features, .build, .contact-methods { grid-template-columns: minmax(0, 1fr); }
   .features { gap: 22px; }
 }

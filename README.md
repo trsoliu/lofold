@@ -2,7 +2,7 @@
 
 开源本地邮件客户端。当前提供 Apple 芯片 Mac 开发版源码。
 
-[项目主页](https://trsoliu.github.io/lofold/) · [从源码构建](#本机运行) · [开源许可](#开源许可)
+[项目主页](https://trsoliu.github.io/lofold/) · [从源码构建](#本机运行) · [联系方式](#联系方式) · [开源许可](#开源许可)
 
 **All your inboxes, in one place.** 来信在手，心里有数。
 
@@ -98,6 +98,15 @@ pnpm build -- --locked
 2026-11-21 在 Apple 芯片 Mac 上实测导入样例、查看中文附件、退出重开后以「差旅」找回邮件。界面导出的 745 字节 EML 和 32 字节 CSV 均与样例逐字节一致。归档与压缩的 11 项 Rust 测试通过。
 
 [客户端源码](apps/client)采用 React 和 Tauri，[归档内核](crates/mail-store)可独立运行测试。完整 IMAP 同步以及 iOS、Android、Windows 实装属于后续里程碑。原型可用于审阅计划中的功能。研发文档指向 `output/` 的历史截图和构建产物保留在本机。
+
+## 联系方式
+
+使用微信扫一扫，或保存二维码后在微信中识别。[项目主页联系区](https://trsoliu.github.io/lofold/#contact)
+
+| LoFold 开源邮箱体验群 | 维护者微信 · 刘亚东 |
+| --- | --- |
+| <img src="docs/contact/wechat-group.png" width="168" alt="LoFold 开源邮箱体验群二维码"> | <img src="docs/contact/wechat-maintainer.png" width="168" alt="维护者刘亚东的微信二维码"> |
+| 群码在 2026 年 11 月 30 日前有效 | 扫码添加好友 |
 
 ## 开源许可
 
