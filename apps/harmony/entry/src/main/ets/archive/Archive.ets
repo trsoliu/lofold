@@ -54,11 +54,13 @@ async function loadKey(dir: string): Promise<Uint8Array> {
   lookup.set(asset.Tag.RETURN_TYPE, asset.ReturnType.ALL);
   try {
     const result = await asset.query(lookup);
-    const value = result[0].get(asset.Tag.SECRET) as Uint8Array;
-    if (value.length !== 32) {
-      throw new Error('归档密钥无法读取。');
+    if (result.length > 0) {
+      const value = result[0].get(asset.Tag.SECRET);
+      if (!(value instanceof Uint8Array) || value.length !== 32) {
+        throw new Error('归档密钥无法读取。');
+      }
+      return value;
     }
-    return value;
   } catch (error) {
     if ((error as BusinessError).code !== asset.ErrorCode.NOT_FOUND) {
       throw error as Error;
