@@ -14,3 +14,5 @@
 *.pem
 *.p12
 *.key
+
+/apps/desktop/src-tauri/gen/apple/

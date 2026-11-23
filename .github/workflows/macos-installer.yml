@@ -36,7 +36,7 @@ jobs:
           codesign --verify --deep --strict "$app"
           cmp LICENSE "$app/Contents/Resources/LICENSE"
           cmp NOTICE "$app/Contents/Resources/NOTICE"
-          lipo -verify_arch x86_64 arm64 "$app/Contents/MacOS/lofold-client"
+          lipo "$app/Contents/MacOS/lofold-client" -verify_arch x86_64 arm64
           version="$(plutil -extract CFBundleShortVersionString raw "$app/Contents/Info.plist")"
           mkdir -p output/platform-release
           cp "$dmg" "output/platform-release/LoFold-$version-macOS-universal.dmg"
