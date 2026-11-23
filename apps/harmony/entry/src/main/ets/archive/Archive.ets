@@ -45,7 +45,7 @@ function queryArchive(path: string, key: ArrayBuffer, op: string, arg: string,
   }
 }
 
-async function loadKey(): Promise<Uint8Array> {
+async function loadKey(database: string): Promise<Uint8Array> {
   const lookup: asset.AssetMap = new Map();
   const alias = new util.TextEncoder().encodeInto('lofold.archive.key.v1');
   lookup.set(asset.Tag.ALIAS, alias);
@@ -61,6 +61,9 @@ async function loadKey(): Promise<Uint8Array> {
     if ((error as BusinessError).code !== asset.ErrorCode.NOT_FOUND) {
       throw error as Error;
     }
+  }
+  if (await fs.access(database)) {
+    throw new Error('本机已有归档，但无法找到对应的密钥。');
   }
   const key = (await cryptoFramework.createRandom().generateRandom(32)).data;
   const record: asset.AssetMap = new Map();
@@ -82,10 +85,11 @@ async function loadKey(): Promise<Uint8Array> {
 
 export async function request<T>(dir: string, op: string, arg: string = '',
   offset: number = 0, bytes: ArrayBuffer = new ArrayBuffer(0)): Promise<T> {
-  const key = await loadKey();
+  const database = dir + '/lofold-mail.db';
+  const key = await loadKey(database);
   const keyCopy = new Uint8Array(key).buffer as ArrayBuffer;
   key.fill(0);
-  const task = new taskpool.Task(queryArchive, dir + '/lofold-mail.db', keyCopy, op, arg, offset, bytes);
+  const task = new taskpool.Task(queryArchive, database, keyCopy, op, arg, offset, bytes);
   // Keep the caller's buffers attached so key bytes can be cleared after taskpool clones them.
   task.setCloneList([keyCopy, bytes]);
   try {

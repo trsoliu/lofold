@@ -215,7 +215,7 @@ struct Index {
     Column() {
       this.Header()
       if (this.busy) {
-        Progress({ value: 1, type: ProgressType.Linear }).width('100%')
+        LoadingProgress().width(24).height(24).accessibilityText('正在读取本机归档')
       }
       if (this.message) {
         Text(this.message).width('100%').padding(12).fontSize(14)

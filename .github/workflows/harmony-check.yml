@@ -15,16 +15,39 @@ jobs:
         with:
           distribution: temurin
           java-version: '17'
+      - name: Restore the verified SDK download
+        id: sdk-cache
+        uses: actions/cache/restore@v4
+        with:
+          path: ~/.cache/lofold-harmony/cli.zip
+          key: harmony-5.0.3.906-c6fe6129
+      - name: Download the SDK from Huawei Cloud
+        if: steps.sdk-cache.outputs.cache-hit != 'true'
+        run: |
+          set -euo pipefail
+          mkdir -p "$HOME/.cache/lofold-harmony"
+          url="https://repo.huaweicloud.com/harmonyos/ohpm/5.0.3/commandline-tools-linux-x64-5.0.3.906.zip"
+          if ! command -v aria2c; then
+            sudo apt-get update -qq && sudo apt-get install -y -qq aria2
+          fi
+          aria2c -x8 -s8 -k4M --timeout=120 --max-tries=3 --file-allocation=none --console-log-level=warn \
+            --checksum=sha-256=c6fe61299e1b05e4023e643a319ee74c3eb369af7edecd5c3f1795b16f9db6af \
+            -d "$HOME/.cache/lofold-harmony" -o cli.zip "$url"
+      - name: Save the verified SDK
+        if: steps.sdk-cache.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v4
+        with:
+          path: ~/.cache/lofold-harmony/cli.zip
+          key: harmony-5.0.3.906-c6fe6129
       - name: Install the HarmonyOS API 12 SDK
         run: |
           set -euo pipefail
           sdk="$RUNNER_TEMP/harmony-sdk"
           mkdir -p "$sdk"
           cd "$sdk"
-          url="https://repo.huaweicloud.com/harmonyos/ohpm/5.0.3/commandline-tools-linux-x64-5.0.3.906.zip"
-          curl -fsSL --retry 3 "$url" -o cli.zip
+          mv "$HOME/.cache/lofold-harmony/cli.zip" .
           echo 'c6fe61299e1b05e4023e643a319ee74c3eb369af7edecd5c3f1795b16f9db6af  cli.zip' | sha256sum -c -
-          unzip -q cli.zip
+          unzip -q cli.zip -x "*/previewer/*" "*/BiSheng/*"
           rm cli.zip
           cli="$sdk/command-line-tools"
           echo "DEVECO_SDK_HOME=$cli/sdk" >> "$GITHUB_ENV"
