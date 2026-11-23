@@ -45,6 +45,7 @@ mod mcp;
 mod message_image;
 mod tools;
 mod workspace;
+mod writing;
 
 #[derive(Clone)]
 struct LocalArchive {
@@ -377,6 +378,8 @@ pub fn run() {
             accounts::authorize_mail_account,
             accounts::send_mail_probe,
             accounts::check_mail_probe,
+            writing::read_writing_profile,
+            writing::save_writing_profile,
             workspace::sync_inbox,
             workspace::mark_inbox_read,
             workspace::create_draft,

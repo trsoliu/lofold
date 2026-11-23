@@ -9,7 +9,7 @@
     "build": "pnpm --filter @lofold/desktop tauri build --bundles app",
     "build:workspace": "turbo run build",
     "check": "turbo run typecheck",
-    "test": "cargo test --workspace --locked",
+    "test": "pnpm --filter @lofold/desktop test && cargo test --workspace --locked",
     "verify:workspace": "node scripts/verify-workspace.mjs",
     "ci:check": "pnpm verify:workspace && pnpm check && pnpm build:workspace && cargo fmt --all -- --check && pnpm test"
   },

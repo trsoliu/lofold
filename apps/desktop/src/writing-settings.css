@@ -1,0 +1,30 @@
+.writing-settings { display: grid; gap: 13px; margin-top: 20px; padding-top: 15px; border-top: 1px solid var(--divider); }
+.writing-settings-heading { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 6px 14px; }
+.writing-settings h2 { font-size: 16px; font-weight: 650; }
+.writing-form, .writing-form > fieldset { min-width: 0; }
+.writing-form > fieldset { display: grid; gap: 13px; margin: 0; padding: 0; border: 0; }
+.writing-fields { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px 14px; }
+.writing-field { display: grid; min-width: 0; gap: 4px; font-size: 13px; }
+.writing-field input, .writing-form .writing-field textarea {
+  display: block; width: 100%; min-width: 0; min-height: var(--control-height); border: 1px solid var(--divider);
+  border-radius: var(--control-radius); background: var(--surface); color: var(--ink); font: inherit;
+}
+.writing-field input { padding: 0 9px; height: var(--control-height); }
+.writing-form .writing-field textarea { padding: 7px 9px; line-height: 1.5; resize: vertical; }
+.writing-field input::placeholder { color: var(--muted); opacity: 1; }
+.writing-memories { display: grid; gap: 7px; }
+.writing-memories header, .writing-actions, .writing-status, .writing-confirm { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.writing-memories header { justify-content: space-between; border-bottom: 1px solid var(--divider); padding-bottom: 5px; }
+.writing-memories h3 { margin: 0; font-size: 14px; font-weight: 600; }
+.writing-memories > p, .writing-actions, .writing-status, .writing-confirm { font-size: 12px; }
+.writing-memory-entry { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: start; gap: 7px 9px; padding-block: 6px 8px; }
+.writing-memory-entry + .writing-memory-entry { border-top: 1px solid var(--divider); }
+.writing-memory-entry > .icon-action { align-self: start; margin-top: 22px; }
+.writing-memory-recipient { grid-column: 1; max-width: 320px; }
+.writing-form .account-notice, .writing-status .account-notice { margin: 0; }
+.writing-actions { position: sticky; bottom: 0; justify-content: flex-start; background: var(--surface); border-top: 1px solid var(--divider); padding: 6px 0; }
+.writing-actions .icon-action[type="submit"]:enabled { color: var(--rill-chip-text); background: var(--rill-chip); }
+.writing-confirm { background: var(--soft); padding: 8px; border-radius: var(--control-radius); }
+@media (max-width: 360px) {
+  .writing-fields { grid-template-columns: minmax(0, 1fr); }
+}

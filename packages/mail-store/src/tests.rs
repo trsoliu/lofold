@@ -236,7 +236,7 @@ fn archive_upgrade_preserves_mail_and_prevents_repeat_submission() {
         store
             .database
             .execute_batch(
-                "DROP TABLE conversation_headers; DROP TABLE conversation_indexed; DROP TABLE conversation_backfill; DROP TABLE pinned_messages; DROP TABLE mailboxes; DROP TABLE saved_searches; DROP TABLE attachment_index; DROP TABLE draft_attachments; DROP TABLE drafts; DROP TABLE inbox_items; DROP TABLE mail_probes; DROP TABLE mail_servers; DROP TABLE mail_accounts; DROP TABLE mail_id_watermarks; PRAGMA user_version=1;",
+                "DROP TABLE writing_profiles; DROP TABLE conversation_headers; DROP TABLE conversation_indexed; DROP TABLE conversation_backfill; DROP TABLE pinned_messages; DROP TABLE mailboxes; DROP TABLE saved_searches; DROP TABLE attachment_index; DROP TABLE draft_attachments; DROP TABLE drafts; DROP TABLE inbox_items; DROP TABLE mail_probes; DROP TABLE mail_servers; DROP TABLE mail_accounts; DROP TABLE mail_id_watermarks; PRAGMA user_version=1;",
             )
             .unwrap();
         id
@@ -379,7 +379,7 @@ fn existing_attachments_and_saved_searches_survive_migration_and_reopen() {
         let mut store = MailArchive::open(&path, &KEY).unwrap();
         let result = store.import(SAMPLE).unwrap();
         store.database.execute_batch(
-            "ALTER TABLE drafts DROP COLUMN cc; ALTER TABLE drafts DROP COLUMN bcc; DROP INDEX draft_sent_message; DROP TABLE conversation_headers; DROP TABLE conversation_indexed; DROP TABLE conversation_backfill; DROP TABLE pinned_messages; DROP TABLE mailboxes; DROP TABLE attachment_index; DROP TABLE saved_searches; DROP TABLE mail_servers; DROP TRIGGER remember_mail_account_id; DROP TABLE mail_id_watermarks; PRAGMA user_version=3;",
+            "DROP TABLE writing_profiles; ALTER TABLE drafts DROP COLUMN cc; ALTER TABLE drafts DROP COLUMN bcc; DROP INDEX draft_sent_message; DROP TABLE conversation_headers; DROP TABLE conversation_indexed; DROP TABLE conversation_backfill; DROP TABLE pinned_messages; DROP TABLE mailboxes; DROP TABLE attachment_index; DROP TABLE saved_searches; DROP TABLE mail_servers; DROP TRIGGER remember_mail_account_id; DROP TABLE mail_id_watermarks; PRAGMA user_version=3;",
         ).unwrap();
         result.id
     };
@@ -492,7 +492,7 @@ fn account_removal_preserves_local_mail_and_drafts_without_reusing_ids() {
             .unwrap();
     }
     store.database.execute_batch(
-        "ALTER TABLE drafts DROP COLUMN cc; ALTER TABLE drafts DROP COLUMN bcc;
+        "DROP TABLE writing_profiles; ALTER TABLE drafts DROP COLUMN cc; ALTER TABLE drafts DROP COLUMN bcc;
          DROP TRIGGER remember_mail_account_id; DROP TRIGGER remember_mailbox_id;
          DROP TABLE mail_id_watermarks; DROP INDEX draft_sent_message;
          DROP TABLE conversation_headers; DROP TABLE conversation_indexed; DROP TABLE conversation_backfill;

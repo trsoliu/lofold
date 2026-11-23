@@ -5,11 +5,15 @@ use serde::{de::DeserializeOwned, Deserialize, Serialize};
 use serde_json::json;
 use thiserror::Error;
 
-const OLLAMA: &str = "http://127.0.0.1:11434";
+pub const DEFAULT_PORT: u16 = 11434;
 const MAX_RESPONSE_BYTES: usize = 1024 * 1024;
 
 #[derive(Debug, Error)]
 pub enum AiError {
+    #[error("本机端口应为 1 至 65535 的整数。")]
+    InvalidPort,
+    #[error("此端口的 Ollama 未确认已关闭云功能。请启用 OLLAMA_NO_CLOUD=1 并重启该服务。")]
+    CloudStatus,
     #[error("无法连接本机 Ollama。请启动本地服务后刷新模型。")]
     Unavailable,
     #[error("当前模型不是可用的本机 GGUF 模型。请刷新模型列表。")]
@@ -95,7 +99,20 @@ pub struct Answer {
     pub incomplete: bool,
 }
 
-pub struct Ollama(Client);
+pub struct Ollama {
+    client: Client,
+    port: u16,
+}
+
+#[derive(Deserialize)]
+struct Status {
+    cloud: CloudSettings,
+}
+
+#[derive(Deserialize)]
+struct CloudSettings {
+    disabled: bool,
+}
 
 impl Ollama {
     pub fn new() -> Result<Self, AiError> {
@@ -105,14 +122,53 @@ impl Ollama {
             .connect_timeout(Duration::from_secs(3))
             .timeout(Duration::from_secs(120))
             .build()
-            .map(Self)
+            .map(|client| Self {
+                client,
+                port: DEFAULT_PORT,
+            })
             .map_err(|_| AiError::Unavailable)
     }
 
+    pub fn at_port(&self, port: u16) -> Result<Self, AiError> {
+        if port == 0 {
+            return Err(AiError::InvalidPort);
+        }
+        Ok(Self {
+            client: self.client.clone(),
+            port,
+        })
+    }
+
+    fn endpoint(&self, path: &str) -> String {
+        format!("http://127.0.0.1:{}{path}", self.port)
+    }
+
+    async fn check_cloud_status(&self) -> Result<(), AiError> {
+        if self.port == DEFAULT_PORT {
+            return Ok(());
+        }
+        let status: Status = read(
+            self.client
+                .get(self.endpoint("/api/status"))
+                .timeout(Duration::from_secs(5)),
+        )
+        .await
+        .map_err(|error| match error {
+            AiError::Unavailable | AiError::TimedOut => error,
+            _ => AiError::CloudStatus,
+        })?;
+        if status.cloud.disabled {
+            Ok(())
+        } else {
+            Err(AiError::CloudStatus)
+        }
+    }
+
     pub async fn models(&self) -> Result<Vec<Model>, AiError> {
+        self.check_cloud_status().await?;
         let tags: Tags = read(
-            self.0
-                .get(format!("{OLLAMA}/api/tags"))
+            self.client
+                .get(self.endpoint("/api/tags"))
                 .timeout(Duration::from_secs(5)),
         )
         .await?;
@@ -126,8 +182,8 @@ impl Ollama {
             return Err(AiError::ModelUnavailable);
         }
         let show: Show = read(
-            self.0
-                .post(format!("{OLLAMA}/api/show"))
+            self.client
+                .post(self.endpoint("/api/show"))
                 .timeout(Duration::from_secs(10))
                 .json(&json!({ "model": name })),
         )
@@ -139,14 +195,16 @@ impl Ollama {
             return Err(AiError::ModelUnavailable);
         }
         Ok(LocalModel {
-            client: &self.0,
+            runtime: self,
+            thinking: show.capabilities.iter().any(|kind| kind == "thinking"),
             name: name.to_owned(),
         })
     }
 }
 
 pub struct LocalModel<'a> {
-    client: &'a Client,
+    runtime: &'a Ollama,
+    thinking: bool,
     name: String,
 }
 
@@ -158,6 +216,14 @@ impl LocalModel<'_> {
         tokens: u32,
         json_output: bool,
     ) -> Result<Answer, AiError> {
+        self.runtime.check_cloud_status().await?;
+        // Thinking models place reasoning in a separate field. Only content is rendered as mail.
+        let thinking = self.thinking && !json_output;
+        let budget = if thinking {
+            tokens.saturating_add(2048)
+        } else {
+            tokens
+        };
         let mut request = json!({
             "model": self.name,
             "messages": [
@@ -165,16 +231,17 @@ impl LocalModel<'_> {
                 { "role": "user", "content": input }
             ],
             "stream": false,
-            "think": false,
+            "think": thinking,
             "keep_alive": "2m",
-            "options": { "num_ctx": 8192, "num_predict": tokens, "temperature": 0.2 },
+            "options": { "num_ctx": 8192, "num_predict": budget, "temperature": 0.2 },
         });
         if json_output {
             request["format"] = json!("json");
         }
         let chat: Chat = read(
-            self.client
-                .post(format!("{OLLAMA}/api/chat"))
+            self.runtime
+                .client
+                .post(self.runtime.endpoint("/api/chat"))
                 .json(&request),
         )
         .await?;
@@ -215,6 +282,37 @@ fn request_error(error: reqwest::Error) -> AiError {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn only_the_final_answer_is_used_as_mail() {
+        let reply: Chat = serde_json::from_value(json!({
+            "message":{"content":"周五见。","thinking":"仅供模型处理的中间过程。"},
+            "done":true, "done_reason":"stop",
+        }))
+        .unwrap();
+        assert_eq!(reply.message.content, "周五见。");
+    }
+
+    #[test]
+    fn ports_are_loopback_only_and_cloud_confirmation_must_be_boolean() {
+        let runtime = Ollama::new().unwrap();
+        assert!(matches!(runtime.at_port(0), Err(AiError::InvalidPort)));
+        assert_eq!(
+            runtime.endpoint("/api/chat"),
+            "http://127.0.0.1:11434/api/chat"
+        );
+        assert_eq!(
+            runtime.at_port(65535).unwrap().endpoint("/api/chat"),
+            "http://127.0.0.1:65535/api/chat"
+        );
+        for status in [
+            r#"{}"#,
+            r#"{"cloud":{}}"#,
+            r#"{"cloud":{"disabled":"true"}}"#,
+        ] {
+            assert!(serde_json::from_str::<Status>(status).is_err());
+        }
+    }
 
     #[test]
     fn cloud_models_and_empty_placeholders_are_excluded() {

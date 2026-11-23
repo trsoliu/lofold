@@ -1,8 +1,9 @@
-import { FileText, Paperclip, Sparkles, Trash2, X } from 'lucide-react'
-import { useEffect, useRef, useState } from 'react'
+import { BookOpen, FileText, Paperclip, Sparkles, Trash2, Undo2, X } from 'lucide-react'
+import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { errorMessage } from './archive'
 import { AiComposePanel } from './ai-panel'
 import { ControlSelect, IconAction } from './controls'
+import { WritingAssist } from './writing-assist'
 import { mailWorkspace, type AccountChoice, type Draft, type DraftFields } from './mail-workspace'
 
 function fileSize(bytes: number) {
@@ -21,7 +22,11 @@ export function Composer({ initial, accounts, close, submitted }: {
   const [busy, setBusy] = useState(false)
   const [attachmentReminder, setAttachmentReminder] = useState(false)
   const [confirmDiscard, setConfirmDiscard] = useState(false)
-  const [aiOpen, setAiOpen] = useState(false)
+  const [panel, setPanel] = useState<'ai' | 'memory' | null>(null)
+  const [selection, setSelection] = useState('')
+  const [previousBody, setPreviousBody] = useState<string | null>(null)
+  const bodyInput = useRef<HTMLTextAreaElement>(null)
+  const pendingCaret = useRef<number | null>(null)
   const [error, setError] = useState('')
   const dialog = useRef<HTMLDialogElement>(null)
   const currentFields = useRef(initial.fields)
@@ -41,6 +46,15 @@ export function Composer({ initial, accounts, close, submitted }: {
       modal?.close()
     }
   }, [])
+
+  useLayoutEffect(() => {
+    const caret = pendingCaret.current
+    if (caret !== null) {
+      pendingCaret.current = null
+      bodyInput.current?.focus()
+      bodyInput.current?.setSelectionRange(caret, caret)
+    }
+  }, [fields, panel])
 
   function applyDraft(saved: Draft) {
     currentDraft.current = saved
@@ -70,6 +84,10 @@ export function Composer({ initial, accounts, close, submitted }: {
     const next = { ...currentFields.current, ...update }
     currentFields.current = next
     setFields(next)
+    if (update.body !== undefined) {
+      setPreviousBody(null)
+      setSelection('')
+    }
     setAttachmentReminder(false)
     window.clearTimeout(timer.current)
     timer.current = window.setTimeout(() => {
@@ -96,6 +114,39 @@ export function Composer({ initial, accounts, close, submitted }: {
       setBusy(false)
       actionActive.current = false
     }
+  }
+
+  function placeText(body: string, cursor: number) {
+    if (body.length > 120000) {
+      setError('正文最多 120000 个字符，请缩短后再插入。')
+      return false
+    }
+    pendingCaret.current = cursor
+    update({ body })
+    setPanel(null)
+    return true
+  }
+
+  function toggleMemory() {
+    const input = bodyInput.current
+    if (panel !== 'memory' && input) setSelection(input.value.slice(input.selectionStart, input.selectionEnd))
+    setPanel(panel === 'memory' ? null : 'memory')
+  }
+
+  function insertMemory(text: string, signature = false) {
+    const current = currentFields.current.body
+    if (signature) {
+      if (current.trimEnd() === text.trimEnd() || current.trimEnd().endsWith('\n' + text.trimEnd())) {
+        setError('正文末尾已有这份签名。')
+        return
+      }
+      const body = current ? current + '\n\n' + text : text
+      placeText(body, body.length)
+      return
+    }
+    const start = bodyInput.current?.selectionStart ?? current.length
+    const end = bodyInput.current?.selectionEnd ?? start
+    placeText(current.slice(0, start) + text + current.slice(end), start + text.length)
   }
 
   function finish() {
@@ -147,10 +198,10 @@ export function Composer({ initial, accounts, close, submitted }: {
   }
 
   return (
-    <dialog ref={dialog} className="composer" aria-labelledby="composer-heading" onCancel={(event) => {
+    <dialog ref={dialog} className="composer" data-writing-panel={panel ?? undefined} aria-labelledby="composer-heading" onCancel={(event) => {
       event.preventDefault()
       if (confirmDiscard) setConfirmDiscard(false)
-      else if (aiOpen) setAiOpen(false)
+      else if (panel) setPanel(null)
       else finish()
     }}>
       <header className="composer-header">
@@ -182,7 +233,11 @@ export function Composer({ initial, accounts, close, submitted }: {
           <span>主题</span>
           <input value={fields.subject} onChange={(event) => update({ subject: event.target.value })} maxLength={380} />
         </label>
-        <textarea aria-label="邮件正文" aria-describedby={readonly ? undefined : 'compose-footer-note'} placeholder="写下邮件正文…" value={fields.body} maxLength={120000} onChange={(event) => update({ body: event.target.value })} />
+        <textarea ref={bodyInput} aria-label="邮件正文" aria-describedby={readonly ? undefined : 'compose-footer-note'} placeholder="写下邮件正文…" value={fields.body} maxLength={120000}
+          onSelect={(event) => {
+            const input = event.currentTarget
+            setSelection(input.value.slice(input.selectionStart, input.selectionEnd))
+          }} onChange={(event) => update({ body: event.target.value })} />
         {!readonly && <p id="compose-footer-note" className="compose-footer-note muted">发送时将在正文末尾附上 LoFold 主页链接。</p>}
         {draft.attachments.length > 0 && <ul className="composer-attachments">
           {draft.attachments.map((file) => <li key={file.id}>
@@ -195,17 +250,21 @@ export function Composer({ initial, accounts, close, submitted }: {
           </li>)}
         </ul>}
       </fieldset>
-      {aiOpen && !readonly && !busy && !confirmDiscard && <AiComposePanel useDraft={(generated) => {
-        const current = currentFields.current.body
-        const body = current ? current + '\n\n' + generated : generated
-        if (body.length > 120000) {
-          setError('加入拟稿后正文将超过长度上限。请先缩短草稿。')
-          return
-        }
-        update({ body })
-        setAiOpen(false)
-        dialog.current?.querySelector<HTMLTextAreaElement>('.composer-fields textarea')?.focus()
-      }} />}
+      {panel === 'memory' && !readonly && !busy && !confirmDiscard &&
+        <WritingAssist key={fields.accountId ?? 'shared'} accountId={fields.accountId}
+          scopeLabel={accounts.find(account => account.id === fields.accountId)?.address ?? '未选择发件邮箱'}
+          recipient={fields.recipient} cc={fields.cc} bcc={fields.bcc} selection={selection} insert={insertMemory} />}
+      {panel === 'ai' && !readonly && !busy && !confirmDiscard && <AiComposePanel
+        accountId={fields.accountId} recipient={fields.recipient} cc={fields.cc} bcc={fields.bcc} subject={fields.subject} body={fields.body}
+        useDraft={(generated, mode) => {
+          const current = currentFields.current.body
+          const body = mode === 'replace' || !current ? generated : current + '\n\n' + generated
+          if (placeText(body, body.length) && mode === 'replace') setPreviousBody(current)
+        }} />}
+      {previousBody !== null && !readonly && !confirmDiscard && <div className="composer-feedback" role="status">
+        已替换正文。<IconAction icon={Undo2} label="撤销正文替换" disabled={busy}
+          onClick={() => placeText(previousBody, previousBody.length)} />
+      </div>}
       {confirmDiscard && <div className="composer-feedback" role="alert">
         删除此草稿及其附件？
         <button className="secondary" type="button" onClick={() => setConfirmDiscard(false)}>继续编辑</button>
@@ -219,7 +278,10 @@ export function Composer({ initial, accounts, close, submitted }: {
       {error && <p className="composer-feedback" role="alert">{error}</p>}
       <footer className="composer-toolbar">
         <IconAction icon={Paperclip} label="添加附件" disabled={busy || readonly || confirmDiscard} onClick={addAttachment} />
-        {!readonly && <IconAction icon={Sparkles} label="AI 拟稿" aria-expanded={aiOpen} disabled={busy || confirmDiscard} onClick={() => setAiOpen(!aiOpen)} />}
+        {!readonly && <IconAction icon={BookOpen} label="写作记忆" aria-expanded={panel === 'memory'} disabled={busy || confirmDiscard}
+          onClick={toggleMemory} />}
+        {!readonly && <IconAction icon={Sparkles} label="AI 拟稿" aria-expanded={panel === 'ai'} disabled={busy || confirmDiscard}
+          onClick={() => setPanel(panel === 'ai' ? null : 'ai')} />}
         {!readonly && <IconAction icon={Trash2} label="删除草稿" disabled={busy || confirmDiscard} onClick={() => setConfirmDiscard(true)} />}
         <span className="muted" role="status">{saving ? '正在保存…' : busy ? '正在处理…' : fields === savedFields.current ? '草稿已保存在本机' : '等待保存…'}</span>
         <button className="secondary" disabled={busy} onClick={finish}>{readonly ? '关闭' : '保存并关闭'}</button>

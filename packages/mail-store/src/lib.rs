@@ -11,7 +11,7 @@ pub const MAX_EML_BYTES: usize = 16 * 1024 * 1024;
 const MAX_READING_CHARS: usize = 250_000;
 const MAX_SEARCH_CHARS: usize = 160;
 const PAGE_SIZE: u32 = 60;
-const SCHEMA_VERSION: u32 = 9;
+const SCHEMA_VERSION: u32 = 10;
 
 mod accounts;
 mod conversations;
@@ -19,6 +19,7 @@ mod mailboxes;
 mod rich_body;
 mod tools;
 mod workspace;
+mod writing;
 pub use accounts::{
     mailmaster_addresses, AccountRemoval, MailAccount, MailProbe, ProbeOutcome, Server,
     ServerSettings,
@@ -27,6 +28,7 @@ pub use conversations::Conversation;
 pub use mailboxes::{CachedChange, DiscoveredMailbox, MailLocation, Mailbox, SyncPage, SyncedItem};
 pub use tools::{AttachmentPage, SavedSearch, SearchSpec, StorageStatus};
 pub use workspace::{ComposeMode, Draft, DraftFields, Folder, InboxItem, MAX_DRAFT_FILES_BYTES};
+pub use writing::{WritingLength, WritingMemory, WritingProfile, WritingRecord, WritingTone};
 
 #[derive(Debug, Error)]
 pub enum ArchiveError {
@@ -76,6 +78,10 @@ pub enum ArchiveError {
     SearchNameUsed,
     #[error("请输入搜索词或启用「含附件」。")]
     EmptySearch,
+    #[error("写作资料已在其他窗口更新，请重新读取后再保存。")]
+    WritingProfileChanged,
+    #[error("{0}")]
+    InvalidWritingProfile(&'static str),
     #[error("归档版本高于此应用支持的版本。")]
     NewerArchive,
     #[error("无法打开加密归档。")]
@@ -212,6 +218,9 @@ impl MailArchive {
         }
         if version < 9 {
             migration.execute_batch(include_str!("draft_recipients.sql"))?;
+        }
+        if version < 10 {
+            migration.execute_batch(include_str!("writing.sql"))?;
             migration.pragma_update(None, "user_version", SCHEMA_VERSION)?;
         }
         migration.commit()?;

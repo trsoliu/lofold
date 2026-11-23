@@ -2,6 +2,7 @@ import { themes, type Theme } from './branding'
 import { ControlSelect } from './controls'
 import type { AccountChoice } from './mail-workspace'
 import type { Screen } from './mailbox-navigation'
+import { WritingSettings } from './writing-settings'
 
 const senderKey = 'lofold.defaultSender'
 
@@ -64,17 +65,20 @@ export function Settings({ section, theme, changeTheme, accounts, defaultSender,
             </span>
           </label>
         </div>
-        : <div className="settings-section">
-          <label className="settings-field">
-            <span>默认发件邮箱</span>
-            <ControlSelect value={activeDefault ?? ''} disabled={!connected.length}
-              onChange={(event) => changeDefault(event.target.value ? Number(event.target.value) : null)}>
-              <option value="">{connected.length > 1 ? '写信时选择' : connected.length ? '自动选择' : '暂无已授权邮箱'}</option>
-              {connected.map((account) => <option value={account.id} key={account.id}>{account.address}</option>)}
-            </ControlSelect>
-          </label>
-          <p className="muted">从汇总视图写新邮件时使用此邮箱。</p>
-        </div>}
+        : <>
+          <div className="settings-section">
+            <label className="settings-field">
+              <span>默认发件邮箱</span>
+              <ControlSelect value={activeDefault ?? ''} disabled={!connected.length}
+                onChange={(event) => changeDefault(event.target.value ? Number(event.target.value) : null)}>
+                <option value="">{connected.length > 1 ? '写信时选择' : connected.length ? '自动选择' : '暂无已授权邮箱'}</option>
+                {connected.map((account) => <option value={account.id} key={account.id}>{account.address}</option>)}
+              </ControlSelect>
+            </label>
+            <p className="muted">从汇总视图写新邮件时使用此邮箱。</p>
+          </div>
+          <WritingSettings accounts={accounts} initialAccount={activeDefault ?? (connected.length === 1 ? connected[0].id : null)} />
+        </>}
     </div>
   </section>
 }

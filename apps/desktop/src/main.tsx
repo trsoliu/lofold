@@ -356,7 +356,7 @@ function App() {
     void synchronize(scope, false, false)
   }, [folder, remoteId, scope, busy, mailboxes, accounts])
 
-  async function openComposer(mode: 'new' | 'edit' | ComposeMode, id?: number, body?: string) {
+  async function openComposer(mode: 'new' | 'edit' | ComposeMode, id?: number, body?: string, replyAccount = selected?.account ?? null) {
     setBusy('draft')
     setNotice(null)
     try {
@@ -370,7 +370,7 @@ function App() {
       const candidates = current.filter((account) => account.connected)
       const preferredDefault = candidates.find((account) => account.id === defaultSender)?.id
       const preferred = mode === 'reply' || mode === 'reply-all'
-        ? selected?.account ?? null
+        ? replyAccount
         : (mode === 'new' ? scope : selected?.account ?? scope)
           ?? preferredDefault ?? (candidates.length === 1 ? candidates[0].id : null)
       const created = await mailWorkspace.createDraft(preferred, id ?? null, mode === 'new' || mode === 'edit' ? 'reply' : mode)
@@ -480,6 +480,8 @@ function App() {
   const pageScoped = folder && folder !== 'archive'
   const scopeStatus = scopedAccount ? accountStatus(scopedAccount) : null
   const preferences = isSettingsScreen(screen)
+  const replyAccountId = aiMail && selected?.id === aiMail.id && selected.account === aiMail.accountId
+    ? selected.account : null
 
   agentAction.current = (action) => {
     if (action.kind === 'draft_changed') {
@@ -681,8 +683,8 @@ function App() {
           </section>
         </>}
       </main>
-      {aiMail && <AiMessageDialog message={aiMail} close={() => setAiMail(null)}
-        useDraft={(body) => void openComposer('reply', aiMail.id, body)} />}
+      {aiMail && <AiMessageDialog key={aiMail.id} message={aiMail} replyAccountId={replyAccountId} close={() => setAiMail(null)}
+        useDraft={(body) => void openComposer('reply', aiMail.id, body, replyAccountId)} />}
       {agentMail && <AgentShareDialog key={agentMail.id} mail={agentMail} close={() => setAgentMail(null)}
         shared={() => { setAgentMail(null); setNotice({ text: '已共享。可在「设置 → Agent MCP」撤回。' }) }} />}
       {pinning && folder && canPinSearch && <PinSearch spec={{ folder, accountId: accountFilter, query, attachmentsOnly }}
