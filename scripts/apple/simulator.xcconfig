@@ -1,0 +1,2 @@
+// Simulator-only executables read their app's keychain scope from this section.
+OTHER_LDFLAGS[sdk=iphonesimulator*] = $(inherited) -Xlinker -sectcreate -Xlinker __TEXT -Xlinker __entitlements -Xlinker "$(SRCROOT)/LoFoldSimulator.entitlements"

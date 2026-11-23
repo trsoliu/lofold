@@ -40,6 +40,16 @@ jobs:
           unzip -q output/platform-release/*-iOS-Simulator-arm64.zip -d "$RUNNER_TEMP/lofold-app"
           xcrun simctl install "$device" "$RUNNER_TEMP"/lofold-app/*.app
           xcrun simctl launch "$device" org.lofold.client
+          container="$(xcrun simctl get_app_container "$device" org.lofold.client data)"
+          for attempt in {1..60}; do
+            db="$(find "$container" -type f -name archive.sqlite3 -size +4095c -print -quit)"
+            [[ -n "$db" ]] && break
+            sleep 1
+          done
+          [[ -n "$db" ]] || { echo "Archive creation with the simulator Keychain failed."; exit 1; }
+          python3 -c 'import sys; f=open(sys.argv[1],"rb"); assert f.read(16) != b"SQLite format 3\x00"' "$db"
+          xcrun simctl terminate "$device" org.lofold.client
+          xcrun simctl launch "$device" org.lofold.client
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           name: LoFold-iOS-Simulator-arm64
