@@ -37,7 +37,13 @@ def find(root, *labels):
 def wait_for(*labels, seconds=40):
     until = time.monotonic() + seconds
     while time.monotonic() < until:
-        node = find(hierarchy(), *labels)
+        root = hierarchy()
+        if find(root, "Pixel Launcher isn't responding") is not None:
+            close = find(root, "android:id/aerr_close")
+            if close is not None:
+                tap(close)
+                continue
+        node = find(root, *labels)
         if node is not None:
             return node
         time.sleep(1)
