@@ -1,0 +1,61 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="795" viewBox="0 0 1280 795" role="img" aria-labelledby="title desc">
+<title id="title">一封邮件的发送状态</title>
+<desc id="desc">只有服务商明确接受提交，发件箱才显示“已提交”。收件方阅读、退信和回执另行记录。</desc>
+<defs>
+<marker id="a54717B" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="9" markerHeight="9" orient="auto-start-reverse" markerUnits="userSpaceOnUse"><path d="M 0 0 L 9 5 L 0 10 L 2 5 z" fill="#54717B"/></marker>
+<marker id="a156A69" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="9" markerHeight="9" orient="auto-start-reverse" markerUnits="userSpaceOnUse"><path d="M 0 0 L 9 5 L 0 10 L 2 5 z" fill="#156A69"/></marker>
+<marker id="a675486" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="9" markerHeight="9" orient="auto-start-reverse" markerUnits="userSpaceOnUse"><path d="M 0 0 L 9 5 L 0 10 L 2 5 z" fill="#675486"/></marker>
+<marker id="a96572F" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="9" markerHeight="9" orient="auto-start-reverse" markerUnits="userSpaceOnUse"><path d="M 0 0 L 9 5 L 0 10 L 2 5 z" fill="#96572F"/></marker>
+</defs>
+<rect x="0" y="0" width="1280" height="795" fill="#FAFCFC"/>
+<text x="42" y="67" fill="#193744" font-family="Hiragino Sans GB, PingFang SC, Microsoft YaHei, Noto Sans CJK SC, sans-serif" font-size="40" font-weight="700" data-max-width="1190">一封邮件的发送状态</text>
+<text x="44" y="106" fill="#46606B" font-family="Hiragino Sans GB, PingFang SC, Microsoft YaHei, Noto Sans CJK SC, sans-serif" font-size="21" font-weight="400" data-max-width="1190">只有服务商明确接受提交，发件箱才显示“已提交”。收件方阅读、退信和回执另行记录。</text>
+<rect x="40" y="165" width="239" height="122" rx="12" fill="#FFFFFF" stroke="#C7D7D9" stroke-width="1.6"/>
+<text x="59" y="198" fill="#193744" font-family="Hiragino Sans GB, PingFang SC, Microsoft YaHei, Noto Sans CJK SC, sans-serif" font-size="25" font-weight="700" data-max-width="203">草稿</text>
+<text x="59" y="227" fill="#46606B" font-family="Hiragino Sans GB, PingFang SC, Microsoft YaHei, Noto Sans CJK SC, sans-serif" font-size="20" font-weight="400" data-max-width="203">可编辑正文、附件</text>
+<text x="59" y="254" fill="#46606B" font-family="Hiragino Sans GB, PingFang SC, Microsoft YaHei, Noto Sans CJK SC, sans-serif" font-size="20" font-weight="400" data-max-width="203">和发件身份。</text>
+<rect x="320" y="165" width="240" height="122" rx="12" fill="#FFFFFF" stroke="#C7D7D9" stroke-width="1.6"/>
+<text x="339" y="198" fill="#156A69" font-family="Hiragino Sans GB, PingFang SC, Microsoft YaHei, Noto Sans CJK SC, sans-serif" font-size="25" font-weight="700" data-max-width="204">已排队</text>
+<text x="339" y="227" fill="#46606B" font-family="Hiragino Sans GB, PingFang SC, Microsoft YaHei, Noto Sans CJK SC, sans-serif" font-size="20" font-weight="400" data-max-width="204">冻结内容与收件人。</text>
+<text x="339" y="254" fill="#46606B" font-family="Hiragino Sans GB, PingFang SC, Microsoft YaHei, Noto Sans CJK SC, sans-serif" font-size="20" font-weight="400" data-max-width="204">撤销窗口内可取消。</text>
+<rect x="601" y="165" width="262" height="122" rx="12" fill="#EDF6F4" stroke="#C7D7D9" stroke-width="1.6"/>
+<text x="620" y="198" fill="#156A69" font-family="Hiragino Sans GB, PingFang SC, Microsoft YaHei, Noto Sans CJK SC, sans-serif" font-size="25" font-weight="700" data-max-width="226">正在提交</text>
+<text x="620" y="227" fill="#46606B" font-family="Hiragino Sans GB, PingFang SC, Microsoft YaHei, Noto Sans CJK SC, sans-serif" font-size="20" font-weight="400" data-max-width="226">原设备取得发送权，</text>
+<text x="620" y="254" fill="#46606B" font-family="Hiragino Sans GB, PingFang SC, Microsoft YaHei, Noto Sans CJK SC, sans-serif" font-size="20" font-weight="400" data-max-width="226">先持久记录尝试阶段。</text>
+<rect x="947" y="165" width="292" height="122" rx="12" fill="#EDF6F4" stroke="#C7D7D9" stroke-width="1.6"/>
+<text x="966" y="198" fill="#156A69" font-family="Hiragino Sans GB, PingFang SC, Microsoft YaHei, Noto Sans CJK SC, sans-serif" font-size="25" font-weight="700" data-max-width="256">服务商已接受</text>
+<text x="966" y="227" fill="#46606B" font-family="Hiragino Sans GB, PingFang SC, Microsoft YaHei, Noto Sans CJK SC, sans-serif" font-size="20" font-weight="400" data-max-width="256">保存该次提交结果，</text>
+<text x="966" y="254" fill="#46606B" font-family="Hiragino Sans GB, PingFang SC, Microsoft YaHei, Noto Sans CJK SC, sans-serif" font-size="20" font-weight="400" data-max-width="256">继续核对已发送副本。</text>
+<path d="M 281 223 H 315" fill="none" stroke="#54717B" stroke-width="2.3" stroke-linejoin="round" stroke-linecap="round" marker-end="url(#a54717B)"/>
+<path d="M 563 223 H 597" fill="none" stroke="#54717B" stroke-width="2.3" stroke-linejoin="round" stroke-linecap="round" marker-end="url(#a54717B)"/>
+<path d="M 866 223 H 941" fill="none" stroke="#156A69" stroke-width="2.3" stroke-linejoin="round" stroke-linecap="round" marker-end="url(#a156A69)"/>
+<text x="870" y="206" fill="#156A69" font-family="Hiragino Sans GB, PingFang SC, Microsoft YaHei, Noto Sans CJK SC, sans-serif" font-size="18" font-weight="400" data-max-width="70">确认</text>
+<path d="M 690 289 V 329 H 228 V 401" fill="none" stroke="#54717B" stroke-width="2.3" stroke-linejoin="round" stroke-linecap="round" marker-end="url(#a54717B)"/>
+<path d="M 755 289 V 360 H 639 V 401" fill="none" stroke="#96572F" stroke-width="2.3" stroke-linejoin="round" stroke-linecap="round" marker-end="url(#a96572F)"/>
+<path d="M 1092 289 V 401" fill="none" stroke="#156A69" stroke-width="2.3" stroke-linejoin="round" stroke-linecap="round" marker-end="url(#a156A69)"/>
+<rect x="40" y="405" width="379" height="191" rx="12" fill="#FFFFFF" stroke="#C7D7D9" stroke-width="1.6"/>
+<text x="59" y="438" fill="#193744" font-family="Hiragino Sans GB, PingFang SC, Microsoft YaHei, Noto Sans CJK SC, sans-serif" font-size="25" font-weight="700" data-max-width="343">明确未被接受</text>
+<text x="59" y="467" fill="#46606B" font-family="Hiragino Sans GB, PingFang SC, Microsoft YaHei, Noto Sans CJK SC, sans-serif" font-size="20" font-weight="400" data-max-width="343">尚未提交或收到明确拒绝时，</text>
+<text x="59" y="494" fill="#46606B" font-family="Hiragino Sans GB, PingFang SC, Microsoft YaHei, Noto Sans CJK SC, sans-serif" font-size="20" font-weight="400" data-max-width="343">区分临时故障和永久拒绝。</text>
+<text x="59" y="521" fill="#46606B" font-family="Hiragino Sans GB, PingFang SC, Microsoft YaHei, Noto Sans CJK SC, sans-serif" font-size="20" font-weight="400" data-max-width="343">临时故障可退避重试，永久拒绝</text>
+<text x="59" y="548" fill="#46606B" font-family="Hiragino Sans GB, PingFang SC, Microsoft YaHei, Noto Sans CJK SC, sans-serif" font-size="20" font-weight="400" data-max-width="343">交给用户修改或取消。</text>
+<rect x="451" y="405" width="378" height="191" rx="12" fill="#FBF2E9" stroke="#C7D7D9" stroke-width="1.6"/>
+<text x="470" y="438" fill="#96572F" font-family="Hiragino Sans GB, PingFang SC, Microsoft YaHei, Noto Sans CJK SC, sans-serif" font-size="25" font-weight="700" data-max-width="342">发送结果待确认</text>
+<text x="470" y="467" fill="#46606B" font-family="Hiragino Sans GB, PingFang SC, Microsoft YaHei, Noto Sans CJK SC, sans-serif" font-size="20" font-weight="400" data-max-width="342">已交完整 DATA，最终答复丢失。</text>
+<text x="470" y="494" fill="#46606B" font-family="Hiragino Sans GB, PingFang SC, Microsoft YaHei, Noto Sans CJK SC, sans-serif" font-size="20" font-weight="400" data-max-width="342">重启保留此状态，暂停自动重发。</text>
+<text x="470" y="521" fill="#46606B" font-family="Hiragino Sans GB, PingFang SC, Microsoft YaHei, Noto Sans CJK SC, sans-serif" font-size="20" font-weight="400" data-max-width="342">可核对服务商记录，手动重发前</text>
+<text x="470" y="548" fill="#46606B" font-family="Hiragino Sans GB, PingFang SC, Microsoft YaHei, Noto Sans CJK SC, sans-serif" font-size="20" font-weight="400" data-max-width="342">提示可能产生重复邮件。</text>
+<rect x="861" y="405" width="378" height="191" rx="12" fill="#FFFFFF" stroke="#C7D7D9" stroke-width="1.6"/>
+<text x="880" y="438" fill="#156A69" font-family="Hiragino Sans GB, PingFang SC, Microsoft YaHei, Noto Sans CJK SC, sans-serif" font-size="25" font-weight="700" data-max-width="342">提交已确认，归档待完成</text>
+<text x="880" y="467" fill="#46606B" font-family="Hiragino Sans GB, PingFang SC, Microsoft YaHei, Noto Sans CJK SC, sans-serif" font-size="20" font-weight="400" data-max-width="342">若服务商会保存副本，则等同步。</text>
+<text x="880" y="494" fill="#46606B" font-family="Hiragino Sans GB, PingFang SC, Microsoft YaHei, Noto Sans CJK SC, sans-serif" font-size="20" font-weight="400" data-max-width="342">若需客户端保存，只重试归档。</text>
+<text x="880" y="521" fill="#46606B" font-family="Hiragino Sans GB, PingFang SC, Microsoft YaHei, Noto Sans CJK SC, sans-serif" font-size="20" font-weight="400" data-max-width="342">保留原提交结果和收件人状态。</text>
+<rect x="40" y="635" width="1200" height="124" rx="13" fill="#EDF3F5" stroke="#C5D6DA" stroke-width="1.4"/>
+<text x="60" y="673" fill="#193744" font-family="Hiragino Sans GB, PingFang SC, Microsoft YaHei, Noto Sans CJK SC, sans-serif" font-size="23" font-weight="700" data-max-width="200">同机中断</text>
+<text x="60" y="706" fill="#46606B" font-family="Hiragino Sans GB, PingFang SC, Microsoft YaHei, Noto Sans CJK SC, sans-serif" font-size="20" font-weight="400" data-max-width="580">重启读取持久记录。无法排除已提交时，</text>
+<text x="60" y="734" fill="#46606B" font-family="Hiragino Sans GB, PingFang SC, Microsoft YaHei, Noto Sans CJK SC, sans-serif" font-size="20" font-weight="400" data-max-width="580">转入“发送结果待确认”。</text>
+<path d="M 633 659 V 737" fill="none" stroke="#C2D4D7" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round"/>
+<text x="656" y="673" fill="#193744" font-family="Hiragino Sans GB, PingFang SC, Microsoft YaHei, Noto Sans CJK SC, sans-serif" font-size="23" font-weight="700" data-max-width="540">换机或恢复备份</text>
+<text x="656" y="706" fill="#46606B" font-family="Hiragino Sans GB, PingFang SC, Microsoft YaHei, Noto Sans CJK SC, sans-serif" font-size="20" font-weight="400" data-max-width="560">新设备默认暂停旧任务。确认旧设备已停止后，</text>
+<text x="656" y="734" fill="#46606B" font-family="Hiragino Sans GB, PingFang SC, Microsoft YaHei, Noto Sans CJK SC, sans-serif" font-size="20" font-weight="400" data-max-width="560">由用户重新建立需要发送的任务。</text>
+</svg>

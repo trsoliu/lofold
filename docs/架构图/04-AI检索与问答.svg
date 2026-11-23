@@ -1,0 +1,82 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 740" width="1280" height="740" role="img" aria-labelledby="title desc" xml:lang="zh-CN">
+  <title id="title">AI 怎样在设备上查信并给出可核对的回答</title>
+  <desc id="desc">邮件问答设计。用户指定账号、文件夹和时间，邮件内核限定可读范围，查询本机索引。将命中的内容和引用 ID 交给本机模型，答复可跳回原信，草稿经用户审阅后手动发送。资料不足、没有模型或推理取消时，仍可搜索和读原信。</desc>
+  <defs>
+    <marker id="arrow" viewBox="0 0 12 12" markerWidth="9" markerHeight="9" refX="10" refY="6" orient="auto-start-reverse">
+      <path d="M2 1 11 6 2 11Z" fill="#457b92"/>
+    </marker>
+    <style>
+      text {font-family:'Hiragino Sans GB','PingFang SC','Microsoft YaHei','Noto Sans CJK SC',sans-serif;}
+      .main {font-size:40px;font-weight:700;fill:#193744;}
+      .intro {font-size:20px;fill:#46606B;}
+      .card {stroke-width:1.6;}
+      .read {fill:#eff5fc;stroke:#acc7df;}
+      .local {fill:#eef8f5;stroke:#a1cdbf;}
+      .heading {font-size:25px;font-weight:700;fill:#193744;}
+      .line {font-size:20px;fill:#2a4558;}
+      .title2 {font-size:23px;font-weight:700;fill:#164a42;}
+      .small {font-size:19px;fill:#2d544e;}
+      .connector {fill:none;stroke:#457b92;stroke-width:3;marker-end:url(#arrow);}
+    </style>
+  </defs>
+  <rect width="1280" height="740" fill="#FAFCFC"/>
+  <g aria-label="图题">
+    <text class="main" x="42" y="67">AI 怎样查信并给出可核对的回答</text>
+    <text class="intro" x="44" y="106">设备内问答设计 · 以“上周哪些报销邮件缺发票？”为例</text>
+  </g>
+  <g aria-label="数据流" class="connector">
+    <path d="M409 239 H448"/>
+    <path d="M824 239 H863"/>
+    <path d="M1053 337 V386"/>
+    <path d="M870 474 H831"/>
+    <path d="M455 474 H416"/>
+  </g>
+  <g aria-label="用户选择资料范围">
+    <rect class="card read" x="48" y="151" width="358" height="180" rx="16"/>
+    <text class="heading" x="71" y="196">选择要查的邮件</text>
+    <text class="line" x="71" y="238">指定账号、文件夹和时间。</text>
+    <text class="line" x="71" y="270">需要跨账号时，逐个选中。</text>
+  </g>
+  <g aria-label="内核检查授权">
+    <rect class="card read" x="462" y="151" width="358" height="180" rx="16"/>
+    <text class="heading" x="485" y="196">内核限定读取范围</text>
+    <text class="line" x="485" y="238">将所选范围写入本次查询条件。</text>
+    <text class="line" x="485" y="270">只读本机已缓存的内容。</text>
+  </g>
+  <g aria-label="本地检索与可选重排">
+    <rect class="card read" x="876" y="151" width="358" height="180" rx="16"/>
+    <text class="heading" x="899" y="196">检索本机索引</text>
+    <text class="line" x="899" y="238">查主题、正文、附件名及元数据。</text>
+    <text class="line" x="899" y="270">可选本机向量检索或重排，</text>
+    <text class="line" x="899" y="301">沿用相同的范围。</text>
+  </g>
+  <g aria-label="准备证据">
+    <rect class="card local" x="876" y="396" width="358" height="172" rx="16"/>
+    <text class="heading" x="899" y="440">取片段并登记引用</text>
+    <text class="line" x="899" y="480">按上下文预算截取命中段落。</text>
+    <text class="line" x="899" y="512">每段关联账号、原信 ID 和位置。</text>
+  </g>
+  <g aria-label="本机推理适配">
+    <rect class="card" fill="#f4f1f7" stroke="#c7b9d2" x="462" y="396" width="358" height="172" rx="16"/>
+    <text class="heading" style="fill:#675486" x="485" y="440">在设备上生成</text>
+    <text class="line" x="485" y="480">运行已安装的端侧模型，</text>
+    <text class="line" x="485" y="512">或由用户显式连接本机 Ollama。</text>
+    <text class="line" x="485" y="543">模型只接收本次授权的片段。</text>
+  </g>
+  <g aria-label="用户核对或确认">
+    <rect class="card local" x="48" y="396" width="358" height="172" rx="16"/>
+    <text class="heading" x="71" y="440">核对答案或编辑草稿</text>
+    <text class="line" x="71" y="480">核验引用 ID 后可点回原信。</text>
+    <text class="line" x="71" y="512">拟稿交给用户审阅并手动发送。</text>
+  </g>
+  <g aria-label="回退路径">
+    <rect x="48" y="613" width="1186" height="85" rx="14" fill="#f4f8f7" stroke="#d4e4de" stroke-width="1.5"/>
+    <text class="title2" x="71" y="664">回退</text>
+    <path d="M153 635V678" stroke="#c6dad1" stroke-width="2"/>
+    <text class="small" x="178" y="651">资料不足时，列出已找到的邮件，</text>
+    <text class="small" x="178" y="677">说明依据缺在哪里。</text>
+    <path d="M662 635V678" stroke="#c6dad1" stroke-width="2"/>
+    <text class="small" x="686" y="651">模型缺失、内存不足或推理取消时，</text>
+    <text class="small" x="686" y="677">保留普通搜索、原信和人工写信入口。</text>
+  </g>
+</svg>

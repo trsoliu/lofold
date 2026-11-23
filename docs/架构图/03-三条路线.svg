@@ -1,0 +1,64 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="803" viewBox="0 0 1280 803" role="img" aria-labelledby="title desc">
+<title id="title">三条技术路线如何取舍</title>
+<desc id="desc">三条路线使用相同的产品验收。整机派生继承界面和宿主，独立引擎路线自行承担四端集成。</desc>
+<defs>
+<marker id="a54717B" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="9" markerHeight="9" orient="auto-start-reverse" markerUnits="userSpaceOnUse"><path d="M 0 0 L 9 5 L 0 10 L 2 5 z" fill="#54717B"/></marker>
+<marker id="a156A69" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="9" markerHeight="9" orient="auto-start-reverse" markerUnits="userSpaceOnUse"><path d="M 0 0 L 9 5 L 0 10 L 2 5 z" fill="#156A69"/></marker>
+<marker id="a675486" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="9" markerHeight="9" orient="auto-start-reverse" markerUnits="userSpaceOnUse"><path d="M 0 0 L 9 5 L 0 10 L 2 5 z" fill="#675486"/></marker>
+<marker id="a96572F" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="9" markerHeight="9" orient="auto-start-reverse" markerUnits="userSpaceOnUse"><path d="M 0 0 L 9 5 L 0 10 L 2 5 z" fill="#96572F"/></marker>
+</defs>
+<rect x="0" y="0" width="1280" height="803" fill="#FAFCFC"/>
+<text x="42" y="67" fill="#193744" font-family="Hiragino Sans GB, PingFang SC, Microsoft YaHei, Noto Sans CJK SC, sans-serif" font-size="40" font-weight="700" data-max-width="1190">三条技术路线如何取舍</text>
+<text x="44" y="106" fill="#46606B" font-family="Hiragino Sans GB, PingFang SC, Microsoft YaHei, Noto Sans CJK SC, sans-serif" font-size="21" font-weight="400" data-max-width="1190">三条路线使用相同的产品验收。整机派生继承界面和宿主，独立引擎路线自行承担四端集成。</text>
+<rect x="40" y="155" width="384" height="514" rx="15" fill="#FFFFFF" stroke="#C7D7D9" stroke-width="1.6"/>
+<rect x="41" y="156" width="382" height="96" rx="14" fill="#EDF6F4" stroke="#EDF6F4" stroke-width="0"/>
+<text x="57" y="196" fill="#156A69" font-family="Hiragino Sans GB, PingFang SC, Microsoft YaHei, Noto Sans CJK SC, sans-serif" font-size="26" font-weight="700" data-max-width="350">Meron 整机</text>
+<text x="58" y="229" fill="#156A69" font-family="Hiragino Sans GB, PingFang SC, Microsoft YaHei, Noto Sans CJK SC, sans-serif" font-size="19" font-weight="400" data-max-width="348">AGPL-3.0</text>
+<path d="M 58 253 H 406" fill="none" stroke="#C7D7D9" stroke-width="1" stroke-linejoin="round" stroke-linecap="round"/>
+<text x="58" y="282" fill="#156A69" font-family="Hiragino Sans GB, PingFang SC, Microsoft YaHei, Noto Sans CJK SC, sans-serif" font-size="22" font-weight="700" data-max-width="347">现成基础</text>
+<text x="58" y="315" fill="#193744" font-family="Hiragino Sans GB, PingFang SC, Microsoft YaHei, Noto Sans CJK SC, sans-serif" font-size="20" font-weight="400" data-max-width="348">桌面 React / Wails，移动端 KMP。</text>
+<text x="58" y="344" fill="#193744" font-family="Hiragino Sans GB, PingFang SC, Microsoft YaHei, Noto Sans CJK SC, sans-serif" font-size="20" font-weight="400" data-max-width="348">共享 Rust 核心与简中资源。</text>
+<path d="M 58 390 H 406" fill="none" stroke="#C7D7D9" stroke-width="1" stroke-linejoin="round" stroke-linecap="round"/>
+<text x="58" y="419" fill="#156A69" font-family="Hiragino Sans GB, PingFang SC, Microsoft YaHei, Noto Sans CJK SC, sans-serif" font-size="22" font-weight="700" data-max-width="347">需要补齐</text>
+<text x="58" y="452" fill="#193744" font-family="Hiragino Sans GB, PingFang SC, Microsoft YaHei, Noto Sans CJK SC, sans-serif" font-size="20" font-weight="400" data-max-width="348">打通免账号入库与持久 EML 导入。</text>
+<text x="58" y="481" fill="#193744" font-family="Hiragino Sans GB, PingFang SC, Microsoft YaHei, Noto Sans CJK SC, sans-serif" font-size="20" font-weight="400" data-max-width="348">验证异常投递、迁移与手机签名。</text>
+<path d="M 58 527 H 406" fill="none" stroke="#C7D7D9" stroke-width="1" stroke-linejoin="round" stroke-linecap="round"/>
+<text x="58" y="556" fill="#156A69" font-family="Hiragino Sans GB, PingFang SC, Microsoft YaHei, Noto Sans CJK SC, sans-serif" font-size="22" font-weight="700" data-max-width="347">影响维护</text>
+<text x="58" y="589" fill="#193744" font-family="Hiragino Sans GB, PingFang SC, Microsoft YaHei, Noto Sans CJK SC, sans-serif" font-size="20" font-weight="400" data-max-width="348">四端可沿用原宿主，新增交互</text>
+<text x="58" y="618" fill="#193744" font-family="Hiragino Sans GB, PingFang SC, Microsoft YaHei, Noto Sans CJK SC, sans-serif" font-size="20" font-weight="400" data-max-width="348">分别进入桌面与移动界面。</text>
+<rect x="448" y="155" width="384" height="514" rx="15" fill="#FFFFFF" stroke="#C7D7D9" stroke-width="1.6"/>
+<rect x="449" y="156" width="382" height="96" rx="14" fill="#EDF3F5" stroke="#EDF3F5" stroke-width="0"/>
+<text x="465" y="196" fill="#193744" font-family="Hiragino Sans GB, PingFang SC, Microsoft YaHei, Noto Sans CJK SC, sans-serif" font-size="26" font-weight="700" data-max-width="350">Allodia 开源整机</text>
+<text x="466" y="229" fill="#193744" font-family="Hiragino Sans GB, PingFang SC, Microsoft YaHei, Noto Sans CJK SC, sans-serif" font-size="19" font-weight="400" data-max-width="348">GPL-3.0-only 客户端</text>
+<path d="M 466 253 H 814" fill="none" stroke="#C7D7D9" stroke-width="1" stroke-linejoin="round" stroke-linecap="round"/>
+<text x="466" y="282" fill="#193744" font-family="Hiragino Sans GB, PingFang SC, Microsoft YaHei, Noto Sans CJK SC, sans-serif" font-size="22" font-weight="700" data-max-width="347">现成基础</text>
+<text x="466" y="315" fill="#193744" font-family="Hiragino Sans GB, PingFang SC, Microsoft YaHei, Noto Sans CJK SC, sans-serif" font-size="20" font-weight="400" data-max-width="348">四端原生应用，多账号、多签名，</text>
+<text x="466" y="344" fill="#193744" font-family="Hiragino Sans GB, PingFang SC, Microsoft YaHei, Noto Sans CJK SC, sans-serif" font-size="20" font-weight="400" data-max-width="348">已有会议邀请与日历交互。</text>
+<path d="M 466 390 H 814" fill="none" stroke="#C7D7D9" stroke-width="1" stroke-linejoin="round" stroke-linecap="round"/>
+<text x="466" y="419" fill="#193744" font-family="Hiragino Sans GB, PingFang SC, Microsoft YaHei, Noto Sans CJK SC, sans-serif" font-size="22" font-weight="700" data-max-width="347">需要补齐</text>
+<text x="466" y="452" fill="#193744" font-family="Hiragino Sans GB, PingFang SC, Microsoft YaHei, Noto Sans CJK SC, sans-serif" font-size="20" font-weight="400" data-max-width="348">剥离受限目录并能独立构建，</text>
+<text x="466" y="481" fill="#193744" font-family="Hiragino Sans GB, PingFang SC, Microsoft YaHei, Noto Sans CJK SC, sans-serif" font-size="20" font-weight="400" data-max-width="348">补简中界面与中文短词检索。</text>
+<path d="M 466 527 H 814" fill="none" stroke="#C7D7D9" stroke-width="1" stroke-linejoin="round" stroke-linecap="round"/>
+<text x="466" y="556" fill="#193744" font-family="Hiragino Sans GB, PingFang SC, Microsoft YaHei, Noto Sans CJK SC, sans-serif" font-size="22" font-weight="700" data-max-width="347">影响维护</text>
+<text x="466" y="589" fill="#193744" font-family="Hiragino Sans GB, PingFang SC, Microsoft YaHei, Noto Sans CJK SC, sans-serif" font-size="20" font-weight="400" data-max-width="348">保留现成系统集成，多套原生</text>
+<text x="466" y="618" fill="#193744" font-family="Hiragino Sans GB, PingFang SC, Microsoft YaHei, Noto Sans CJK SC, sans-serif" font-size="20" font-weight="400" data-max-width="348">界面需分别改动与发布。</text>
+<rect x="856" y="155" width="384" height="514" rx="15" fill="#FFFFFF" stroke="#C7D7D9" stroke-width="1.6"/>
+<rect x="857" y="156" width="382" height="96" rx="14" fill="#F4F1F8" stroke="#F4F1F8" stroke-width="0"/>
+<text x="873" y="196" fill="#675486" font-family="Hiragino Sans GB, PingFang SC, Microsoft YaHei, Noto Sans CJK SC, sans-serif" font-size="26" font-weight="700" data-max-width="350">Allodia 引擎 + 自有宿主</text>
+<text x="874" y="229" fill="#675486" font-family="Hiragino Sans GB, PingFang SC, Microsoft YaHei, Noto Sans CJK SC, sans-serif" font-size="19" font-weight="400" data-max-width="348">MPL-2.0 邮件引擎</text>
+<path d="M 874 253 H 1222" fill="none" stroke="#C7D7D9" stroke-width="1" stroke-linejoin="round" stroke-linecap="round"/>
+<text x="874" y="282" fill="#675486" font-family="Hiragino Sans GB, PingFang SC, Microsoft YaHei, Noto Sans CJK SC, sans-serif" font-size="22" font-weight="700" data-max-width="347">现成基础</text>
+<text x="874" y="315" fill="#193744" font-family="Hiragino Sans GB, PingFang SC, Microsoft YaHei, Noto Sans CJK SC, sans-serif" font-size="20" font-weight="400" data-max-width="348">独立 Rust 引擎提供协议与队列。</text>
+<text x="874" y="344" fill="#193744" font-family="Hiragino Sans GB, PingFang SC, Microsoft YaHei, Noto Sans CJK SC, sans-serif" font-size="20" font-weight="400" data-max-width="348">自建 React / TS 与 Tauri 2 宿主。</text>
+<path d="M 874 390 H 1222" fill="none" stroke="#C7D7D9" stroke-width="1" stroke-linejoin="round" stroke-linecap="round"/>
+<text x="874" y="419" fill="#675486" font-family="Hiragino Sans GB, PingFang SC, Microsoft YaHei, Noto Sans CJK SC, sans-serif" font-size="22" font-weight="700" data-max-width="347">需要补齐</text>
+<text x="874" y="452" fill="#193744" font-family="Hiragino Sans GB, PingFang SC, Microsoft YaHei, Noto Sans CJK SC, sans-serif" font-size="20" font-weight="400" data-max-width="348">补四端安装、系统后台与密钥，</text>
+<text x="874" y="481" fill="#193744" font-family="Hiragino Sans GB, PingFang SC, Microsoft YaHei, Noto Sans CJK SC, sans-serif" font-size="20" font-weight="400" data-max-width="348">实测中文编辑和检索、附件加密。</text>
+<path d="M 874 527 H 1222" fill="none" stroke="#C7D7D9" stroke-width="1" stroke-linejoin="round" stroke-linecap="round"/>
+<text x="874" y="556" fill="#675486" font-family="Hiragino Sans GB, PingFang SC, Microsoft YaHei, Noto Sans CJK SC, sans-serif" font-size="22" font-weight="700" data-max-width="347">影响维护</text>
+<text x="874" y="589" fill="#193744" font-family="Hiragino Sans GB, PingFang SC, Microsoft YaHei, Noto Sans CJK SC, sans-serif" font-size="20" font-weight="400" data-max-width="348">可共享更多界面，Velo 写信和</text>
+<text x="874" y="618" fill="#193744" font-family="Hiragino Sans GB, PingFang SC, Microsoft YaHei, Noto Sans CJK SC, sans-serif" font-size="20" font-weight="400" data-max-width="348">阅读组件按需接入命令接口。</text>
+<rect x="40" y="701" width="1200" height="70" rx="11" fill="#EDF3F5" stroke="#C5D6DA" stroke-width="1.4"/>
+<text x="59" y="743" fill="#193744" font-family="Hiragino Sans GB, PingFang SC, Microsoft YaHei, Noto Sans CJK SC, sans-serif" font-size="23" font-weight="700" data-max-width="175">共同决策依据</text>
+<text x="244" y="743" fill="#46606B" font-family="Hiragino Sans GB, PingFang SC, Microsoft YaHei, Noto Sans CJK SC, sans-serif" font-size="20" font-weight="400" data-max-width="975">四端实装、短词找回、可靠投递、离线迁移，以及新增一项会员功能的实际改动量。</text>
+</svg>

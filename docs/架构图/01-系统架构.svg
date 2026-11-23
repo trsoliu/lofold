@@ -1,0 +1,62 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="826" viewBox="0 0 1280 826" role="img" aria-labelledby="title desc">
+<title id="title">客户端与数据边界</title>
+<desc id="desc">每台设备都能独立工作。四端共享数据归属和接口约定，具体界面与宿主由所选路线决定。</desc>
+<defs>
+<marker id="a54717B" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="9" markerHeight="9" orient="auto-start-reverse" markerUnits="userSpaceOnUse"><path d="M 0 0 L 9 5 L 0 10 L 2 5 z" fill="#54717B"/></marker>
+<marker id="a156A69" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="9" markerHeight="9" orient="auto-start-reverse" markerUnits="userSpaceOnUse"><path d="M 0 0 L 9 5 L 0 10 L 2 5 z" fill="#156A69"/></marker>
+<marker id="a675486" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="9" markerHeight="9" orient="auto-start-reverse" markerUnits="userSpaceOnUse"><path d="M 0 0 L 9 5 L 0 10 L 2 5 z" fill="#675486"/></marker>
+<marker id="a96572F" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="9" markerHeight="9" orient="auto-start-reverse" markerUnits="userSpaceOnUse"><path d="M 0 0 L 9 5 L 0 10 L 2 5 z" fill="#96572F"/></marker>
+</defs>
+<rect x="0" y="0" width="1280" height="826" fill="#FAFCFC"/>
+<text x="42" y="67" fill="#193744" font-family="Hiragino Sans GB, PingFang SC, Microsoft YaHei, Noto Sans CJK SC, sans-serif" font-size="40" font-weight="700" data-max-width="1190">客户端与数据边界</text>
+<text x="44" y="106" fill="#46606B" font-family="Hiragino Sans GB, PingFang SC, Microsoft YaHei, Noto Sans CJK SC, sans-serif" font-size="21" font-weight="400" data-max-width="1190">每台设备都能独立工作。四端共享数据归属和接口约定，具体界面与宿主由所选路线决定。</text>
+<rect x="40" y="141" width="846" height="644" rx="16" fill="#F2F7F7" stroke="#A9C2C3" stroke-width="1.8"/>
+<rect x="923" y="141" width="317" height="644" rx="16" fill="#F7F8F9" stroke="#B9C8CC" stroke-width="1.7" stroke-dasharray="6 6"/>
+<text x="62" y="177" fill="#193744" font-family="Hiragino Sans GB, PingFang SC, Microsoft YaHei, Noto Sans CJK SC, sans-serif" font-size="23" font-weight="700" data-max-width="280">用户设备</text>
+<text x="945" y="177" fill="#193744" font-family="Hiragino Sans GB, PingFang SC, Microsoft YaHei, Noto Sans CJK SC, sans-serif" font-size="23" font-weight="700" data-max-width="270">设备外的连接</text>
+<rect x="62" y="199" width="801" height="80" rx="12" fill="#FFFFFF" stroke="#C7D7D9" stroke-width="1.6"/>
+<text x="81" y="232" fill="#156A69" font-family="Hiragino Sans GB, PingFang SC, Microsoft YaHei, Noto Sans CJK SC, sans-serif" font-size="26" font-weight="700" data-max-width="765">Android  /  iOS  /  macOS  /  Windows</text>
+<text x="81" y="261" fill="#46606B" font-family="Hiragino Sans GB, PingFang SC, Microsoft YaHei, Noto Sans CJK SC, sans-serif" font-size="20" font-weight="400" data-max-width="765">收件箱、写信、搜索与设置。用户可先离线导入 EML。</text>
+<path d="M 297 280 V 313" fill="none" stroke="#54717B" stroke-width="2.3" stroke-linejoin="round" stroke-linecap="round" marker-end="url(#a54717B)"/>
+<rect x="62" y="316" width="475" height="88" rx="12" fill="#FFFFFF" stroke="#C7D7D9" stroke-width="1.6"/>
+<text x="81" y="349" fill="#156A69" font-family="Hiragino Sans GB, PingFang SC, Microsoft YaHei, Noto Sans CJK SC, sans-serif" font-size="25" font-weight="700" data-max-width="439">应用用例与平台宿主</text>
+<text x="81" y="378" fill="#46606B" font-family="Hiragino Sans GB, PingFang SC, Microsoft YaHei, Noto Sans CJK SC, sans-serif" font-size="20" font-weight="400" data-max-width="439">校验账号范围，调用命令，订阅变更事件。</text>
+<rect x="577" y="316" width="286" height="88" rx="12" fill="#FFFFFF" stroke="#C7D7D9" stroke-width="1.6"/>
+<text x="596" y="349" fill="#193744" font-family="Hiragino Sans GB, PingFang SC, Microsoft YaHei, Noto Sans CJK SC, sans-serif" font-size="25" font-weight="700" data-max-width="250">操作系统能力</text>
+<text x="596" y="378" fill="#46606B" font-family="Hiragino Sans GB, PingFang SC, Microsoft YaHei, Noto Sans CJK SC, sans-serif" font-size="20" font-weight="400" data-max-width="250">后台唤醒、通知、凭据库</text>
+<path d="M 539 359 H 574" fill="none" stroke="#54717B" stroke-width="2.3" stroke-linejoin="round" stroke-linecap="round" marker-start="url(#a54717B)" marker-end="url(#a54717B)"/>
+<path d="M 297 406 V 445" fill="none" stroke="#54717B" stroke-width="2.3" stroke-linejoin="round" stroke-linecap="round" marker-end="url(#a54717B)"/>
+<rect x="62" y="449" width="475" height="110" rx="12" fill="#EDF6F4" stroke="#C7D7D9" stroke-width="1.6"/>
+<text x="81" y="482" fill="#156A69" font-family="Hiragino Sans GB, PingFang SC, Microsoft YaHei, Noto Sans CJK SC, sans-serif" font-size="25" font-weight="700" data-max-width="439">Rust 邮件引擎</text>
+<text x="81" y="511" fill="#46606B" font-family="Hiragino Sans GB, PingFang SC, Microsoft YaHei, Noto Sans CJK SC, sans-serif" font-size="20" font-weight="400" data-max-width="439">同步游标、去重、草稿与唯一发件队列。</text>
+<text x="81" y="538" fill="#46606B" font-family="Hiragino Sans GB, PingFang SC, Microsoft YaHei, Noto Sans CJK SC, sans-serif" font-size="20" font-weight="400" data-max-width="439">统一管理邮件状态和本机持久化。</text>
+<rect x="577" y="449" width="286" height="110" rx="12" fill="#F4F1F8" stroke="#C7D7D9" stroke-width="1.6"/>
+<text x="596" y="482" fill="#675486" font-family="Hiragino Sans GB, PingFang SC, Microsoft YaHei, Noto Sans CJK SC, sans-serif" font-size="25" font-weight="700" data-max-width="250">可选端侧 AI</text>
+<text x="596" y="511" fill="#46606B" font-family="Hiragino Sans GB, PingFang SC, Microsoft YaHei, Noto Sans CJK SC, sans-serif" font-size="20" font-weight="400" data-max-width="250">只读获准的邮件片段。</text>
+<text x="596" y="538" fill="#46606B" font-family="Hiragino Sans GB, PingFang SC, Microsoft YaHei, Noto Sans CJK SC, sans-serif" font-size="20" font-weight="400" data-max-width="250">输出引用或草稿建议。</text>
+<path d="M 540 505 H 573" fill="none" stroke="#675486" stroke-width="2.3" stroke-linejoin="round" stroke-linecap="round" stroke-dasharray="5 5" marker-start="url(#a675486)" marker-end="url(#a675486)"/>
+<path d="M 265 561 V 640" fill="none" stroke="#54717B" stroke-width="2.3" stroke-linejoin="round" stroke-linecap="round" marker-end="url(#a54717B)"/>
+<path d="M 408 561 V 602 H 717 V 640" fill="none" stroke="#156A69" stroke-width="2.3" stroke-linejoin="round" stroke-linecap="round" marker-end="url(#a156A69)"/>
+<rect x="62" y="644" width="475" height="115" rx="12" fill="#FFFFFF" stroke="#C7D7D9" stroke-width="1.6"/>
+<text x="81" y="672" fill="#193744" font-family="Hiragino Sans GB, PingFang SC, Microsoft YaHei, Noto Sans CJK SC, sans-serif" font-size="25" font-weight="700" data-max-width="439">本地加密存储</text>
+<text x="81" y="698" fill="#46606B" font-family="Hiragino Sans GB, PingFang SC, Microsoft YaHei, Noto Sans CJK SC, sans-serif" font-size="20" font-weight="400" data-max-width="439">数据库保存索引、游标与发件状态。</text>
+<text x="81" y="722" fill="#46606B" font-family="Hiragino Sans GB, PingFang SC, Microsoft YaHei, Noto Sans CJK SC, sans-serif" font-size="20" font-weight="400" data-max-width="439">原件与附件按本地集合或邮箱分区。</text>
+<text x="81" y="746" fill="#46606B" font-family="Hiragino Sans GB, PingFang SC, Microsoft YaHei, Noto Sans CJK SC, sans-serif" font-size="20" font-weight="400" data-max-width="439">有收益时无损压缩，统一加密写入。</text>
+<rect x="577" y="644" width="286" height="115" rx="12" fill="#FFFFFF" stroke="#C7D7D9" stroke-width="1.6"/>
+<text x="596" y="677" fill="#193744" font-family="Hiragino Sans GB, PingFang SC, Microsoft YaHei, Noto Sans CJK SC, sans-serif" font-size="25" font-weight="700" data-max-width="250">协议与分享适配器</text>
+<text x="596" y="706" fill="#46606B" font-family="Hiragino Sans GB, PingFang SC, Microsoft YaHei, Noto Sans CJK SC, sans-serif" font-size="20" font-weight="400" data-max-width="250">由设备直接授权或配对。</text>
+<text x="596" y="733" fill="#46606B" font-family="Hiragino Sans GB, PingFang SC, Microsoft YaHei, Noto Sans CJK SC, sans-serif" font-size="20" font-weight="400" data-max-width="250">发件与分享分别执行。</text>
+<rect x="946" y="319" width="272" height="140" rx="12" fill="#FFFFFF" stroke="#C7D7D9" stroke-width="1.6"/>
+<text x="965" y="352" fill="#156A69" font-family="Hiragino Sans GB, PingFang SC, Microsoft YaHei, Noto Sans CJK SC, sans-serif" font-size="23" font-weight="700" data-max-width="236">已添加的邮箱商</text>
+<text x="965" y="381" fill="#46606B" font-family="Hiragino Sans GB, PingFang SC, Microsoft YaHei, Noto Sans CJK SC, sans-serif" font-size="19" font-weight="400" data-max-width="236">IMAP / SMTP 或</text>
+<text x="965" y="408" fill="#46606B" font-family="Hiragino Sans GB, PingFang SC, Microsoft YaHei, Noto Sans CJK SC, sans-serif" font-size="19" font-weight="400" data-max-width="236">服务商 API 收发。</text>
+<text x="965" y="435" fill="#46606B" font-family="Hiragino Sans GB, PingFang SC, Microsoft YaHei, Noto Sans CJK SC, sans-serif" font-size="19" font-weight="400" data-max-width="236">服务商处理身份认证。</text>
+<rect x="946" y="593" width="272" height="166" rx="12" fill="#FBF2E9" stroke="#C7D7D9" stroke-width="1.6"/>
+<text x="965" y="626" fill="#96572F" font-family="Hiragino Sans GB, PingFang SC, Microsoft YaHei, Noto Sans CJK SC, sans-serif" font-size="23" font-weight="700" data-max-width="236">用户主动开启</text>
+<text x="965" y="655" fill="#46606B" font-family="Hiragino Sans GB, PingFang SC, Microsoft YaHei, Noto Sans CJK SC, sans-serif" font-size="19" font-weight="400" data-max-width="236">另一台配对设备收取</text>
+<text x="965" y="682" fill="#46606B" font-family="Hiragino Sans GB, PingFang SC, Microsoft YaHei, Noto Sans CJK SC, sans-serif" font-size="19" font-weight="400" data-max-width="236">选定的规则和模板。</text>
+<text x="965" y="709" fill="#46606B" font-family="Hiragino Sans GB, PingFang SC, Microsoft YaHei, Noto Sans CJK SC, sans-serif" font-size="19" font-weight="400" data-max-width="236">自管 Nextcloud 接收</text>
+<text x="965" y="736" fill="#46606B" font-family="Hiragino Sans GB, PingFang SC, Microsoft YaHei, Noto Sans CJK SC, sans-serif" font-size="19" font-weight="400" data-max-width="236">用户选定的大附件。</text>
+<path d="M 865 681 H 905 V 387 H 942" fill="none" stroke="#156A69" stroke-width="2.3" stroke-linejoin="round" stroke-linecap="round" marker-end="url(#a156A69)"/>
+<path d="M 865 711 H 942" fill="none" stroke="#96572F" stroke-width="2.3" stroke-linejoin="round" stroke-linecap="round" stroke-dasharray="6 5" marker-end="url(#a96572F)"/>
+</svg>
