@@ -24,6 +24,7 @@ assert.equal(cargo.status, 0, cargo.stderr || String(cargo.error))
 const { packages } = JSON.parse(cargo.stdout)
 const expected = new Map([
   ['lofold-client', 'apps/desktop/src-tauri/'],
+  ['lofold-mail-ai', 'packages/mail-ai/'],
   ['lofold-mail-network', 'packages/mail-network/'],
   ['lofold-mail-store', 'packages/mail-store/'],
   ['mail-blob-codec', 'packages/mail-blob-codec/'],
@@ -38,11 +39,11 @@ for (const [name, path] of expected) {
 
 const documents = [
   ...rootDocs.map(name => name + '.md'),
-  'docs/README.md', 'docs/adr/0001-workspace-layout.md',
+  'docs/README.md', 'docs/15-本机AI.md', 'docs/adr/0001-workspace-layout.md',
   'apps/desktop/AGENTS.md', 'apps/desktop/README.md', 'apps/desktop/src-tauri/AGENTS.md',
   'apps/design-preview/AGENTS.md', 'apps/design-preview/README.md',
   'packages/AGENTS.md', 'scripts/README.md',
-  ...['branding', 'mail-blob-codec', 'mail-network', 'mail-store'].map(name => `packages/${name}/README.md`),
+  ...['branding', 'mail-ai', 'mail-blob-codec', 'mail-network', 'mail-store'].map(name => `packages/${name}/README.md`),
 ]
 for (const path of documents) {
   for (const [, destination] of read(path).matchAll(/\]\(([^)]+)\)/g)) {

@@ -37,6 +37,7 @@ mod platform_secrets {
 }
 
 mod accounts;
+mod ai;
 mod image_watermark;
 mod mailboxes;
 mod message_image;
@@ -286,6 +287,7 @@ pub fn run() {
                 store: Arc::new(Mutex::new(None)),
                 mail_operation: Arc::new(tauri::async_runtime::Mutex::new(())),
             });
+            app.manage(ai::AiState::default());
             Ok(())
         })
         .invoke_handler(tauri::generate_handler![
@@ -294,6 +296,9 @@ pub fn run() {
             read_mail,
             read_conversation,
             save_mail,
+            ai::ai_models,
+            ai::run_ai,
+            ai::cancel_ai,
             message_image::save_message_image,
             message_image::message_image_accounts,
             message_image::read_image_watermark,

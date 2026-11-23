@@ -1,9 +1,9 @@
-import { Archive, AtSign, Ban, Bookmark, ChevronRight, FileText, Flag, FolderClosed, HardDrive, Inbox, MailOpen, Paperclip, Send, Trash2 } from 'lucide-react'
+import { Archive, AtSign, Ban, Bookmark, ChevronRight, FileText, Flag, FolderClosed, HardDrive, Inbox, MailOpen, Paperclip, Send, Sparkles, Trash2 } from 'lucide-react'
 import { useEffect, useRef, useState, type KeyboardEvent, type MouseEvent, type PointerEvent } from 'react'
 import { ControlSelect } from './controls'
 import type { AccountChoice, Folder, MailboxChoice } from './mail-workspace'
 
-export type Screen = Exclude<Folder, 'remote'> | `mailbox-${number}` | 'accounts' | 'drafts' | 'attachments' | 'saved' | 'offline' | 'settings' | 'appearance'
+export type Screen = Exclude<Folder, 'remote'> | `mailbox-${number}` | 'accounts' | 'drafts' | 'attachments' | 'saved' | 'ai' | 'offline' | 'settings' | 'appearance'
 
 const accountFolders = [
   { id: 'inbox', label: '收件箱', icon: Inbox },
@@ -27,6 +27,7 @@ const workspaceLinks = [
   { id: 'archive', label: '本机归档', icon: Archive },
   { id: 'attachments', label: '附件中心', icon: Paperclip },
   { id: 'saved', label: '固定搜索', icon: Bookmark },
+  { id: 'ai', label: 'AI 查信', icon: Sparkles },
   { id: 'offline', label: '离线准备', icon: HardDrive },
   { id: 'accounts', label: '邮箱账号', icon: AtSign },
 ] as const
