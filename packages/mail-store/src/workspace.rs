@@ -32,6 +32,8 @@ pub enum Folder {
     Junk,
     Trash,
     Remote,
+    #[serde(skip)]
+    AccountMail,
 }
 
 pub struct InboxItem {

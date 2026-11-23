@@ -2093,23 +2093,36 @@ dependencies = [
 
 [[package]]
 name = "lofold-client"
-version = "0.5.9"
+version = "0.6.0"
 dependencies = [
  "cc",
  "fs2",
+ "futures-util",
  "getrandom 0.3.4",
+ "lofold-mail-ai",
  "lofold-mail-network",
  "lofold-mail-store",
  "png",
  "ring",
  "security-framework",
  "serde",
+ "serde_json",
  "tauri",
  "tauri-build",
  "tauri-plugin-dialog",
  "tempfile",
  "uuid",
  "zeroize",
+]
+
+[[package]]
+name = "lofold-mail-ai"
+version = "0.1.0"
+dependencies = [
+ "reqwest",
+ "serde",
+ "serde_json",
+ "thiserror 2.0.21",
 ]
 
 [[package]]

@@ -4,6 +4,37 @@ const SAMPLE: &[u8] = include_bytes!("../tests/fixtures/chinese-attachment.eml")
 const KEY: [u8; 32] = [9; 32];
 
 #[test]
+fn ai_candidates_keep_scoped_messages_in_the_selected_account() {
+    let directory = tempfile::tempdir().unwrap();
+    let mut store = MailArchive::open(&directory.path().join("archive"), &KEY).unwrap();
+    store
+        .add_accounts(&["alpha@example.test".into(), "beta@example.test".into()])
+        .unwrap();
+    let accounts = store.accounts().unwrap();
+    for account in &accounts {
+        let raw = format!("From: fixture@example.test\r\nTo: {}\r\nSubject: Invoice review\r\n\r\nUnique body for {}", account.address, account.address);
+        store
+            .store_inbox(
+                account.id,
+                1,
+                vec![InboxItem {
+                    uid: 1,
+                    unread: false,
+                    raw: Some(raw.into_bytes()),
+                }],
+            )
+            .unwrap();
+    }
+    let terms = vec!["invoice".to_owned(), "review".to_owned()];
+    let matches = store.ai_matches(&terms, Some(accounts[0].id), 5).unwrap();
+    assert_eq!(matches.len(), 1);
+    assert_eq!(matches[0].0.account_id, Some(accounts[0].id));
+    assert!(matches[0].1.contains(&accounts[0].address));
+    assert!(!matches[0].1.contains(&accounts[1].address));
+    assert_eq!(store.ai_matches(&terms, None, 5).unwrap().len(), 2);
+}
+
+#[test]
 fn manual_server_changes_preserve_cached_mail_and_require_fresh_verification() {
     let directory = tempfile::tempdir().unwrap();
     let path = directory.path().join("archive");

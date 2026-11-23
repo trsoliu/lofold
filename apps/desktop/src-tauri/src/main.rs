@@ -15,6 +15,7 @@ use tauri_plugin_dialog::DialogExt;
 use zeroize::Zeroizing;
 
 mod accounts;
+mod ai;
 mod image_watermark;
 mod mailboxes;
 mod message_image;
@@ -235,6 +236,7 @@ fn main() {
                 store: Arc::new(Mutex::new(None)),
                 mail_operation: Arc::new(tauri::async_runtime::Mutex::new(())),
             });
+            app.manage(ai::AiState::default());
             Ok(())
         })
         .invoke_handler(tauri::generate_handler![
@@ -243,6 +245,9 @@ fn main() {
             read_mail,
             read_conversation,
             save_mail,
+            ai::ai_models,
+            ai::run_ai,
+            ai::cancel_ai,
             message_image::save_message_image,
             message_image::message_image_accounts,
             message_image::read_image_watermark,

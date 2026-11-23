@@ -105,6 +105,12 @@ pub struct MailSummary {
     location: Option<MailLocation>,
 }
 
+impl MailSummary {
+    pub fn subject(&self) -> &str {
+        &self.subject
+    }
+}
+
 #[derive(Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct MailPage {
@@ -345,6 +351,7 @@ impl MailArchive {
                 Folder::Junk => "f.kind='junk'",
                 Folder::Trash => "f.kind='trash'",
                 Folder::Remote => "f.id=?6",
+                Folder::AccountMail => "i.mailbox='INBOX' OR f.kind IN ('inbox','sent','archive','custom')",
                 Folder::Archive => unreachable!(),
             };
             let remote = format!(
@@ -355,7 +362,7 @@ impl MailArchive {
                     AND f.generation=coalesce((SELECT inbox_generation FROM mail_servers s WHERE s.account_id=i.account_id),0)
                  WHERE ({folder_filter}) AND (?4 IS NULL OR i.account_id=?4)"
             );
-            let sent = if matches!(folder, Folder::Sent) {
+            let sent = if matches!(folder, Folder::Sent | Folder::AccountMail) {
                 "UNION ALL SELECT account_id,sent_message_id,0,0,NULL,NULL,NULL
                  FROM drafts WHERE status='sent' AND (?4 IS NULL OR account_id=?4)"
             } else {
@@ -372,6 +379,7 @@ impl MailArchive {
         let valid_scope = match folder {
             Folder::Archive => "?4 IS NULL AND ?6 IS NULL",
             Folder::Remote => "?6 IS NOT NULL",
+            Folder::AccountMail => "?4 IS NOT NULL AND ?6 IS NULL",
             _ => "?6 IS NULL",
         };
         let mut statement = self.database.prepare(&format!(
@@ -425,6 +433,47 @@ impl MailArchive {
             rich_body: rich_body::extract(&message),
             attachments,
         })
+    }
+
+    /// Decode only the textual content needed for the model.
+    pub fn ai_message(&self, id: i64) -> Result<(MailSummary, String), ArchiveError> {
+        let summary = self.summary(id)?;
+        let raw = self.read_raw(id)?;
+        Ok((summary, reading_body(&parse(&raw)?)))
+    }
+
+    pub fn ai_matches(
+        &self,
+        terms: &[String],
+        account: Option<i64>,
+        limit: usize,
+    ) -> Result<Vec<(MailSummary, String)>, ArchiveError> {
+        use std::{cmp::Reverse, collections::HashMap};
+
+        let folder = match account {
+            Some(id) => {
+                self.account(id)?;
+                Folder::AccountMail
+            }
+            None => Folder::Archive,
+        };
+        let mut matches = HashMap::new();
+        for term in terms.iter().filter(|term| !term.trim().is_empty()) {
+            for mail in self.list_folder(folder, account, term, 0)?.items {
+                let entry = matches.entry(mail.id).or_insert((mail, 0u32));
+                entry.1 += 1;
+            }
+        }
+        let mut ranked = matches.into_values().collect::<Vec<_>>();
+        ranked.sort_by_key(|(mail, score)| Reverse((*score, mail.sent_at, mail.id)));
+        ranked
+            .into_iter()
+            .take(limit)
+            .map(|(mail, _)| {
+                let raw = self.read_raw(mail.id)?;
+                Ok((mail, reading_body(&parse(&raw)?)))
+            })
+            .collect()
     }
 
     pub fn export_raw(&self, id: i64) -> Result<Export, ArchiveError> {

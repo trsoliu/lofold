@@ -5,6 +5,7 @@ import {
 import { StrictMode, useEffect, useRef, useState, type ChangeEvent } from 'react'
 import { createRoot } from 'react-dom/client'
 import { Accounts } from './accounts'
+import { AiMessageDialog, AiWorkspace } from './ai-panel'
 import { archive, errorMessage, type MailConversation, type MailDetail, type MailPage, type MailSummary } from './archive'
 import { brand, getTheme, logo, setTheme } from './branding'
 import { Composer } from './composer'
@@ -46,6 +47,9 @@ function App() {
   const [attachmentQuery, setAttachmentQuery] = useState('')
   const [attachmentScope, setAttachmentScope] = useState<number | null>(null)
   const [returnToAttachments, setReturnToAttachments] = useState(false)
+  const [returnToAi, setReturnToAi] = useState(false)
+  const [aiAccount, setAiAccount] = useState<number | null>(null)
+  const [aiMail, setAiMail] = useState<MailSummary | null>(null)
   const [scope, setScope] = useState<number | null>(null)
   const [accounts, setAccounts] = useState<AccountChoice[]>([])
   const [mailboxes, setMailboxes] = useState<MailboxChoice[]>([])
@@ -173,7 +177,7 @@ function App() {
 
   useEffect(() => {
     function focusSearch(event: KeyboardEvent) {
-      if (draft || pinning || event.isComposing || event.altKey || event.shiftKey || !(event.metaKey || event.ctrlKey) || event.key.toLowerCase() !== 'k') return
+      if (draft || pinning || aiMail || event.isComposing || event.altKey || event.shiftKey || !(event.metaKey || event.ctrlKey) || event.key.toLowerCase() !== 'k') return
       event.preventDefault()
       if (!folder) goTo('inbox')
       setReading(false)
@@ -184,9 +188,10 @@ function App() {
     }
     window.addEventListener('keydown', focusSearch)
     return () => window.removeEventListener('keydown', focusSearch)
-  }, [draft, folder, pinning])
+  }, [draft, folder, pinning, aiMail])
 
   function goTo(next: Screen, account: number | null = null, term = '', requireAttachment = false) {
+    if (next === 'ai' && screen !== 'ai' && !returnToAi) setAiAccount(scope)
     listGeneration.current++
     setScreen(next)
     setScope(account)
@@ -194,6 +199,7 @@ function App() {
     setQuery(term)
     setAttachmentsOnly(requireAttachment)
     setReturnToAttachments(false)
+    setReturnToAi(false)
     setSelected(null)
     setReading(false)
     setRefresh((value) => value + 1)
@@ -332,7 +338,7 @@ function App() {
     void synchronize(scope, false, false)
   }, [folder, remoteId, scope, busy, mailboxes, accounts])
 
-  async function openComposer(mode: 'new' | 'edit' | ComposeMode, id?: number) {
+  async function openComposer(mode: 'new' | 'edit' | ComposeMode, id?: number, body?: string) {
     setBusy('draft')
     setNotice(null)
     try {
@@ -348,7 +354,16 @@ function App() {
         ? selected?.account ?? null
         : (mode === 'new' ? scope : selected?.account ?? scope)
           ?? preferredDefault ?? (candidates.length === 1 ? candidates[0].id : null)
-      setDraft(await mailWorkspace.createDraft(preferred, id ?? null, mode === 'new' || mode === 'edit' ? 'reply' : mode))
+      const created = await mailWorkspace.createDraft(preferred, id ?? null, mode === 'new' || mode === 'edit' ? 'reply' : mode)
+      if (body !== undefined) {
+        try {
+          setDraft(await mailWorkspace.saveDraft(created.id, created.revision, { ...created.fields, body }))
+        } catch (error) {
+          await mailWorkspace.discardDraft(created.id, created.revision).catch(() => {})
+          throw error
+        }
+        setAiMail(null)
+      } else setDraft(created)
     } catch (issue) {
       setNotice({ text: errorMessage(issue), error: true })
     } finally {
@@ -532,6 +547,13 @@ function App() {
           if (spec.folder !== 'remote') goTo(spec.folder, spec.accountId, spec.query, spec.attachmentsOnly)
         }} />}
         {screen === 'offline' && <OfflineStorage accounts={accounts} version={refresh} syncing={busy !== null} refresh={(id) => void synchronize(id)} />}
+        {(screen === 'ai' || returnToAi) && <AiWorkspace accounts={accounts} account={aiAccount} hidden={screen !== 'ai'}
+          open={(mail) => {
+            goTo('archive')
+            setReturnToAi(true)
+            setSelected({ id: mail.id, account: mail.accountId ?? null, message: mail })
+            setReading(true)
+          }} />}
         {folder && <>
           <section className="mailbox" aria-label="邮件列表">
             <div ref={mailList} className="mail-list" aria-busy={listStatus === 'loading'}>
@@ -566,7 +588,9 @@ function App() {
           </section>
 
           <section className="reader" aria-label="邮件内容">
-            {returnToAttachments
+            {returnToAi
+              ? <IconAction className="attachments-back" icon={ArrowLeft} label="返回 AI 查信" onClick={() => goTo('ai')} />
+              : returnToAttachments
               ? <IconAction className="attachments-back" icon={ArrowLeft} label="返回附件中心" onClick={() => goTo('attachments')} />
               : reading && <IconAction className="back" icon={ArrowLeft} label="返回列表" onClick={backToList} />}
             {selectedId === null && <div className="reader-placeholder"><span className="placeholder-icon"><Mail size={22} strokeWidth={1.6} aria-hidden="true" /></span><p>选择一封邮件阅读</p></div>}
@@ -587,6 +611,7 @@ function App() {
                     compose={(mode) => void openComposer(mode, activeDetail.id)} change={(action, target) => void manageMessage(action, target)}
                     pin={() => void manageMessage('pin')} exportOriginal={() => void save()}
                     capture={() => void outputMessage('png')} print={() => void outputMessage('print')}
+                    assistant={() => setAiMail(activeMessage)}
                     conversation={() => void openConversation(activeDetail.id, selected?.account ?? null)} />}
                 </div>
               </header>
@@ -620,6 +645,8 @@ function App() {
           </section>
         </>}
       </main>
+      {aiMail && <AiMessageDialog message={aiMail} close={() => setAiMail(null)}
+        useDraft={(body) => void openComposer('reply', aiMail.id, body)} />}
       {pinning && folder && canPinSearch && <PinSearch spec={{ folder, accountId: accountFilter, query, attachmentsOnly }}
         close={() => setPinning(false)} saved={() => { setPinning(false); setNotice({ text: '已固定搜索。' }) }} />}
       {draft && <Composer key={draft.id} initial={draft} accounts={accounts}
