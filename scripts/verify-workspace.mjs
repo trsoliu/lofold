@@ -40,7 +40,7 @@ for (const [name, path] of expected) {
 
 const documents = [
   ...rootDocs.map(name => name + '.md'),
-  'docs/README.md', 'docs/15-本机AI.md', 'docs/16-Agent-MCP.md', 'docs/adr/0001-workspace-layout.md',
+  'docs/README.md', 'docs/15-本机AI.md', 'docs/16-Agent-MCP.md', 'docs/lofold-skill/README.md', 'docs/adr/0001-workspace-layout.md',
   'apps/desktop/AGENTS.md', 'apps/desktop/README.md', 'apps/desktop/src-tauri/AGENTS.md',
   'apps/design-preview/AGENTS.md', 'apps/design-preview/README.md',
   'packages/AGENTS.md', 'scripts/README.md',

@@ -15,4 +15,4 @@ Android 的 EML 导入使用系统文档选择器，将返回的内容 URI 交�
 
 新增或改名时先核对所属模块、输入字段的类型与序列化、失败结果和权限，再同步宿主注册与调用端。涉及已存数据时，以 [CONTRACTS.md](CONTRACTS.md) 检查兼容性。运行 `pnpm verify:workspace` 核对字面量 IPC 调用的注册，再按 [TESTING.md](TESTING.md) 验证参数和实际行为。
 
-[Agent MCP](docs/16-Agent-MCP.md) 通过本机 stdio 接收工具调用。授权和写入由正在运行的 LoFold 宿主处理，窗口通过本机事件接收打开搜索和草稿的请求。
+[Agent MCP](docs/16-Agent-MCP.md) 通过本机 stdio 接收工具调用。授权和写入由正在运行的 LoFold 宿主处理，窗口通过本机事件接收打开搜索和草稿的请求。[Agent Skill](docs/lofold-skill/README.md) 可通过客户端配置的 MCP 工具或随附的 Python 脚本调用相同入口。

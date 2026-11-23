@@ -15,6 +15,8 @@ LoFold 的 macOS 版本可以让同一台 Mac 上支持本地 stdio MCP 的 AI �
 
 以 LoFold 设置里展示的实际路径为准。客户端启动同一个可执行文件的 `--mcp` 模式，LoFold 界面负责授权和执行。新启动的 LoFold 会话默认关闭 Agent 连接。
 
+支持 Agent Skills 的本机客户端也可[安装 LoFold Skill](lofold-skill/README.md)。Skill 指导客户端使用这套工具，并附带无需注册 MCP 服务的本机调用脚本。
+
 ## 可调用的工具
 
 | 工具 | 作用 |

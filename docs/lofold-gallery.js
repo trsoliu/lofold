@@ -71,3 +71,18 @@ for (const [index, tab] of aiTabs.entries()) {
 }
 showAiExample(aiTabs[0])
 aiTabList.hidden = false
+
+const copyAgentPrompt = document.getElementById('copy-agent-prompt')
+if (navigator.clipboard?.writeText) {
+  const prompt = document.getElementById('agent-prompt')
+  const copyStatus = document.getElementById('agent-copy-status')
+  copyAgentPrompt.hidden = false
+  copyAgentPrompt.addEventListener('click', async () => {
+    try {
+      await navigator.clipboard.writeText(prompt.textContent.trim())
+      copyStatus.textContent = '已复制安装提示词'
+    } catch {
+      copyStatus.textContent = '无法写入剪贴板，请手动选中并复制提示词。'
+    }
+  })
+}

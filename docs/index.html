@@ -20,6 +20,7 @@
           <a href="#ai">本机 AI</a>
           <a href="#features">功能图解</a>
           <a href="#downloads">下载</a>
+          <a href="#agent">Agent</a>
           <a href="#contact">联系</a>
           <a href="https://github.com/trsoliu/lofold">GitHub <span aria-hidden="true">↗</span></a>
         </nav>
@@ -216,6 +217,24 @@
             </figure>
           </div>
         </section>
+      </section>
+      <section id="agent" class="build agent-connect frame" aria-labelledby="agent-heading">
+        <div>
+          <h2 id="agent-heading">把 LoFold 接进你的 Agent</h2>
+          <p>在同一台 Mac 上，让 Codex、Claude Code 或自建 Agent 打开查信、处理你共享的邮件并准备草稿。</p>
+          <p>需要支持「设置 → Agent MCP」的 LoFold。macOS 0.6.0 首发包的用户可按构建说明获取支持版本。</p>
+          <p><a href="https://github.com/trsoliu/lofold/blob/main/docs/lofold-skill/README.md">安装 Skill</a> · <a href="https://github.com/trsoliu/lofold/blob/main/docs/16-Agent-MCP.md">MCP 配置</a></p>
+        </div>
+        <div class="agent-install">
+          <div class="agent-install-header">
+            <h3>把这段话发给你的 Agent</h3>
+            <button type="button" id="copy-agent-prompt" aria-label="复制安装提示词" title="复制安装提示词" hidden>
+              <svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 5V4a1 1 0 0 0-1-1H5a2 2 0 0 0-2 2v10a1 1 0 0 0 1 1h1"/></svg>
+            </button>
+          </div>
+          <pre id="agent-prompt">请按 https://trsoliu.github.io/lofold/lofold-skill/README.md 安装 LoFold Skill。保留已有 Skill 和 MCP 配置。装好后告诉我安装位置，请我在 LoFold 开启 Agent MCP，再用连接状态验证。</pre>
+          <p id="agent-copy-status" role="status"></p>
+        </div>
       </section>
       <section id="build" class="build frame" aria-labelledby="build-heading">
         <div>

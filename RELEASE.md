@@ -20,4 +20,4 @@
 
 ## 源码和 Pages
 
-公开源码带上 [LICENSE](LICENSE) 和 [NOTICE](NOTICE)。Pages 从 `main:/docs` 发布。部署后核对 [项目主页](https://trsoliu.github.io/lofold/)、仓库 About 和尾注链接。源码推送、Pages 部署和安装包分发分别核验。
+公开源码带上 [LICENSE](LICENSE) 和 [NOTICE](NOTICE)。Pages 从 `main:/docs` 发布。部署后核对 [项目主页](https://trsoliu.github.io/lofold/)、仓库 About 和尾注链接。源码推送、Pages 部署和安装包分发分别核验。发布 [Agent Skill](docs/lofold-skill/README.md) 时，核对 Pages 的 Agent 入口、安装提示词和四个可下载文件。Skill 附带的 LICENSE 和 NOTICE 与仓库根目录保持一致。
