@@ -27,6 +27,22 @@ pub use folders::{FolderBatch, FolderItem, FolderMutation, RemoteFolder, RemoteF
 mod workspace;
 pub use workspace::{prepare_mail, prepare_mail_with_recipients, InboxBatch, MailRecipients};
 
+// native-tls loads the traditional Android system directory. Android 14 also
+// distributes trust-anchor updates in the read-only Conscrypt APEX.
+#[cfg(target_os = "android")]
+fn conscrypt_roots() -> &'static [Vec<u8>] {
+    use std::{fs, sync::OnceLock};
+    static ROOTS: OnceLock<Vec<Vec<u8>>> = OnceLock::new();
+    ROOTS.get_or_init(|| {
+        fs::read_dir("/apex/com.android.conscrypt/cacerts")
+            .into_iter()
+            .flatten()
+            .filter_map(Result::ok)
+            .filter_map(|entry| fs::read(entry.path()).ok())
+            .collect()
+    })
+}
+
 const TIMEOUT: Duration = Duration::from_secs(8);
 const MAIL_FOOTER: &str = "Sent with LoFold: https://trsoliu.github.io/lofold/";
 const PROBE_BODY: &str = "这封邮件由 LoFold 发给当前账号，用于验证 SMTP 发件与 IMAP 收件。";
@@ -260,6 +276,12 @@ impl<'a> Connection<'a> {
             .map_err(|_| MailError::ImapConnection)?;
         let mut tls = TlsConnector::builder();
         tls.min_protocol_version(Some(Protocol::Tlsv12));
+        #[cfg(target_os = "android")]
+        for pem in conscrypt_roots() {
+            if let Ok(cert) = Certificate::from_pem(pem) {
+                tls.add_root_certificate(cert);
+            }
+        }
         if let Some(pem) = self.test_ca {
             tls.add_root_certificate(Certificate::from_pem(pem).map_err(|_| MailError::ImapTls)?);
         }
@@ -290,6 +312,12 @@ impl<'a> Connection<'a> {
     fn transport(&self, user: &str, secret: &str) -> Result<SmtpTransport, MailError> {
         let mut tls = TlsParameters::builder(self.smtp_host.to_owned())
             .set_min_tls_version(TlsVersion::Tlsv12);
+        #[cfg(target_os = "android")]
+        for pem in conscrypt_roots() {
+            if let Ok(cert) = lettre::transport::smtp::client::Certificate::from_pem(pem) {
+                tls = tls.add_root_certificate(cert);
+            }
+        }
         if let Some(pem) = self.test_ca {
             let cert = lettre::transport::smtp::client::Certificate::from_pem(pem)
                 .map_err(|_| MailError::SmtpConnection)?;
