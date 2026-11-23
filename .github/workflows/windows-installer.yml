@@ -44,7 +44,9 @@ jobs:
             windows-msvc-v1-${{ hashFiles('rust-toolchain.toml', 'Cargo.lock') }}-
             windows-msvc-v1-
       - name: Build current-user NSIS installer
-        run: pnpm --filter @lofold/desktop tauri build --bundles nsis -- --locked
+        shell: cmd
+        working-directory: apps/desktop
+        run: node_modules\.bin\tauri.cmd build --bundles nsis -- --locked
       - name: Verify encrypted archive and credentials
         run: cargo test --release --locked --workspace
       - name: Install and verify the packaged app
