@@ -1,0 +1,36 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "productName": "LoFold",
+  "version": "0.5.9",
+  "identifier": "org.lofold.client",
+  "build": {
+    "beforeDevCommand": "pnpm dev",
+    "devUrl": "http://127.0.0.1:1420",
+    "beforeBuildCommand": "pnpm build",
+    "frontendDist": "../dist"
+  },
+  "app": {
+    "windows": [
+      {
+        "title": "LoFold 0.5.9",
+        "width": 1200,
+        "height": 780,
+        "minWidth": 420,
+        "minHeight": 520,
+        "titleBarStyle": "Overlay",
+        "hiddenTitle": true,
+        "trafficLightPosition": { "x": 10, "y": 15 }
+      }
+    ],
+    "security": {
+      "csp": "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src ipc: http://ipc.localhost; object-src 'none'; frame-src 'self'; base-uri 'none'; form-action 'none'"
+    }
+  },
+  "bundle": {
+    "active": true,
+    "targets": ["app"],
+    "icon": ["icons/icon.icns", "icons/128x128.png"],
+    "resources": { "../../../LICENSE": "LICENSE", "../../../NOTICE": "NOTICE" },
+    "macOS": { "minimumSystemVersion": "12.0", "signingIdentity": "-" }
+  }
+}

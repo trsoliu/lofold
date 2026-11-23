@@ -1,0 +1,10 @@
+{
+  "name": "lofold",
+  "private": true,
+  "packageManager": "pnpm@11.23.0",
+  "scripts": {
+    "dev": "pnpm --filter @lofold/client tauri dev",
+    "build": "pnpm --filter @lofold/client tauri build --bundles app",
+    "check": "pnpm --filter @lofold/client check"
+  }
+}

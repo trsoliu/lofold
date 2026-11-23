@@ -1,0 +1,24 @@
+From: sample@example.test
+To: archive@example.test
+Date: Fri, 20 Nov 2026 09:30:00 +0800
+Message-ID: <lofold-m0@example.test>
+Subject: =?utf-8?b?5pys5Zyw6YKu566x5b6A6L+U5rWL6K+V?=
+MIME-Version: 1.0
+Content-Type: multipart/mixed; boundary="lofold-m0-synthetic-fixture"
+
+--lofold-m0-synthetic-fixture
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
+
+这是一封用于核对发件身份和附件的合成测试邮件。
+
+--lofold-m0-synthetic-fixture
+Content-Type: text/csv
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment;
+ filename*=utf-8''%E5%B7%AE%E6%97%85%E8%A1%8C%E7%A8%8B.csv
+MIME-Version: 1.0
+
+5pel5pyfLOihjOeoiwoxMeaciDIw5pelLOWHuuWPkQo=
+
+--lofold-m0-synthetic-fixture--

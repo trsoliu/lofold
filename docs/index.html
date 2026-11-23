@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="LoFold 是一款开源本地邮件客户端。集中收发多账号邮件，在 Mac 上离线搜索、阅读和导出原件。">
+    <meta name="color-scheme" content="light dark">
+    <title>LoFold · 开源本地邮件客户端</title>
+    <link rel="canonical" href="https://trsoliu.github.io/lofold/">
+    <link rel="icon" href="lofold.png" type="image/png">
+    <link rel="stylesheet" href="lofold.css">
+  </head>
+  <body>
+    <header class="site-header frame">
+      <a class="wordmark" href="./"><img src="lofold.png" alt="" width="32" height="32">LoFold</a>
+      <nav aria-label="站点导航">
+        <a href="#build">本机运行</a>
+        <a href="https://github.com/trsoliu/lofold">GitHub <span aria-hidden="true">↗</span></a>
+      </nav>
+    </header>
+
+    <main class="frame">
+      <section class="hero" aria-labelledby="headline">
+        <div class="hero-copy">
+          <h1 id="headline">来信在手，<br>心里有数。</h1>
+          <p>LoFold 是一款开源本地邮件客户端。把多个邮箱放进同一个收件箱，在 Mac 上收发、离线搜索和导出邮件原件。</p>
+          <a class="button" href="https://github.com/trsoliu/lofold">查看源码 <span aria-hidden="true">↗</span></a>
+        </div>
+        <figure class="letter">
+          <figcaption>邮件尾注示例</figcaption>
+          <div class="letter-paper">
+            <div class="letter-heading">
+              <img src="lofold.png" alt="" width="48" height="48">
+              <div><strong>附件已发送</strong><small>LoFold 邮件</small></div>
+            </div>
+            <p>你好，<br>修订后的文件已附上，请查收。</p>
+            <p class="signature">Sent with LoFold:<br><a href="./">trsoliu.github.io/lofold/</a></p>
+          </div>
+        </figure>
+      </section>
+
+      <dl class="features" aria-label="主要功能">
+        <div><dt>统一收件箱</dt><dd>查看多个邮箱的来信，按账号管理文件夹，直接回复、转发或附上原件。</dd></div>
+        <div><dt>离线邮件归档</dt><dd>在本机搜索已保存的正文和附件，按需导出完整 EML 和附件。归档使用 SQLCipher 加密。</dd></div>
+        <div><dt>直连邮箱服务商</dt><dd>预设 163、QQ 和 Gmail，支持独立配置 IMAP 和 SMTP。授权凭据存放于 macOS 钥匙串。</dd></div>
+      </dl>
+
+      <section id="build" class="build" aria-labelledby="build-heading">
+        <div>
+          <h2 id="build-heading">从源码运行</h2>
+          <p>当前为 Apple 芯片 Mac 开发版。需要 Xcode、Node.js 22.12 或以上版本、pnpm 11 和 rustup。</p>
+          <a href="https://github.com/trsoliu/lofold#本机运行">构建与检查说明 <span aria-hidden="true">↗</span></a>
+        </div>
+        <pre><code>git clone https://github.com/trsoliu/lofold.git
+cd lofold
+export PATH="$HOME/.cargo/bin:$PATH"
+pnpm install --frozen-lockfile
+pnpm dev</code></pre>
+      </section>
+    </main>
+
+    <footer class="site-footer frame">
+      <span>LoFold · trsoliu</span>
+      <a href="https://github.com/trsoliu/lofold/blob/main/LICENSE">Apache 2.0</a>
+      <a href="https://github.com/trsoliu/lofold/blob/main/NOTICE">项目署名</a>
+    </footer>
+  </body>
+</html>

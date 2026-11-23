@@ -1,0 +1,3 @@
+[workspace]
+members = ["crates/mail-blob-codec", "crates/mail-store", "crates/mail-network", "apps/client/src-tauri"]
+resolver = "2"

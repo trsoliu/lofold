@@ -1,0 +1,14 @@
+[package]
+name = "lofold-mail-network"
+version = "0.1.0"
+edition = "2021"
+publish = false
+
+[dependencies]
+imap = { version = "=3.0.0-alpha.15", default-features = false }
+imap-proto = "0.16"
+lettre = { version = "0.11.24", default-features = false, features = ["builder", "smtp-transport", "native-tls"] }
+native-tls = "0.2.18"
+mail-parser = "1.0.1"
+thiserror = "2"
+uuid = { version = "1", features = ["v4"] }

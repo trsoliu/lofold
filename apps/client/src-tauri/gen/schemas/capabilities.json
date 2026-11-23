@@ -1,0 +1,1 @@
+{"window-chrome":{"identifier":"window-chrome","description":"Allows the macOS toolbar to move and zoom the main window.","local":true,"windows":["main"],"permissions":["core:window:allow-start-dragging","core:window:allow-internal-toggle-maximize"],"platforms":["macOS"]}}

@@ -1,0 +1,150 @@
+:root {
+  color-scheme: light dark;
+  --background: #f9f7ef;
+  --ink: #242720;
+  --muted: #575c50;
+  --line: #cbcdbd;
+  --olive: #e1e6cf;
+  --paper: #fffdf4;
+  --accent: #3d512b;
+  --button: #263622;
+  --button-ink: #fffdf4;
+  --terminal: #262b23;
+  --terminal-ink: #eff1df;
+  font-family: "Hiragino Sans GB", "PingFang SC", "Microsoft YaHei", sans-serif;
+  line-height: 1.65;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #21251f;
+    --ink: #f3f0e4;
+    --muted: #c0c7b7;
+    --line: #52594a;
+    --olive: #333d2b;
+    --paper: #282f26;
+    --accent: #c9daa7;
+    --button: #dce8c0;
+    --button-ink: #252f1f;
+    --terminal: #181c17;
+  }
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+body { margin: 0; color: var(--ink); background: var(--background); }
+a { color: var(--accent); text-underline-offset: .22em; }
+a:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; }
+h1, h2, p, figure, dl, dd { margin: 0; }
+.frame { width: min(100% - 48px, 1120px); margin-inline: auto; }
+
+.site-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  min-height: 80px;
+  border-bottom: 1px solid var(--line);
+}
+.site-header nav { display: flex; flex-wrap: wrap; gap: clamp(8px, 3vw, 28px); }
+.site-header a { display: inline-flex; align-items: center; gap: .4em; min-height: 44px; }
+.wordmark { font-size: 1.3rem; font-weight: 750; color: var(--ink); text-decoration: none; }
+
+.hero {
+  display: grid;
+  grid-template-columns: 1fr minmax(0, 1fr);
+  align-items: center;
+  gap: clamp(32px, 6vw, 88px);
+  padding-block: clamp(42px, 7vw, 100px);
+}
+.hero h1 {
+  font: 700 clamp(3rem, 6vw, 5.2rem)/1.15 "Songti SC", "Noto Serif CJK SC", "SimSun", serif;
+  letter-spacing: -.05em;
+}
+.hero-copy p { max-width: 27em; margin-block: 20px 26px; color: var(--muted); }
+.button {
+  display: inline-flex;
+  align-items: center;
+  gap: 1em;
+  min-height: 46px;
+  padding: 8px 16px;
+  border-radius: 5px;
+  background: var(--button);
+  color: var(--button-ink);
+  font-weight: 650;
+  text-decoration: none;
+}
+.button:hover { text-decoration: underline; }
+
+.letter {
+  padding: clamp(20px, 4vw, 48px);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: repeating-linear-gradient(135deg, transparent 0 11px, #68734b15 11px 12px), var(--olive);
+}
+.letter figcaption { margin-bottom: 12px; color: var(--muted); font-size: .875rem; }
+.letter-paper {
+  padding: clamp(17px, 2.8vw, 30px);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: var(--paper);
+  box-shadow: 0 4px 0 var(--line), 0 8px 0 var(--paper), 0 9px 0 var(--line);
+}
+.letter-heading { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; }
+.letter-heading small { display: block; color: var(--muted); }
+.signature {
+  margin-top: 24px;
+  padding-top: 12px;
+  border-top: 1px dashed var(--line);
+  color: var(--muted);
+  font: .85rem/1.6 ui-monospace, monospace;
+  overflow-wrap: anywhere;
+}
+
+.features {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: clamp(18px, 4vw, 48px);
+  padding-block: 28px 34px;
+  border-block: 1px solid var(--line);
+}
+.features dt { margin-bottom: 8px; font-size: 1.14rem; font-weight: 700; }
+.features dd, .build p { color: var(--muted); }
+.build {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr);
+  align-items: center;
+  gap: clamp(18px, 4vw, 48px);
+  padding-block: clamp(36px, 6vw, 80px);
+}
+.build h2 { font-size: 1.6rem; }
+.build p { margin: 8px 0 4px; }
+.build a { display: inline-flex; align-items: center; gap: .4em; min-height: 44px; }
+.build pre {
+  margin: 0;
+  padding: 18px;
+  border-radius: 6px;
+  background: var(--terminal);
+  color: var(--terminal-ink);
+  font: .875rem/1.7 ui-monospace, monospace;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+.site-footer {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0 20px;
+  min-height: 70px;
+  border-top: 1px solid var(--line);
+  color: var(--muted);
+  font-size: .875rem;
+}
+.site-footer a { display: inline-flex; align-items: center; min-height: 44px; }
+
+@media (max-width: 740px) {
+  .frame { width: calc(100% - 32px); }
+  .site-header { min-height: 66px; }
+  .site-header nav { font-size: .875rem; }
+  .hero, .features, .build { grid-template-columns: minmax(0, 1fr); }
+  .features { gap: 22px; }
+}
