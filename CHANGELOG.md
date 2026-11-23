@@ -9,6 +9,8 @@
 
 ## 未发布
 
+- 官网更新三栏阅读图解，展示随栏宽排版的正文、内嵌图表和正文末尾的附件。
+
 - 在 README 和官网介绍 Rust 邮件内核、多端宿主、加密检索、本机 AI、Agent 接口和可复跑的无损压缩数据。
 
 - 大模型协议新增 OpenAI Responses、Anthropic Messages 和 Google Gemini。每种协议可单独保存服务地址、模型和密钥，原有 Chat Completions 和 Ollama 设置可继续使用。

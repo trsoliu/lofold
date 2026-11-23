@@ -53,9 +53,9 @@
         <header class="ai-intro">
           <div>
             <h2 id="ai-heading">本机 AI 能帮你做什么？</h2>
-            <p>用一封音乐会邀请，看看 LoFold 在同一台电脑上用 Ollama 和 Qwen2.5 3B 实际生成的结果。</p>
+            <p>以下示例用本机 Ollama 和 Qwen2.5 3B 生成。源码开发版在「设置 → 大模型」还支持 OpenAI、Anthropic 和 Gemini 的接口协议。向远程服务发送邮件内容前需确认。</p>
           </div>
-          <a class="text-link" href="https://github.com/trsoliu/lofold/blob/main/docs/15-%E6%9C%AC%E6%9C%BAAI.md">启用本机模型 <span aria-hidden="true">↗</span></a>
+          <a class="text-link" href="https://github.com/trsoliu/lofold/blob/main/docs/15-%E6%9C%AC%E6%9C%BAAI.md">配置大模型 <span aria-hidden="true">↗</span></a>
         </header>
         <div class="ai-tabs" role="tablist" aria-label="查看本机 AI 实例" hidden>
           <button type="button" role="tab" id="tab-search" aria-controls="example-search" aria-selected="true" tabindex="0">查信</button>
@@ -99,7 +99,7 @@
       <section id="downloads" class="downloads frame" aria-labelledby="downloads-heading">
         <header>
           <h2 id="downloads-heading">下载安装</h2>
-          <a href="https://github.com/trsoliu/lofold/releases/tag/v0.6.0">0.6.0 开发版 · 发布说明 <span aria-hidden="true">↗</span></a>
+          <a href="https://github.com/trsoliu/lofold/releases/tag/v0.6.0">公开安装包 0.6.0 · 发布说明 <span aria-hidden="true">↗</span></a>
         </header>
         <ul class="platforms">
           <li>
@@ -175,7 +175,7 @@
         <header class="guide-header">
           <div>
             <h2 id="features-heading">功能图解</h2>
-            <p>以下截图取自 macOS 客户端，使用示例账号和邮件。点击可放大。</p>
+            <p>macOS 界面使用示例账号和邮件。阅读工作区展示 0.6.11 源码开发版。点击截图可放大。</p>
           </div>
           <nav aria-label="按功能查看截图"><a href="#daily">收发与阅读</a><a href="#archive">搜索与归档</a><a href="#preferences">账号与外观</a></nav>
         </header>
@@ -194,17 +194,17 @@
               </a>
               <figcaption><h4>继续草稿，核对发送状态</h4><p>在「所有草稿」中点开一封继续编辑。遇到「发送结果待确认」，先去服务商邮箱核对，避免重复投递。</p></figcaption>
             </figure>
-            <figure class="shot">
-              <a class="shot-image" data-preview href="screenshots/reader-actions.webp" aria-label="放大查看：整理、转发和导出原件">
-                <img src="screenshots/reader-actions.webp" width="1290" height="878" loading="lazy" decoding="async" alt="阅读栏展开更多邮件操作，可见移动、保存长图、打印和导出 EML 原件。">
+            <figure class="shot" id="reading-workspace">
+              <a class="shot-image" data-preview href="screenshots/reading-workspace.webp" aria-label="放大查看：三栏阅读和正文下方的附件">
+                <img src="screenshots/reading-workspace.webp" width="2160" height="1380" loading="lazy" decoding="async" alt="左侧是邮箱文件夹，中间是邮件列表。右侧的操作按钮与邮件时间同行，正文展示巡检图表，附件可在正文末尾下载。">
               </a>
-              <figcaption><h4>整理、转发和导出原件</h4><p>阅读栏右上角可回复、回复全部或标红旗。打开「更多邮件操作」，可以查看同一会话、移动邮件、打印，或导出 EML 原件。</p></figcaption>
+              <figcaption><h4>先读正文，再下载附件</h4><p>左侧切换文件夹，中间选信，右侧阅读。回复、转发等操作在邮件时间右侧，附件放在正文末尾。内嵌图片随栏宽缩放，宽表可以在表内横向滚动。</p></figcaption>
             </figure>
             <figure class="shot">
               <a class="shot-image" data-preview href="screenshots/watermark.webp" aria-label="放大查看：保存邮件长图">
                 <img src="screenshots/watermark.webp" width="860" height="456" loading="lazy" decoding="async" alt="选择暗水印账号对话框，已选示例地址，可继续保存长图。">
               </a>
-              <figcaption><h4>保存邮件长图</h4><p>在「更多邮件操作」里选「保存邮件长图」。从本机归档导出且涉及多个账号时，先选要写入暗水印的邮箱。以后可在「设置 → 本机存储」读取原始 PNG 的水印。</p></figcaption>
+              <figcaption><h4>保存邮件长图</h4><p>打开「更多邮件操作」，可以保存长图、打印或导出 EML 原件。导出长图时可按提示选择暗水印邮箱。在「设置 → 本机存储」可以读取原始 PNG 的水印。</p></figcaption>
             </figure>
           </div>
         </section>
