@@ -1,4 +1,4 @@
-import { isMac } from './platform'
+import { isAndroid, isMac } from './platform'
 import {
   ArrowLeft, Bookmark, Download, FileText, Flag, Mail, Paperclip, Pin, RefreshCw, Search, Settings as SettingsIcon,
   Upload, X,
@@ -259,14 +259,17 @@ function App() {
     }
   }
 
-  async function importFile(event: ChangeEvent<HTMLInputElement>) {
-    const file = event.target.files?.[0]
-    event.target.value = ''
-    if (!file) return
+  async function importFile(event?: ChangeEvent<HTMLInputElement>) {
+    const file = event?.target.files?.[0]
+    if (event) {
+      event.target.value = ''
+      if (!file) return
+    }
     setBusy('import')
     setNotice(null)
     try {
-      const result = await archive.import(file)
+      const result = file ? await archive.import(file) : await archive.pickImport()
+      if (!result) return
       goTo('archive')
       setSelected({ id: result.id, account: null })
       setReading(true)
@@ -481,7 +484,7 @@ function App() {
             aria-busy={busy === 'sync'} disabled={busy !== null || loadingPage || !connected.some((item) => scope === null || scope === item.id)}
             onClick={() => void synchronize()} title="收取当前文件夹的最新邮件" />}
           {folder === 'archive' && <IconAction className="toolbar-action" icon={Upload} label={busy === 'import' ? '正在导入' : '导入 EML'}
-            aria-busy={busy === 'import'} disabled={busy !== null || loadingPage} onClick={() => fileInput.current?.click()} />}
+            aria-busy={busy === 'import'} disabled={busy !== null || loadingPage} onClick={() => isAndroid ? void importFile() : fileInput.current?.click()} />}
           <div className="search">
             <Search size={16} aria-hidden="true" />
             <input ref={searchInput} type="search" maxLength={160} value={query} onChange={(event) => changeQuery(event.target.value)}

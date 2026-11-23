@@ -10,4 +10,6 @@ LoFold 的主接口是桌面渲染进程与本机宿主间的 Tauri IPC。公共
 | 本机模型、邮件问答和文本生成 | [ai-panel.tsx](apps/desktop/src/ai-panel.tsx) | [ai.rs](apps/desktop/src-tauri/src/ai.rs) |
 | 长图、暗水印和打印 | [message-body.tsx](apps/desktop/src/message-body.tsx) | [message_image.rs](apps/desktop/src-tauri/src/message_image.rs) |
 
+Android 的 EML 导入使用系统文档选择器，将返回的内容 URI 交给原生宿主限长读取。每封最多 16 MiB，取消选择会保持当前工作区。
+
 新增或改名时先核对所属模块、输入字段的类型与序列化、失败结果和权限，再同步宿主注册与调用端。涉及已存数据时，以 [CONTRACTS.md](CONTRACTS.md) 检查兼容性。运行 `pnpm verify:workspace` 核对字面量 IPC 调用的注册，再按 [TESTING.md](TESTING.md) 验证参数和实际行为。
