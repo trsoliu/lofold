@@ -12,6 +12,17 @@ $installer = Start-Process -FilePath $setup[0].FullName -ArgumentList '/S',"/D=$
 if ($installer.ExitCode) { throw "Installer exited with $($installer.ExitCode)." }
 $exe = @(Get-ChildItem $installDir -Filter '*.exe' | Where-Object Name -NotMatch '^uninstall')
 if ($exe.Count -ne 1) { throw 'Installed application executable missing.' }
+# NSIS itself is a 32-bit bootstrapper; verify the installed application payload.
+$appBytes = [System.IO.File]::ReadAllBytes($exe[0].FullName)
+$pe = [BitConverter]::ToInt32($appBytes, 0x3c)
+if ([BitConverter]::ToUInt32($appBytes, $pe) -ne 0x4550 -or [BitConverter]::ToUInt16($appBytes, $pe + 4) -ne 0x8664) {
+  throw 'Installed LoFold executable does not target AMD64.'
+}
+$version = (Get-Content -Raw apps/desktop/src-tauri/tauri.conf.json | ConvertFrom-Json).version
+if ($exe[0].VersionInfo.FileVersionRaw.ToString(3) -ne $version) {
+  throw "Installed executable version differs from $version."
+}
+Write-Output "Verified installed LoFold $version AMD64 executable."
 foreach ($resource in 'LICENSE', 'NOTICE') {
   if (!(Test-Path (Join-Path $installDir $resource))) { throw "Missing installed resource $resource." }
 }
