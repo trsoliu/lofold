@@ -72,7 +72,9 @@ jobs:
         run: python3 scripts/android/verify-emulator.py /tmp/lofold-verify
       - if: always()
         name: Capture synthetic device diagnostics
-        run: adb logcat -d -t 1000 > /tmp/lofold-verify/logcat.txt || true
+        run: |
+          test ! -e /tmp/lofold-verify/emulator.log || tail -80 /tmp/lofold-verify/emulator.log
+          timeout 8 adb logcat -d -t 1000 > /tmp/lofold-verify/logcat.txt || true
       - if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
