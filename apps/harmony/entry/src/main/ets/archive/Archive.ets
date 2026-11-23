@@ -45,7 +45,9 @@ function queryArchive(path: string, key: ArrayBuffer, op: string, arg: string,
   }
 }
 
-async function loadKey(database: string): Promise<Uint8Array> {
+const DATABASE_NAME: string = 'lofold-mail.db';
+
+async function loadKey(dir: string): Promise<Uint8Array> {
   const lookup: asset.AssetMap = new Map();
   const alias = new util.TextEncoder().encodeInto('lofold.archive.key.v1');
   lookup.set(asset.Tag.ALIAS, alias);
@@ -62,7 +64,7 @@ async function loadKey(database: string): Promise<Uint8Array> {
       throw error as Error;
     }
   }
-  if (await fs.access(database)) {
+  if ((await fs.listFile(dir)).includes(DATABASE_NAME)) {
     throw new Error('本机已有归档，但无法找到对应的密钥。');
   }
   const key = (await cryptoFramework.createRandom().generateRandom(32)).data;
@@ -85,8 +87,8 @@ async function loadKey(database: string): Promise<Uint8Array> {
 
 export async function request<T>(dir: string, op: string, arg: string = '',
   offset: number = 0, bytes: ArrayBuffer = new ArrayBuffer(0)): Promise<T> {
-  const database = dir + '/lofold-mail.db';
-  const key = await loadKey(database);
+  const database = dir + '/' + DATABASE_NAME;
+  const key = await loadKey(dir);
   const keyCopy = new Uint8Array(key).buffer as ArrayBuffer;
   key.fill(0);
   const task = new taskpool.Task(queryArchive, database, keyCopy, op, arg, offset, bytes);
