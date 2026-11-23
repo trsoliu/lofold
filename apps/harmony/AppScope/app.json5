@@ -1,0 +1,10 @@
+{
+  "app": {
+    "bundleName": "org.lofold.client",
+    "vendor": "LoFold",
+    "versionCode": 600,
+    "versionName": "0.6.0",
+    "icon": "$media:lofold",
+    "label": "$string:app_name"
+  }
+}

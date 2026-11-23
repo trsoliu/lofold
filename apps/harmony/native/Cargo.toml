@@ -1,0 +1,17 @@
+[package]
+name = "lofold-harmony-archive"
+version = "0.6.0"
+edition = "2021"
+publish = false
+
+[lib]
+crate-type = ["staticlib"]
+
+[dependencies]
+lofold-mail-store = { path = "../../../packages/mail-store" }
+serde_json = "1"
+
+[dev-dependencies]
+tempfile = "3"
+
+[workspace]

@@ -1,0 +1,47 @@
+name: HarmonyOS native build
+on:
+  push:
+    branches: [codex/lofold-harmony-060-build]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  compile:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - name: Install the HarmonyOS API 12 SDK
+        run: |
+          set -euo pipefail
+          sdk="$RUNNER_TEMP/harmony-sdk"
+          mkdir -p "$sdk"
+          cd "$sdk"
+          url="https://repo.huaweicloud.com/harmonyos/ohpm/5.0.3/commandline-tools-linux-x64-5.0.3.906.zip"
+          curl -fsSL --retry 3 "$url" -o cli.zip
+          echo 'c6fe61299e1b05e4023e643a319ee74c3eb369af7edecd5c3f1795b16f9db6af  cli.zip' | sha256sum -c -
+          unzip -q cli.zip
+          rm cli.zip
+          cli="$sdk/command-line-tools"
+          echo "DEVECO_SDK_HOME=$cli/sdk" >> "$GITHUB_ENV"
+          echo "$cli/tool/node/bin" >> "$GITHUB_PATH"
+          echo "$cli/bin" >> "$GITHUB_PATH"
+          echo "$cli/hvigor/bin" >> "$GITHUB_PATH"
+          echo "$cli/ohpm/bin" >> "$GITHUB_PATH"
+      - name: Build native archive and HAP
+        run: |
+          rustup target add aarch64-unknown-linux-ohos
+          apps/harmony/scripts/build-hap.sh
+      - name: Inspect development package
+        run: |
+          set -euo pipefail
+          hap=$(find apps/harmony/entry/build -name '*-unsigned.hap' -print -quit)
+          test -n "$hap"
+          unzip -tq "$hap"
+          unzip -Z1 "$hap" | grep -x 'libs/arm64-v8a/liblofold.so'
+          unzip -Z1 "$hap" | grep -x 'ets/modules.abc'
+          sha256sum "$hap"
