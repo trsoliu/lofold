@@ -9,6 +9,7 @@
 | [packages/mail-store](packages/mail-store/) | SQLCipher 归档、迁移、邮件索引、草稿和附件。 |
 | [packages/mail-network](packages/mail-network/) | IMAP、SMTP、TLS、文件夹动作和 MIME 发件。 |
 | [packages/mail-ai](packages/mail-ai/) | 校验本机 Ollama 模型，经回环地址执行纯文本推理。 |
+| [packages/agent-mcp](packages/agent-mcp/) | macOS MCP stdio 入口、工具声明和本机 Unix socket 通道。 |
 | [packages/mail-blob-codec](packages/mail-blob-codec/) | 邮件与文件的有界无损分块编码。 |
 | [scripts](scripts/) | 工作区检查及本地研发复验脚本。 |
 | [docs](docs/) | 工程和研究材料。GitHub Pages 从此目录发布静态页。 |

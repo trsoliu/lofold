@@ -1,0 +1,8 @@
+{
+  "identifier": "agent-mcp",
+  "description": "Listen for local Agent MCP actions in the primary LoFold window.",
+  "local": true,
+  "platforms": ["macOS"],
+  "windows": ["main"],
+  "permissions": ["core:event:allow-listen", "core:event:allow-unlisten"]
+}

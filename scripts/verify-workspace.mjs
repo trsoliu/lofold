@@ -24,6 +24,7 @@ assert.equal(cargo.status, 0, cargo.stderr || String(cargo.error))
 const { packages } = JSON.parse(cargo.stdout)
 const expected = new Map([
   ['lofold-client', 'apps/desktop/src-tauri/'],
+  ['lofold-agent-mcp', 'packages/agent-mcp/'],
   ['lofold-mail-ai', 'packages/mail-ai/'],
   ['lofold-mail-network', 'packages/mail-network/'],
   ['lofold-mail-store', 'packages/mail-store/'],
@@ -39,11 +40,11 @@ for (const [name, path] of expected) {
 
 const documents = [
   ...rootDocs.map(name => name + '.md'),
-  'docs/README.md', 'docs/15-本机AI.md', 'docs/adr/0001-workspace-layout.md',
+  'docs/README.md', 'docs/15-本机AI.md', 'docs/16-Agent-MCP.md', 'docs/adr/0001-workspace-layout.md',
   'apps/desktop/AGENTS.md', 'apps/desktop/README.md', 'apps/desktop/src-tauri/AGENTS.md',
   'apps/design-preview/AGENTS.md', 'apps/design-preview/README.md',
   'packages/AGENTS.md', 'scripts/README.md',
-  ...['branding', 'mail-ai', 'mail-blob-codec', 'mail-network', 'mail-store'].map(name => `packages/${name}/README.md`),
+  ...['agent-mcp', 'branding', 'mail-ai', 'mail-blob-codec', 'mail-network', 'mail-store'].map(name => `packages/${name}/README.md`),
 ]
 for (const path of documents) {
   for (const [, destination] of read(path).matchAll(/\]\(([^)]+)\)/g)) {
@@ -54,7 +55,7 @@ for (const path of documents) {
 }
 
 const host = read('apps/desktop/src-tauri/src/lib.rs')
-const registration = host.match(/tauri::generate_handler!\[([\s\S]+?)\]/)?.[1]
+const registration = host.match(/tauri::generate_handler!\[([\s\S]+?)\]\)/)?.[1]
 assert.ok(registration, 'Native command registry missing')
 const commands = new Set(registration.split(',').map(entry => entry.trim().split('::').at(-1)))
 const src = new URL('apps/desktop/src/', root)

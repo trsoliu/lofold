@@ -29,6 +29,10 @@ tempfile = "3"
 
 fs2 = "0.4"
 getrandom = "0.3"
+
+[target.'cfg(target_os = "macos")'.dependencies]
+lofold-agent-mcp = { path = "../../../packages/agent-mcp" }
+
 [target.'cfg(any(target_os = "macos", target_os = "ios"))'.dependencies]
 security-framework = "3.7"
 

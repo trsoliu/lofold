@@ -152,11 +152,15 @@ impl MailArchive {
         if let Some(id) = reply {
             return self.create_draft_from_message(account_id, id, ComposeMode::Reply);
         }
+        self.create_draft_with_fields(DraftFields {
+            account_id,
+            ..DraftFields::default()
+        })
+    }
+
+    pub fn create_draft_with_fields(&mut self, fields: DraftFields) -> Result<Draft, ArchiveError> {
         self.insert_draft(DraftPayload {
-            fields: DraftFields {
-                account_id,
-                ..DraftFields::default()
-            },
+            fields,
             reply_id: None,
             files: Vec::new(),
         })
