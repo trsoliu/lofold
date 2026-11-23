@@ -5,11 +5,21 @@ use serde::{de::DeserializeOwned, Deserialize, Serialize};
 use serde_json::json;
 use thiserror::Error;
 
+mod compatible;
+mod protocol;
+pub use compatible::{
+    canonical_base_url, is_loopback_base_url, valid_api_key, valid_compatible_model,
+    CompatibleClient, CompatibleError,
+};
+pub use protocol::{generation_url, ApiProtocol};
+
 pub const DEFAULT_PORT: u16 = 11434;
 const MAX_RESPONSE_BYTES: usize = 1024 * 1024;
 
 #[derive(Debug, Error)]
 pub enum AiError {
+    #[error(transparent)]
+    Compatible(#[from] CompatibleError),
     #[error("本机端口应为 1 至 65535 的整数。")]
     InvalidPort,
     #[error("此端口的 Ollama 未确认已关闭云功能。请启用 OLLAMA_NO_CLOUD=1 并重启该服务。")]
@@ -257,9 +267,19 @@ impl LocalModel<'_> {
 }
 
 async fn read<T: DeserializeOwned>(request: RequestBuilder) -> Result<T, AiError> {
-    let mut response = request.send().await.map_err(request_error)?;
+    let response = request.send().await.map_err(request_error)?;
     if !response.status().is_success() {
         return Err(AiError::ModelFailed);
+    }
+    read_json(response).await
+}
+
+async fn read_json<T: DeserializeOwned>(mut response: reqwest::Response) -> Result<T, AiError> {
+    if response
+        .content_length()
+        .is_some_and(|size| size > MAX_RESPONSE_BYTES as u64)
+    {
+        return Err(AiError::InvalidResponse);
     }
     let mut bytes = Vec::new();
     while let Some(chunk) = response.chunk().await.map_err(request_error)? {

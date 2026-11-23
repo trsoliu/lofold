@@ -20,8 +20,3 @@
 .memory-profile-dialog { position: fixed; margin: auto; }
 .composer[data-writing-panel] .composer-fields > textarea { min-height: 110px; }
 .composer[data-writing-panel] .composer-toolbar { position: sticky; bottom: 0; background: var(--surface); z-index: 1; }
-@media (max-width: 500px) {
-  .composer-toolbar { gap: 5px; }
-  .composer-toolbar > span { order: 1; flex-basis: 100%; }
-  .composer-toolbar > span + button { margin-inline-start: auto; }
-}

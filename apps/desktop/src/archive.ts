@@ -29,11 +29,16 @@ export interface MailConversation {
   indexingPending: boolean
 }
 
+export interface InlineMailVideo {
+  ordinal: number
+  mime: 'video/mp4' | 'video/webm'
+}
+
 export interface MailDetail extends MailSummary {
   recipients: string
   body: string
   bodyTruncated: boolean
-  richBody?: { html: string; inlineImages: Record<string, string> } | null
+  richBody?: { html: string; inlineImages: Record<string, string>; inlineVideos?: Record<string, InlineMailVideo> } | null
   attachments: { index: number; name: string; size: number }[]
 }
 

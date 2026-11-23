@@ -74,7 +74,7 @@ export function MailActions({ message, mailboxes, blocked, compose, change, pin,
     <IconAction icon={Reply} label="回复" disabled={blocked} onClick={() => action(() => compose('reply'))} />
     <IconAction icon={ReplyAll} label="回复全部" disabled={blocked} onClick={() => action(() => compose('reply-all'))} />
     <IconAction icon={Forward} label="转发" disabled={blocked} onClick={() => action(() => compose('forward'))} />
-    <IconAction icon={Sparkles} label="本机 AI" disabled={blocked} onClick={() => action(assistant)} />
+    <IconAction icon={Sparkles} label="邮件 AI" disabled={blocked} onClick={() => action(assistant)} />
     <div className="message-actions" ref={actions}>
       <button className="secondary icon-action" type="button" ref={trigger} aria-label="更多邮件操作"
         aria-expanded={show} disabled={blocked} title="更多邮件操作" onClick={() => setShow(!show)}>

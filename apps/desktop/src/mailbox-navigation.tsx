@@ -3,7 +3,7 @@ import { useEffect, useRef, useState, type KeyboardEvent, type MouseEvent, type 
 import { ControlSelect } from './controls'
 import type { AccountChoice, Folder, MailboxChoice } from './mail-workspace'
 
-export type Screen = Exclude<Folder, 'remote'> | `mailbox-${number}` | 'accounts' | 'drafts' | 'attachments' | 'saved' | 'ai' | 'offline' | 'settings' | 'appearance'
+export type Screen = Exclude<Folder, 'remote'> | `mailbox-${number}` | 'accounts' | 'drafts' | 'attachments' | 'saved' | 'ai' | 'offline' | 'settings' | 'appearance' | 'ai-settings'
 
 const accountFolders = [
   { id: 'inbox', label: '收件箱', icon: Inbox },
@@ -298,6 +298,7 @@ export function MailboxNavigation({ screen, scope, accounts, mailboxes, navigate
       }}>
       {globalLinks.map(({ id, label }) => <option value={id} key={id}>{label}</option>)}
       <option value="settings" hidden>设置</option>
+      <option value="ai-settings" hidden>大模型设置</option>
       <option value="appearance" hidden>外观设置</option>
       {ordered.map((account) => <optgroup label={account.address} key={account.id}>
         {accountFolders.map(({ id, label }) => <option value={id + ':' + account.id} key={id}>{label}</option>)}

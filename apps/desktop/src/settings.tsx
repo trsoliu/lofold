@@ -28,6 +28,7 @@ type Props = {
 const categories = [
   { id: 'accounts', label: '邮箱账号' },
   { id: 'settings', label: '写信' },
+  { id: 'ai-settings', label: '大模型' },
   { id: 'appearance', label: '外观' },
   { id: 'offline', label: '本机存储' },
 ] as const

@@ -67,6 +67,11 @@ object LoFoldBridge {
     }
 
     @JvmStatic @Synchronized
+    fun remove(app: Context, service: String, key: String) {
+        check(preferences(app, service).edit().remove(key).commit())
+    }
+
+    @JvmStatic @Synchronized
     fun deleteAccount(app: Context, service: String, address: String, active: String) {
         fun belongs(key: String) = key == address ||
             (key.startsWith("$address:") && revision.matches(key.substring(address.length + 1)))

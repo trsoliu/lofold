@@ -178,7 +178,7 @@ mod tests {
         let account = db.accounts().unwrap()[0].id;
         let other = db.accounts().unwrap()[1].id;
         db.database
-            .execute_batch("DROP TABLE writing_profiles; PRAGMA user_version=9;")
+            .execute_batch("ALTER TABLE inbox_items DROP COLUMN pending_seen; DROP TABLE writing_profiles; PRAGMA user_version=9;")
             .unwrap();
         drop(db);
 

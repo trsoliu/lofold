@@ -8,7 +8,7 @@
 | [packages/branding](packages/branding/) | 两个应用共享的标志、品牌信息和主题选项。 |
 | [packages/mail-store](packages/mail-store/) | SQLCipher 归档、迁移、邮件索引、草稿和附件。 |
 | [packages/mail-network](packages/mail-network/) | IMAP、SMTP、TLS、文件夹动作和 MIME 发件。 |
-| [packages/mail-ai](packages/mail-ai/) | 校验本机 Ollama 模型，经回环地址执行纯文本推理。 |
+| [packages/mail-ai](packages/mail-ai/) | 对接 OpenAI Chat Completions、Responses、Anthropic Messages、Gemini 和 Ollama，校验服务地址、模型和响应。 |
 | [packages/mail-blob-codec](packages/mail-blob-codec/) | 邮件与文件的有界无损分块编码。 |
 | [scripts](scripts/) | 工作区检查及本地研发复验脚本。 |
 | [docs](docs/) | 工程和研究材料。GitHub Pages 从此目录发布静态页。 |

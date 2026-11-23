@@ -65,6 +65,12 @@ pub enum FolderMutation<'a> {
     DeletePermanently,
 }
 
+#[derive(Debug, PartialEq, Eq)]
+pub enum SeenReceipt {
+    Confirmed(u32),
+    Vanished(u32),
+}
+
 impl Connection<'_> {
     pub fn list_folders(&self, user: &str, secret: &str) -> Result<Vec<RemoteFolder>, MailError> {
         let mut session = self.imap_session(user, secret)?;
@@ -87,6 +93,23 @@ impl Connection<'_> {
         let batch = receive_page(&mut session, &mailbox, known, before);
         let _ = session.logout();
         batch
+    }
+
+    /// Retry only the local read receipts for this folder generation. Keep confirmed
+    /// UIDs even if a later receipt fails, so an acknowledged flag is never replayed.
+    pub fn sync_seen(
+        &self,
+        user: &str,
+        secret: &str,
+        folder: &str,
+        uid_validity: u32,
+        uids: &[u32],
+    ) -> Result<(Vec<SeenReceipt>, Option<MailError>), MailError> {
+        validate_folder_name(folder)?;
+        let mut session = self.imap_session(user, secret)?;
+        let result = sync_seen_in_folder(&mut session, folder, uid_validity, uids);
+        let _ = session.logout();
+        result
     }
 
     pub fn mutate_folder(
@@ -481,6 +504,24 @@ fn sequence_before<T: Read + Write>(
     Ok(low)
 }
 
+fn sync_seen_in_folder<T: Read + Write>(
+    session: &mut Session<T>,
+    folder: &str,
+    uid_validity: u32,
+    uids: &[u32],
+) -> Result<(Vec<SeenReceipt>, Option<MailError>), MailError> {
+    let mailbox = writable_mailbox(session, folder, uid_validity)?;
+    let mut receipts = Vec::new();
+    for &uid in uids {
+        match mutate_selected(session, &mailbox, uid, FolderMutation::Seen(true)) {
+            Ok(()) => receipts.push(SeenReceipt::Confirmed(uid)),
+            Err(MailError::MessageMissing) => receipts.push(SeenReceipt::Vanished(uid)),
+            Err(issue) => return Ok((receipts, Some(issue))),
+        }
+    }
+    Ok((receipts, None))
+}
+
 fn mutate_in_folder<T: Read + Write>(
     session: &mut Session<T>,
     folder: &str,
@@ -488,6 +529,15 @@ fn mutate_in_folder<T: Read + Write>(
     uid: u32,
     action: FolderMutation<'_>,
 ) -> Result<(), MailError> {
+    let mailbox = writable_mailbox(session, folder, uid_validity)?;
+    mutate_selected(session, &mailbox, uid, action)
+}
+
+fn writable_mailbox<T: Read + Write>(
+    session: &mut Session<T>,
+    folder: &str,
+    uid_validity: u32,
+) -> Result<Mailbox, MailError> {
     let mailbox = session.select(folder).map_err(|_| MailError::FolderOpen)?;
     if mailbox.uid_validity != Some(uid_validity) {
         return Err(MailError::FolderChanged);
@@ -495,6 +545,15 @@ fn mutate_in_folder<T: Read + Write>(
     if mailbox.is_read_only {
         return Err(MailError::FolderActionUnsupported);
     }
+    Ok(mailbox)
+}
+
+fn mutate_selected<T: Read + Write>(
+    session: &mut Session<T>,
+    mailbox: &Mailbox,
+    uid: u32,
+    action: FolderMutation<'_>,
+) -> Result<(), MailError> {
     let flag = match action {
         FolderMutation::Seen(value) => Some((Flag::Seen, value)),
         FolderMutation::Flagged(value) => Some((Flag::Flagged, value)),
@@ -870,6 +929,40 @@ mod tests {
         "* OK [PERMANENTFLAGS (\\Seen \\Flagged \\Deleted)] flags\r\n",
         "a2 OK [READ-WRITE] selected\r\n",
     );
+
+    #[test]
+    fn pending_seen_reuses_selection_and_keeps_confirmed_receipts_on_partial_failure() {
+        let (mut session, commands) = scripted(&format!(
+            "{SELECTED}* 2 FETCH (UID 12 FLAGS ())\r\na3 OK fetched\r\n\
+             a4 OK stored\r\n* 2 FETCH (UID 12 FLAGS (\\Seen))\r\na5 OK fetched\r\n\
+             a6 OK vanished\r\n* 3 FETCH (UID 22 FLAGS ())\r\na7 OK fetched\r\na8 NO refused\r\n"
+        ));
+        let (receipts, failure) =
+            sync_seen_in_folder(&mut session, "INBOX", 7, &[12, 18, 22, 24]).unwrap();
+        assert_eq!(
+            receipts,
+            [SeenReceipt::Confirmed(12), SeenReceipt::Vanished(18)]
+        );
+        assert!(matches!(failure, Some(MailError::FolderAction)));
+        assert_eq!(
+            issued(&commands),
+            [
+                "SELECT \"INBOX\"",
+                "UID FETCH 12 (UID FLAGS)",
+                "UID STORE 12 +FLAGS.SILENT (\\Seen)",
+                "UID FETCH 12 (UID FLAGS)",
+                "UID FETCH 18 (UID FLAGS)",
+                "UID FETCH 22 (UID FLAGS)",
+                "UID STORE 22 +FLAGS.SILENT (\\Seen)",
+            ]
+        );
+        let (mut session, commands) = scripted(SELECTED);
+        assert!(matches!(
+            sync_seen_in_folder(&mut session, "INBOX", 6, &[12]),
+            Err(MailError::FolderChanged)
+        ));
+        assert_eq!(issued(&commands), ["SELECT \"INBOX\""]);
+    }
 
     #[test]
     fn stale_generation_never_mutates_a_reused_uid() {

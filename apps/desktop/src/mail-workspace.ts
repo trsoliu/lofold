@@ -67,12 +67,12 @@ export const mailWorkspace = {
   mailboxes: () => invoke<MailboxChoice[]>('list_mailboxes'),
   refreshMailboxes: (account: number) => invoke<MailboxChoice[]>('refresh_mailboxes', { account }),
   syncMailbox: (id: number, older = false) =>
-    invoke<{ considered: number; stored: number; skipped: number }>('sync_mailbox', { id, older }),
-  changeMessage: (location: MailLocation, action: MailboxAction, target?: number) =>
+    invoke<{ considered: number; stored: number; skipped: number; readWarning?: string | null }>('sync_mailbox', { id, older }),
+  changeMessage: (location: MailLocation, action: MailboxAction | 'syncRead', target?: number) =>
     invoke<string | null>('change_mailbox_message', { location, action, target }),
   pinMessage: (id: number, account: number | null, pinned: boolean) => invoke<void>('pin_message', { id, account, pinned }),
   sync: (id: number) => invoke<{ considered: number; stored: number; skipped: number }>('sync_inbox', { id }),
-  markRead: (id: number, account: number) => invoke<void>('mark_inbox_read', { id, account }),
+  markRead: (id: number, account: number, location?: MailLocation | null) => invoke<void>('mark_inbox_read', { id, account, location }),
   createDraft: (accountId: number | null, reply: number | null = null, mode: ComposeMode = 'reply') =>
     invoke<Draft>('create_draft', { accountId, reply, mode }),
   discardDraft: (id: number, revision: number) => invoke<void>('discard_draft', { id, revision }),

@@ -31,6 +31,9 @@ mod platform_secrets {
     pub fn set(_: &str, _: &str, _: &[u8]) -> Result<(), String> {
         Err("此平台尚未接入系统凭据存储。".into())
     }
+    pub fn remove(_: &str, _: &str) -> Result<(), String> {
+        Err("此平台尚未接入系统凭据存储。".into())
+    }
     pub fn delete_account(_: &str, _: &str, _: &str) -> Result<(), String> {
         Err("此平台尚未接入系统凭据存储。".into())
     }
@@ -41,6 +44,7 @@ mod ai;
 mod image_watermark;
 mod mailboxes;
 mod message_image;
+mod remote_image;
 mod tools;
 mod workspace;
 mod writing;
@@ -178,6 +182,18 @@ async fn read_mail(state: State<'_, LocalArchive>, id: i64) -> Result<MailDetail
 }
 
 #[tauri::command]
+async fn load_inline_mail_video(
+    state: State<'_, LocalArchive>,
+    id: i64,
+    ordinal: usize,
+) -> Result<tauri::ipc::Response, String> {
+    state
+        .run(move |store| store.read_inline_video(id, ordinal))
+        .await
+        .map(tauri::ipc::Response::new)
+}
+
+#[tauri::command]
 async fn read_conversation(
     state: State<'_, LocalArchive>,
     id: i64,
@@ -295,11 +311,15 @@ pub fn run() {
             import_eml,
             list_mail,
             read_mail,
+            load_inline_mail_video,
             read_conversation,
             save_mail,
             ai::ai_models,
+            ai::ai_key_status,
+            ai::set_ai_key,
             ai::run_ai,
             ai::cancel_ai,
+            remote_image::load_mail_image,
             message_image::save_message_image,
             message_image::message_image_accounts,
             message_image::read_image_watermark,

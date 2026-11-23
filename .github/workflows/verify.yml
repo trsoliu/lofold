@@ -25,3 +25,16 @@ jobs:
         run: pnpm install --frozen-lockfile
       - name: Verify layout, build, and test
         run: pnpm ci:check
+      - name: Install locked Chromium
+        run: pnpm --filter @lofold/desktop exec playwright install --no-shell chromium
+      - name: Verify reader in Chromium
+        run: pnpm --filter @lofold/desktop test:reader:chromium
+      - name: Verify reader in macOS WKWebView
+        run: pnpm --filter @lofold/desktop test:reader:wk
+      - name: Collect synthetic reader diagnostics
+        if: failure()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: reader-layout-diagnostics
+          path: target/reader-layout/
+          if-no-files-found: ignore
