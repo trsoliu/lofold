@@ -25,12 +25,19 @@ mod platform_secrets;
 mod platform_secrets;
 #[cfg(not(any(target_os = "macos", target_os = "ios", windows, target_os = "android")))]
 mod platform_secrets {
-    pub fn get(_: &str, _: &str) -> Result<Option<Vec<u8>>, String> { Err("此平台尚未接入系统凭据存储。".into()) }
-    pub fn set(_: &str, _: &str, _: &[u8]) -> Result<(), String> { Err("此平台尚未接入系统凭据存储。".into()) }
-    pub fn delete_account(_: &str, _: &str, _: &str) -> Result<(), String> { Err("此平台尚未接入系统凭据存储。".into()) }
+    pub fn get(_: &str, _: &str) -> Result<Option<Vec<u8>>, String> {
+        Err("此平台尚未接入系统凭据存储。".into())
+    }
+    pub fn set(_: &str, _: &str, _: &[u8]) -> Result<(), String> {
+        Err("此平台尚未接入系统凭据存储。".into())
+    }
+    pub fn delete_account(_: &str, _: &str, _: &str) -> Result<(), String> {
+        Err("此平台尚未接入系统凭据存储。".into())
+    }
 }
 
 mod accounts;
+mod ai;
 mod image_watermark;
 mod mailboxes;
 mod message_image;
@@ -218,7 +225,9 @@ fn export_to_selection(directory: &Path, selected: FilePath, export: Export) -> 
     if let FilePath::Url(url) = &selected {
         if url.scheme() == "content" {
             let mut file = platform_secrets::open_document(url.as_str(), true)?;
-            return file.write_all(&export.bytes).and_then(|()| file.flush())
+            return file
+                .write_all(&export.bytes)
+                .and_then(|()| file.flush())
                 .map_err(|_| "无法写入所选文件。".to_string());
         }
     }
@@ -230,12 +239,21 @@ fn open_selection(selected: FilePath) -> Result<(String, std::fs::File), String>
     #[cfg(target_os = "android")]
     if let FilePath::Url(url) = &selected {
         if url.scheme() == "content" {
-            return Ok((platform_secrets::document_name(url.as_str())?, platform_secrets::open_document(url.as_str(), false)?));
+            return Ok((
+                platform_secrets::document_name(url.as_str())?,
+                platform_secrets::open_document(url.as_str(), false)?,
+            ));
         }
     }
     let path = selected.into_path().map_err(|_| "无法访问所选文件。")?;
-    if !path.is_file() { return Err("请选择普通文件。".into()); }
-    let name = path.file_name().ok_or("无效的文件名。")?.to_string_lossy().into_owned();
+    if !path.is_file() {
+        return Err("请选择普通文件。".into());
+    }
+    let name = path
+        .file_name()
+        .ok_or("无效的文件名。")?
+        .to_string_lossy()
+        .into_owned();
     let file = std::fs::File::open(path).map_err(|_| "无法读取所选文件。")?;
     Ok((name, file))
 }
@@ -269,6 +287,7 @@ pub fn run() {
                 store: Arc::new(Mutex::new(None)),
                 mail_operation: Arc::new(tauri::async_runtime::Mutex::new(())),
             });
+            app.manage(ai::AiState::default());
             Ok(())
         })
         .invoke_handler(tauri::generate_handler![
@@ -277,6 +296,9 @@ pub fn run() {
             read_mail,
             read_conversation,
             save_mail,
+            ai::ai_models,
+            ai::run_ai,
+            ai::cancel_ai,
             message_image::save_message_image,
             message_image::message_image_accounts,
             message_image::read_image_watermark,

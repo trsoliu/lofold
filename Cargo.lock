@@ -2097,8 +2097,10 @@ version = "0.6.0"
 dependencies = [
  "cc",
  "fs2",
+ "futures-util",
  "getrandom 0.3.4",
  "jni",
+ "lofold-mail-ai",
  "lofold-mail-network",
  "lofold-mail-store",
  "ndk-context",
@@ -2106,6 +2108,7 @@ dependencies = [
  "ring",
  "security-framework",
  "serde",
+ "serde_json",
  "tauri",
  "tauri-build",
  "tauri-plugin-dialog",
@@ -2113,6 +2116,16 @@ dependencies = [
  "uuid",
  "windows-sys 0.61.2",
  "zeroize",
+]
+
+[[package]]
+name = "lofold-mail-ai"
+version = "0.1.0"
+dependencies = [
+ "reqwest",
+ "serde",
+ "serde_json",
+ "thiserror 2.0.21",
 ]
 
 [[package]]

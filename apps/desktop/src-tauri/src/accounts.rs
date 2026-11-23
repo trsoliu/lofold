@@ -40,6 +40,9 @@ pub async fn import_mailmaster(
     app: AppHandle,
     state: State<'_, LocalArchive>,
 ) -> Result<u32, String> {
+    if !cfg!(target_os = "macos") {
+        return Err("邮箱大师本机导入支持 macOS。其他平台请手动添加邮箱。".into());
+    }
     let path = app
         .path()
         .home_dir()

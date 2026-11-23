@@ -1,6 +1,7 @@
-import { FileText, Paperclip, Trash2, X } from 'lucide-react'
+import { FileText, Paperclip, Sparkles, Trash2, X } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 import { errorMessage } from './archive'
+import { AiComposePanel } from './ai-panel'
 import { ControlSelect, IconAction } from './controls'
 import { mailWorkspace, type AccountChoice, type Draft, type DraftFields } from './mail-workspace'
 
@@ -20,6 +21,7 @@ export function Composer({ initial, accounts, close, submitted }: {
   const [busy, setBusy] = useState(false)
   const [attachmentReminder, setAttachmentReminder] = useState(false)
   const [confirmDiscard, setConfirmDiscard] = useState(false)
+  const [aiOpen, setAiOpen] = useState(false)
   const [error, setError] = useState('')
   const dialog = useRef<HTMLDialogElement>(null)
   const currentFields = useRef(initial.fields)
@@ -148,6 +150,7 @@ export function Composer({ initial, accounts, close, submitted }: {
     <dialog ref={dialog} className="composer" aria-labelledby="composer-heading" onCancel={(event) => {
       event.preventDefault()
       if (confirmDiscard) setConfirmDiscard(false)
+      else if (aiOpen) setAiOpen(false)
       else finish()
     }}>
       <header className="composer-header">
@@ -192,6 +195,17 @@ export function Composer({ initial, accounts, close, submitted }: {
           </li>)}
         </ul>}
       </fieldset>
+      {aiOpen && !readonly && !busy && !confirmDiscard && <AiComposePanel useDraft={(generated) => {
+        const current = currentFields.current.body
+        const body = current ? current + '\n\n' + generated : generated
+        if (body.length > 120000) {
+          setError('加入拟稿后正文将超过长度上限。请先缩短草稿。')
+          return
+        }
+        update({ body })
+        setAiOpen(false)
+        dialog.current?.querySelector<HTMLTextAreaElement>('.composer-fields textarea')?.focus()
+      }} />}
       {confirmDiscard && <div className="composer-feedback" role="alert">
         删除此草稿及其附件？
         <button className="secondary" type="button" onClick={() => setConfirmDiscard(false)}>继续编辑</button>
@@ -205,6 +219,7 @@ export function Composer({ initial, accounts, close, submitted }: {
       {error && <p className="composer-feedback" role="alert">{error}</p>}
       <footer className="composer-toolbar">
         <IconAction icon={Paperclip} label="添加附件" disabled={busy || readonly || confirmDiscard} onClick={addAttachment} />
+        {!readonly && <IconAction icon={Sparkles} label="AI 拟稿" aria-expanded={aiOpen} disabled={busy || confirmDiscard} onClick={() => setAiOpen(!aiOpen)} />}
         {!readonly && <IconAction icon={Trash2} label="删除草稿" disabled={busy || confirmDiscard} onClick={() => setConfirmDiscard(true)} />}
         <span className="muted" role="status">{saving ? '正在保存…' : busy ? '正在处理…' : fields === savedFields.current ? '草稿已保存在本机' : '等待保存…'}</span>
         <button className="secondary" disabled={busy} onClick={finish}>{readonly ? '关闭' : '保存并关闭'}</button>
