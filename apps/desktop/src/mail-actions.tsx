@@ -1,3 +1,4 @@
+import { isMac } from './platform'
 import { Ellipsis, Flag, Forward, Reply, ReplyAll } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 import { ControlSelect, IconAction } from './controls'
@@ -95,10 +96,12 @@ export function MailActions({ message, mailboxes, blocked, compose, change, pin,
           {source.kind === 'trash' && <button className="mail-danger" onClick={() => action(() => prompt('delete'))}>彻底删除…</button>}
         </>}
         <hr />
-        <button className="message-action-shortcut" aria-keyshortcuts="Meta+Alt+S" onClick={() => action(capture)}>
+        {isMac && <>
+          <button className="message-action-shortcut" aria-keyshortcuts="Meta+Alt+S" onClick={() => action(capture)}>
           保存邮件长图<kbd aria-hidden="true">⌥⌘S</kbd>
         </button>
-        <button onClick={() => action(print)}>打印…</button>
+          <button onClick={() => action(print)}>打印…</button>
+        </>}
         <button onClick={() => action(exportOriginal)}>导出 EML 原件</button>
       </div>}
     </div>

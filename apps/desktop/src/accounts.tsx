@@ -1,3 +1,4 @@
+import { isMac } from './platform'
 import { invoke } from '@tauri-apps/api/core'
 import { KeyRound, Mail, Trash2 } from 'lucide-react'
 import { useEffect, useRef, useState, type FormEvent } from 'react'
@@ -120,7 +121,7 @@ export function Accounts({ onViewMessage, onAccounts, onRemoved }: Props) {
         <h1 id="accounts-title">邮箱账号</h1>
         <p className="muted">163、QQ 和 Gmail 可直接授权。企业邮箱或其他服务商可填写自己的收发服务器。</p>
         <div className="account-actions">
-          <button className="secondary" disabled={busy} onClick={importMailMaster}>从邮箱大师导入</button>
+          {isMac && <button className="secondary" disabled={busy} onClick={importMailMaster}>从邮箱大师导入</button>}
           <button ref={addButton} className="secondary" disabled={busy} onClick={() => setShowAdd(!showAdd)} aria-expanded={showAdd}>
             手动添加
           </button>

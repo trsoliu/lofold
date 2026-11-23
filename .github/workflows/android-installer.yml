@@ -1,0 +1,53 @@
+name: Android installer
+on:
+  workflow_dispatch:
+  push:
+    branches: ['codex/lofold-android-*']
+
+permissions:
+  contents: read
+
+jobs:
+  android-arm64:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 65
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        with:
+          node-version-file: .node-version
+      - name: Prepare Android and frontend tools
+        shell: bash
+        run: |
+          set -eu
+          export JAVA_HOME="$JAVA_HOME_21_X64"
+          echo "JAVA_HOME=$JAVA_HOME" >> "$GITHUB_ENV"
+          echo "$JAVA_HOME/bin" >> "$GITHUB_PATH"
+          sdkmanager "platforms;android-36" "platforms;android-37.0" "build-tools;36.0.0" "ndk;27.2.12479018"
+          echo "NDK_HOME=$ANDROID_HOME/ndk/27.2.12479018" >> "$GITHUB_ENV"
+          echo "$ANDROID_HOME/ndk/27.2.12479018/toolchains/llvm/prebuilt/linux-x86_64/bin" >> "$GITHUB_PATH"
+          rustup target add aarch64-linux-android
+          npm install -g "$(node -p 'require("./package.json").packageManager')"
+          pnpm install --frozen-lockfile
+      - uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
+        with:
+          path: |
+            target
+            ~/.cargo/registry
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: android-arm64-r27c-${{ hashFiles('Cargo.lock','rust-toolchain.toml') }}-${{ github.sha }}
+          restore-keys: |
+            android-arm64-r27c-${{ hashFiles('Cargo.lock','rust-toolchain.toml') }}-
+            android-arm64-r27c-
+      - name: Build the ARM64 release APK
+        working-directory: apps/desktop
+        env:
+          TURBO_TELEMETRY_DISABLED: "1"
+        run: pnpm exec tauri android build --ci --apk --target aarch64 -- --locked
+      - name: Upload APK for offline release signing
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: LoFold-Android-arm64-unsigned
+          path: apps/desktop/src-tauri/gen/android/app/build/outputs/apk/**/*-release-unsigned.apk
+          if-no-files-found: error

@@ -1,6 +1,6 @@
-use std::{fs::File, io::Read};
+use std::io::Read;
 
-use super::{image_watermark, write_export, Export, LocalArchive, MailArchive};
+use super::{export_to_selection, image_watermark, Export, LocalArchive, MailArchive};
 use lofold_mail_store::ArchiveError;
 use serde::Serialize;
 use tauri::{AppHandle, State, WebviewWindow};
@@ -118,13 +118,12 @@ pub(super) async fn save_message_image(
         let Some(path) = dialog.blocking_save_file() else {
             return Ok(false);
         };
-        let path = path.into_path().map_err(|_| "所选位置无法保存文件。")?;
         let bytes = render(&html)?;
         let bytes = match watermark {
             Some((address, key)) => image_watermark::embed_png(&bytes, &address, &key)?,
             None => bytes,
         };
-        write_export(&directory, &path, Export { filename, bytes })?;
+        export_to_selection(&directory, path, Export { filename, bytes })?;
         Ok(true)
     })
     .await
@@ -150,32 +149,18 @@ pub(super) async fn read_image_watermark(
             .add_filter("PNG 图片", &["png"]);
         #[cfg(desktop)]
         let dialog = dialog.set_parent(&window);
-        dialog
-            .blocking_pick_file()
-            .map(|path| {
-                path.into_path()
-                    .map_err(|_| "无法打开所选图片。".to_owned())
-            })
-            .transpose()
+        dialog.blocking_pick_file()
     })
     .await
-    .map_err(|_| "文件选择中断。".to_owned())??;
+    .map_err(|_| "文件选择中断。".to_owned())?;
     let Some(path) = path else { return Ok(None) };
     let key = state
         .with_open_archive(|archive| Ok(archive.watermark_key.clone()))
         .await?;
     tauri::async_runtime::spawn_blocking(move || {
         const MAX_FILE_SIZE: u64 = image_watermark::MAX_PNG_BYTES as u64;
-        let metadata = std::fs::metadata(&path).map_err(|_| "无法读取图片信息。")?;
-        if !metadata.is_file() {
-            return Err("请选择 PNG 图片文件。".into());
-        }
-        let file = File::open(path).map_err(|_| "无法读取所选图片。")?;
-        let length = metadata.len();
-        if length > MAX_FILE_SIZE {
-            return Err("图片超过水印读取上限。".into());
-        }
-        let mut bytes = Vec::with_capacity(length as usize);
+        let (_, file) = crate::open_selection(path)?;
+        let mut bytes = Vec::new();
         file.take(MAX_FILE_SIZE + 1)
             .read_to_end(&mut bytes)
             .map_err(|_| "无法读取所选图片。")?;

@@ -2093,13 +2093,15 @@ dependencies = [
 
 [[package]]
 name = "lofold-client"
-version = "0.5.9"
+version = "0.6.0"
 dependencies = [
  "cc",
  "fs2",
  "getrandom 0.3.4",
+ "jni",
  "lofold-mail-network",
  "lofold-mail-store",
+ "ndk-context",
  "png",
  "ring",
  "security-framework",
@@ -2109,6 +2111,7 @@ dependencies = [
  "tauri-plugin-dialog",
  "tempfile",
  "uuid",
+ "windows-sys 0.61.2",
  "zeroize",
 ]
 

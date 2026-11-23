@@ -1,4 +1,4 @@
-use std::{collections::HashSet, fs::File, io::Read};
+use std::{collections::HashSet, io::Read};
 
 use lofold_mail_network::{prepare_mail_with_recipients, MailError, MailRecipients};
 use lofold_mail_store::{ComposeMode, Draft, DraftFields, InboxItem, MAX_DRAFT_FILES_BYTES};
@@ -139,11 +139,7 @@ pub async fn attach_draft_file(
         let Some(path) = dialog.blocking_pick_file() else {
             return Ok(None);
         };
-        let path = path.into_path().map_err(|_| "无法访问所选文件。")?;
-        if !path.is_file() {
-            return Err("请选择普通文件。".into());
-        }
-        let file = File::open(&path).map_err(|_| "无法读取所选文件。")?;
+        let (name, file) = crate::open_selection(path)?;
         let mut payload = Vec::new();
         file.take((MAX_DRAFT_FILES_BYTES + 1) as u64)
             .read_to_end(&mut payload)
@@ -151,11 +147,6 @@ pub async fn attach_draft_file(
         if payload.len() > MAX_DRAFT_FILES_BYTES {
             return Err("附件合计上限为 8 MiB。".into());
         }
-        let name = path
-            .file_name()
-            .ok_or("无效的附件名称。")?
-            .to_string_lossy()
-            .into_owned();
         Ok(Some((name, payload)))
     })
     .await?;

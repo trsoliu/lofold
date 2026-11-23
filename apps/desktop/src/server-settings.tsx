@@ -100,7 +100,7 @@ export function ServerForm({ address, saved, busy, notice, save, close }: Props)
         aria-invalid={missingPassword} aria-describedby={missingPassword ? passwordHelp + ' ' + passwordError : passwordHelp}
         onInput={() => setMissingPassword(false)} />
     </label>
-    <p className="muted" id={passwordHelp}>验证通过后将密码存入 macOS 钥匙串。仅保存服务器时可留空。</p>
+    <p className="muted" id={passwordHelp}>验证通过后将密码存入本机受保护的凭据存储。仅保存服务器时可留空。</p>
     {missingPassword && <p className="account-notice" role="alert" id={passwordError}>请输入客户端密码。</p>}
     <div className="account-actions">
       <button className="secondary server-verify" type="submit" disabled={busy}>保存并验证</button>
