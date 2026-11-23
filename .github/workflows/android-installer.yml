@@ -44,7 +44,10 @@ jobs:
         working-directory: apps/desktop
         env:
           TURBO_TELEMETRY_DISABLED: "1"
-        run: pnpm exec tauri android build --ci --apk --target aarch64 -- --locked
+        run: |
+          pnpm exec tauri android build --ci --apk --target aarch64 --config '{"build":{"devUrl":null,"beforeDevCommand":null}}' -- --locked
+      - name: Check native alignment and packaged release resources
+        run: python3 scripts/android/check-apk.py "$(find apps/desktop/src-tauri/gen/android/app/build/outputs/apk -name '*-release-unsigned.apk' -print -quit)"
       - name: Upload APK for offline release signing
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:

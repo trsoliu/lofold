@@ -10,5 +10,9 @@ fn main() {
             println!("cargo:rustc-link-lib=framework={framework}");
         }
     }
+    if std::env::var("CARGO_CFG_TARGET_OS").as_deref() == Ok("android") {
+        // Keep every loadable segment compatible with Android 16 KiB page-size devices.
+        println!("cargo:rustc-link-arg-cdylib=-Wl,-z,max-page-size=16384");
+    }
     tauri_build::build()
 }
