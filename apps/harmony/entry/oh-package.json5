@@ -1,0 +1,5 @@
+{
+  "name": "entry",
+  "version": "0.6.0",
+  "dependencies": { "liblofold.so": "file:./src/main/cpp/types/liblofold" }
+}
