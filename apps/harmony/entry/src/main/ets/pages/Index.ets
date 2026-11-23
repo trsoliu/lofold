@@ -38,10 +38,15 @@ struct Index {
     if (this.busy) {
       return;
     }
+    const query = more ? this.query : this.searchText.trim();
+    if (Array.from(query).length > 160) {
+      this.message = '搜索词最多支持 160 个字符。';
+      return;
+    }
     this.busy = true;
     this.message = '';
     try {
-      await this.fetchPage(more ? this.query : this.searchText.trim(), more);
+      await this.fetchPage(query, more);
     } catch (error) {
       this.message = (error as Error).message || '无法读取归档。';
     } finally {
@@ -137,7 +142,7 @@ struct Index {
   MailList() {
     Search({ value: this.searchText, placeholder: '搜索主题、地址、正文或附件名' })
       .width('100%').padding({ left: 12, right: 12 })
-      .enabled(!this.busy).maxLength(160).searchButton('搜索')
+      .enabled(!this.busy).searchButton('搜索')
       .onChange((value: string) => {
         this.searchText = value;
         if (value === '' && this.query !== '') {
