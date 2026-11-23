@@ -137,7 +137,11 @@ impl MailArchive {
             Folder::Inbox => "inbox",
             Folder::Unread => "unread",
             Folder::Sent => "sent",
-            Folder::Flagged | Folder::Junk | Folder::Trash | Folder::Remote => {
+            Folder::Flagged
+            | Folder::Junk
+            | Folder::Trash
+            | Folder::Remote
+            | Folder::AccountMail => {
                 return Err(ArchiveError::MissingMailbox);
             }
         };

@@ -4,6 +4,7 @@ on:
   workflow_dispatch:
   push:
     branches: ['codex/lofold-platform-release']
+    paths: ['.github/workflows/ios-simulator.yml', 'scripts/apple/**', 'apps/desktop/**', 'packages/**', 'Cargo.lock']
 
 permissions:
   contents: read

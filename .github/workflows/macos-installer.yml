@@ -1,0 +1,47 @@
+name: macOS universal installer
+
+on:
+  workflow_dispatch:
+  push:
+    branches: ['codex/lofold-platform-release']
+    paths: ['.github/workflows/macos-installer.yml']
+
+permissions:
+  contents: read
+
+jobs:
+  dmg:
+    runs-on: macos-15
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        with:
+          node-version-file: .node-version
+      - name: Build for Apple Silicon and Intel
+        run: |
+          rustup target add aarch64-apple-darwin x86_64-apple-darwin
+          npm install -g "$(node -p 'require("./package.json").packageManager')"
+          pnpm install --frozen-lockfile
+          pnpm --filter @lofold/desktop exec tauri build --ci --target universal-apple-darwin --bundles dmg -- --locked
+      - name: Verify the disk image and install the app
+        run: |
+          dmg="$(find target/universal-apple-darwin -name '*.dmg' -type f -print -quit)"
+          hdiutil verify "$dmg"
+          mkdir "$RUNNER_TEMP/LoFoldDisk"
+          hdiutil attach -readonly -nobrowse -mountpoint "$RUNNER_TEMP/LoFoldDisk" "$dmg"
+          ditto "$RUNNER_TEMP/LoFoldDisk/LoFold.app" "$RUNNER_TEMP/LoFold.app"
+          hdiutil detach "$RUNNER_TEMP/LoFoldDisk"
+          app="$RUNNER_TEMP/LoFold.app"
+          codesign --verify --deep --strict "$app"
+          cmp LICENSE "$app/Contents/Resources/LICENSE"
+          cmp NOTICE "$app/Contents/Resources/NOTICE"
+          lipo -verify_arch x86_64 arm64 "$app/Contents/MacOS/lofold-client"
+          version="$(plutil -extract CFBundleShortVersionString raw "$app/Contents/Info.plist")"
+          mkdir -p output/platform-release
+          cp "$dmg" "output/platform-release/LoFold-$version-macOS-universal.dmg"
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: LoFold-macOS-universal
+          path: output/platform-release/*.dmg
+          if-no-files-found: error

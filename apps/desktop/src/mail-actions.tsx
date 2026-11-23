@@ -1,5 +1,5 @@
 import { isMac } from './platform'
-import { Ellipsis, Flag, Forward, Reply, ReplyAll } from 'lucide-react'
+import { Ellipsis, Flag, Forward, Reply, ReplyAll, Sparkles } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 import { ControlSelect, IconAction } from './controls'
 import type { MailSummary } from './archive'
@@ -16,9 +16,10 @@ type Props = {
   capture: () => void
   print: () => void
   conversation: () => void
+  assistant: () => void
 }
 
-export function MailActions({ message, mailboxes, blocked, compose, change, pin, exportOriginal, capture, print, conversation }: Props) {
+export function MailActions({ message, mailboxes, blocked, compose, change, pin, exportOriginal, capture, print, conversation, assistant }: Props) {
   const [show, setShow] = useState(false)
   const [dialog, setDialog] = useState<'move' | 'delete' | null>(null)
   const [target, setTarget] = useState('')
@@ -73,6 +74,7 @@ export function MailActions({ message, mailboxes, blocked, compose, change, pin,
     <IconAction icon={Reply} label="回复" disabled={blocked} onClick={() => action(() => compose('reply'))} />
     <IconAction icon={ReplyAll} label="回复全部" disabled={blocked} onClick={() => action(() => compose('reply-all'))} />
     <IconAction icon={Forward} label="转发" disabled={blocked} onClick={() => action(() => compose('forward'))} />
+    <IconAction icon={Sparkles} label="本机 AI" disabled={blocked} onClick={() => action(assistant)} />
     <div className="message-actions" ref={actions}>
       <button className="secondary icon-action" type="button" ref={trigger} aria-label="更多邮件操作"
         aria-expanded={show} disabled={blocked} title="更多邮件操作" onClick={() => setShow(!show)}>
